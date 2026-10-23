@@ -1,0 +1,260 @@
+<svg viewBox="0 0 640 620" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+  <defs>
+    <!-- Soft atmospheric glow aura -->
+    <radialGradient id="heroAtmosphereGlow" cx="52%" cy="46%" r="48%">
+      <stop offset="0%" stop-color="#C5EAFB" stop-opacity="0.7"/>
+      <stop offset="45%" stop-color="#D7F0FD" stop-opacity="0.35"/>
+      <stop offset="75%" stop-color="#EAF6FD" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#F1F7FC" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Leaf 1 (Top Left): Deep indigo to vibrant teal to seafoam -->
+    <linearGradient id="leafGradTopLeft" x1="280" y1="210" x2="160" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#123B5C"/>
+      <stop offset="35%" stop-color="#106C82"/>
+      <stop offset="70%" stop-color="#1CA4B7"/>
+      <stop offset="100%" stop-color="#6ED1DC"/>
+    </linearGradient>
+
+    <!-- Leaf 2 (Mid Left): Rich marine teal to cerulean -->
+    <linearGradient id="leafGradMidLeft" x1="290" y1="300" x2="80" y2="250" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0F3452"/>
+      <stop offset="30%" stop-color="#116279"/>
+      <stop offset="70%" stop-color="#1B9DB0"/>
+      <stop offset="100%" stop-color="#54C2D0"/>
+    </linearGradient>
+
+    <!-- Leaf 3 (Lower Left): Bright glowing teal -->
+    <linearGradient id="leafGradLowLeft" x1="330" y1="410" x2="130" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#104D65"/>
+      <stop offset="40%" stop-color="#158498"/>
+      <stop offset="80%" stop-color="#28B8CA"/>
+      <stop offset="100%" stop-color="#82E0EA"/>
+    </linearGradient>
+
+    <!-- Leaf 4 (Top Center): Deep navy indigo to teal -->
+    <linearGradient id="leafGradTopCenter" x1="330" y1="170" x2="340" y2="20" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0C2B46"/>
+      <stop offset="35%" stop-color="#105772"/>
+      <stop offset="75%" stop-color="#1894A6"/>
+      <stop offset="100%" stop-color="#4CBECF"/>
+    </linearGradient>
+
+    <!-- Leaf 5 (Upper Right): Cyan teal gradient -->
+    <linearGradient id="leafGradTopRight" x1="340" y1="250" x2="450" y2="170" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#114561"/>
+      <stop offset="45%" stop-color="#168196"/>
+      <stop offset="85%" stop-color="#24B2C4"/>
+      <stop offset="100%" stop-color="#76D5E1"/>
+    </linearGradient>
+
+    <!-- Leaf 6 (Mid Right): Vibrant mint-teal -->
+    <linearGradient id="leafGradMidRight" x1="360" y1="330" x2="460" y2="310" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0E5063"/>
+      <stop offset="50%" stop-color="#1B93A2"/>
+      <stop offset="100%" stop-color="#53C7D4"/>
+    </linearGradient>
+
+    <!-- Leaf 7 (Lower Right Vertical branch): Fresh botanical teal -->
+    <linearGradient id="leafGradLowRight" x1="390" y1="440" x2="420" y2="330" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#12636B"/>
+      <stop offset="50%" stop-color="#1DA4A5"/>
+      <stop offset="100%" stop-color="#6FE0DA"/>
+    </linearGradient>
+
+    <!-- Berry Gradient: 3D lustrous midnight berry -->
+    <radialGradient id="berryGrad" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#265B7E"/>
+      <stop offset="40%" stop-color="#11314B"/>
+      <stop offset="100%" stop-color="#071725"/>
+    </radialGradient>
+
+    <!-- Secondary Stem Gradient -->
+    <linearGradient id="stemGrad" x1="430" y1="580" x2="280" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0C2235"/>
+      <stop offset="50%" stop-color="#12354E"/>
+      <stop offset="100%" stop-color="#1A4A6B"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Atmospheric Glow Aura (seamless, no edges) -->
+  <circle cx="340" cy="280" r="270" fill="url(#heroAtmosphereGlow)"/>
+
+  <!-- ================= CELESTIAL / ORBITAL GEOMETRY ================= -->
+  <!-- Concentric Orbital Circles -->
+  <g opacity="0.32" stroke="#2563EB" stroke-width="0.8">
+    <circle cx="210" cy="115" r="16" fill="none" stroke-width="1.4"/>
+    <circle cx="210" cy="115" r="2.5" fill="#2563EB"/>
+    <circle cx="210" cy="115" r="70" fill="none" stroke-dasharray="3 4"/>
+    <circle cx="210" cy="115" r="130" fill="none" stroke-width="0.75"/>
+    <circle cx="210" cy="115" r="210" fill="none" stroke-dasharray="4 6" stroke-width="0.6"/>
+  </g>
+
+  <!-- Compass / Crosshair hairline lines -->
+  <g opacity="0.22" stroke="#0D817B" stroke-width="0.75">
+    <line x1="210" y1="20" x2="210" y2="210" stroke-dasharray="2 3"/>
+    <line x1="115" y1="115" x2="305" y2="115" stroke-dasharray="2 3"/>
+    <circle cx="380" cy="190" r="140" fill="none" stroke="#0D817B" stroke-width="0.6"/>
+    <circle cx="380" cy="190" r="95" fill="none" stroke="#0D817B" stroke-width="0.6" stroke-dasharray="3 5"/>
+  </g>
+
+  <!-- Constellation Nodes & Dots -->
+  <circle cx="380" cy="100" r="4.5" fill="#0D817B" opacity="0.55"/>
+  <circle cx="430" cy="155" r="3" fill="#2563EB" opacity="0.5"/>
+  <circle cx="485" cy="210" r="3.5" fill="#0D817B" opacity="0.45"/>
+  <circle cx="140" cy="275" r="3.5" fill="#2563EB" opacity="0.4"/>
+  <circle cx="270" cy="510" r="4" fill="#0D817B" opacity="0.5"/>
+  <circle cx="510" cy="380" r="3" fill="#2563EB" opacity="0.4"/>
+
+  <!-- ================= TRANSLUCENT BACKGROUND LEAVES ================= -->
+  <!-- Soft aqua silhouettes giving watercolor depth -->
+  <g opacity="0.28" fill="#4FB3C2">
+    <!-- Behind mid-left -->
+    <path d="M 270 280 C 230 250 170 240 120 260 C 160 290 220 310 270 280 Z"/>
+    <!-- Behind top-right -->
+    <path d="M 330 220 C 370 170 430 150 480 160 C 460 210 400 240 330 220 Z"/>
+    <!-- Behind mid-right -->
+    <path d="M 370 320 C 420 290 480 300 530 330 C 490 360 430 360 370 320 Z"/>
+    <!-- Behind lower-right -->
+    <path d="M 400 420 C 450 380 500 400 540 450 C 490 470 440 460 400 420 Z"/>
+  </g>
+
+  <!-- ================= MAIN BOTANICAL STEMS ================= -->
+  <g stroke="url(#stemGrad)" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Main central branch -->
+    <path d="M 420 570 Q 380 440 350 330 Q 320 230 270 180 Q 230 140 190 90" stroke-width="4.5" fill="none"/>
+    <!-- Branch to Top Center leaf -->
+    <path d="M 320 230 Q 330 180 335 120" stroke-width="3" fill="none"/>
+    <!-- Branch to Top Left leaf -->
+    <path d="M 285 200 Q 250 160 220 125" stroke-width="3.2" fill="none"/>
+    <!-- Branch to Mid Left leaf -->
+    <path d="M 335 305 Q 270 290 210 280" stroke-width="3.2" fill="none"/>
+    <!-- Branch to Low Left leaf -->
+    <path d="M 360 400 Q 300 405 240 415" stroke-width="3.5" fill="none"/>
+    <!-- Branch to Top Right leaf -->
+    <path d="M 335 255 Q 370 230 405 210" stroke-width="2.8" fill="none"/>
+    <!-- Branch to Mid Right leaf -->
+    <path d="M 355 330 Q 390 325 425 320" stroke-width="2.8" fill="none"/>
+    <!-- Secondary Lower Right Branch -->
+    <path d="M 385 450 Q 405 400 415 340" stroke-width="3.2" fill="none"/>
+    <path d="M 405 405 Q 430 395 450 390" stroke-width="2.2" fill="none"/>
+    <path d="M 415 440 Q 440 445 465 450" stroke-width="2.2" fill="none"/>
+  </g>
+
+  <!-- ================= LUSH BOTANICAL LEAVES ================= -->
+
+  <!-- LEAF 1: Top Left Large Leaf -->
+  <g>
+    <!-- Leaf Blade -->
+    <path d="M 235 145 C 205 105 160 70 125 50 C 135 95 160 145 200 175 C 220 190 240 175 235 145 Z"
+          fill="url(#leafGradTopLeft)"/>
+    <path d="M 235 145 C 255 110 235 70 125 50 C 160 100 205 140 235 145 Z"
+          fill="url(#leafGradTopLeft)" fill-opacity="0.85"/>
+    <!-- Central Vein -->
+    <path d="M 230 165 Q 185 115 125 50" stroke="#7FE3ED" stroke-width="1.2" stroke-linecap="round" opacity="0.65" fill="none"/>
+    <!-- Lateral Veins -->
+    <path d="M 205 138 Q 180 142 165 150 M 185 115 Q 160 115 145 120 M 165 92 Q 145 88 135 90"
+          stroke="#7FE3ED" stroke-width="0.8" stroke-linecap="round" opacity="0.45" fill="none"/>
+  </g>
+
+  <!-- LEAF 2: Mid Left Broad Leaf -->
+  <g>
+    <!-- Leaf Blade -->
+    <path d="M 245 285 C 190 260 120 240 65 245 C 85 295 140 335 210 330 C 235 328 250 310 245 285 Z"
+          fill="url(#leafGradMidLeft)"/>
+    <path d="M 245 285 C 215 250 150 240 65 245 C 115 270 185 285 245 285 Z"
+          fill="#105770" fill-opacity="0.6"/>
+    <!-- Central Vein -->
+    <path d="M 235 305 Q 155 285 65 245" stroke="#75DEEB" stroke-width="1.3" stroke-linecap="round" opacity="0.7" fill="none"/>
+    <!-- Lateral Veins -->
+    <path d="M 195 295 Q 170 315 155 325 M 165 280 Q 135 300 120 305 M 130 265 Q 105 280 95 285 M 190 288 Q 170 270 155 260 M 150 273 Q 130 258 115 250"
+          stroke="#75DEEB" stroke-width="0.85" stroke-linecap="round" opacity="0.5" fill="none"/>
+  </g>
+
+  <!-- LEAF 3: Lower Left Drooping Leaf -->
+  <g>
+    <!-- Leaf Blade -->
+    <path d="M 265 410 C 210 395 150 395 95 425 C 125 465 185 490 250 465 C 270 455 275 430 265 410 Z"
+          fill="url(#leafGradLowLeft)"/>
+    <path d="M 265 410 C 220 395 160 405 95 425 C 150 425 215 420 265 410 Z"
+          fill="#0D6B7A" fill-opacity="0.55"/>
+    <!-- Central Vein -->
+    <path d="M 255 435 Q 180 430 95 425" stroke="#93EBF3" stroke-width="1.2" stroke-linecap="round" opacity="0.7" fill="none"/>
+    <!-- Lateral Veins -->
+    <path d="M 220 433 Q 195 455 180 465 M 180 430 Q 155 450 140 455 M 140 427 Q 120 440 110 445"
+          stroke="#93EBF3" stroke-width="0.8" stroke-linecap="round" opacity="0.5" fill="none"/>
+  </g>
+
+  <!-- LEAF 4: Top Center Leaf -->
+  <g>
+    <path d="M 330 135 C 310 90 315 45 335 15 C 355 45 365 90 350 135 C 345 150 335 150 330 135 Z"
+          fill="url(#leafGradTopCenter)"/>
+    <!-- Central Vein -->
+    <path d="M 338 140 Q 336 75 335 15" stroke="#79D8E6" stroke-width="1.1" opacity="0.65" fill="none"/>
+  </g>
+
+  <!-- LEAF 5: Upper Right Leaf -->
+  <g>
+    <path d="M 375 225 C 395 190 430 165 470 155 C 470 190 450 225 410 245 C 390 255 375 245 375 225 Z"
+          fill="url(#leafGradTopRight)"/>
+    <!-- Central Vein -->
+    <path d="M 385 235 Q 430 200 470 155" stroke="#72DDE9" stroke-width="1.1" opacity="0.65" fill="none"/>
+  </g>
+
+  <!-- LEAF 6: Middle Right Leaf -->
+  <g>
+    <path d="M 395 325 C 425 305 465 300 500 305 C 490 335 460 360 420 360 C 400 360 390 345 395 325 Z"
+          fill="url(#leafGradMidRight)"/>
+    <!-- Central Vein -->
+    <path d="M 405 335 Q 455 325 500 305" stroke="#7FE3ED" stroke-width="1.1" opacity="0.6" fill="none"/>
+  </g>
+
+  <!-- LEAF 7: Lower Right Branch (3 vertical leaves) -->
+  <g>
+    <!-- Leaf A -->
+    <path d="M 415 355 C 410 320 420 290 435 270 C 445 295 445 330 430 360 Z"
+          fill="url(#leafGradLowRight)"/>
+    <path d="M 422 355 Q 426 310 435 270" stroke="#84E7DF" stroke-width="0.9" opacity="0.6" fill="none"/>
+    <!-- Leaf B -->
+    <path d="M 435 415 C 445 385 470 375 490 375 C 485 405 465 425 445 430 Z"
+          fill="url(#leafGradLowRight)" fill-opacity="0.9"/>
+    <!-- Leaf C -->
+    <path d="M 430 460 C 445 440 475 435 495 440 C 485 470 460 485 440 480 Z"
+          fill="url(#leafGradLowRight)" fill-opacity="0.85"/>
+  </g>
+
+  <!-- ================= LUSTROUS BOTANICAL BERRIES ================= -->
+  <g>
+    <!-- Berry Cluster 1 (Main junction) -->
+    <g transform="translate(295, 215)">
+      <circle cx="0" cy="0" r="10" fill="url(#berryGrad)"/>
+      <ellipse cx="-3.5" cy="-3.5" rx="2.5" ry="1.8" fill="#D2F6FA" opacity="0.75"/>
+    </g>
+    <g transform="translate(315, 195)">
+      <circle cx="0" cy="0" r="8.5" fill="url(#berryGrad)"/>
+      <ellipse cx="-3" cy="-3" rx="2" ry="1.4" fill="#D2F6FA" opacity="0.75"/>
+    </g>
+    <g transform="translate(330, 240)">
+      <circle cx="0" cy="0" r="9.5" fill="url(#berryGrad)"/>
+      <ellipse cx="-3.2" cy="-3.2" rx="2.2" ry="1.5" fill="#D2F6FA" opacity="0.75"/>
+    </g>
+    <!-- Berry Cluster 2 (Mid junction) -->
+    <g transform="translate(340, 310)">
+      <circle cx="0" cy="0" r="9" fill="url(#berryGrad)"/>
+      <ellipse cx="-3" cy="-3" rx="2.2" ry="1.5" fill="#D2F6FA" opacity="0.75"/>
+    </g>
+    <g transform="translate(365, 335)">
+      <circle cx="0" cy="0" r="8" fill="url(#berryGrad)"/>
+      <ellipse cx="-2.8" cy="-2.8" rx="2" ry="1.3" fill="#D2F6FA" opacity="0.75"/>
+    </g>
+    <!-- Lower Berries -->
+    <g transform="translate(370, 420)">
+      <circle cx="0" cy="0" r="8.5" fill="url(#berryGrad)"/>
+      <ellipse cx="-2.8" cy="-2.8" rx="2" ry="1.4" fill="#D2F6FA" opacity="0.75"/>
+    </g>
+    <g transform="translate(390, 475)">
+      <circle cx="0" cy="0" r="7.5" fill="url(#berryGrad)"/>
+      <ellipse cx="-2.5" cy="-2.5" rx="1.8" ry="1.2" fill="#D2F6FA" opacity="0.75"/>
+    </g>
+  </g>
+</svg>
