@@ -1,4 +1,15 @@
-export type UserRole = 'public' | 'applicant' | 'member' | 'moderator' | 'admin' | 'super_admin';
+export type UserRole = 
+  | 'public' 
+  | 'applicant' 
+  | 'member' 
+  | 'doctor' 
+  | 'student' 
+  | 'researcher' 
+  | 'moderator' 
+  | 'admin' 
+  | 'super_admin';
+
+export type AccountType = 'doctor' | 'student' | 'researcher';
 
 export type ApplicationStatus = 
   | 'draft' 
@@ -7,7 +18,23 @@ export type ApplicationStatus =
   | 'needs_information' 
   | 'verified' 
   | 'declined' 
+  | 'rejected'
   | 'suspended';
+
+export interface SocialLinks {
+  linkedin?: string;
+  website?: string;
+  orcid?: string;
+  whatsapp?: string;
+}
+
+export interface PrivacySettings {
+  show_email: boolean;
+  show_phone: boolean;
+  show_experience?: boolean;
+  show_location?: boolean;
+  profile_visibility?: 'members_only' | 'private' | 'public';
+}
 
 export interface UserProfile {
   id: string;
@@ -16,17 +43,50 @@ export interface UserProfile {
   display_name: string;
   avatar_url?: string;
   role: UserRole;
+  account_type?: AccountType;
   status: ApplicationStatus;
-  qualification: string; // e.g. "BHMS", "MD (Hom)"
+  verification_status?: 'pending' | 'verified' | 'rejected' | ApplicationStatus;
+  qualification: string; // e.g. "BHMS", "MD (Hom)", "Undergraduate BHMS"
   experience_years: number;
+  phone?: string;
   registration_number?: string;
   registration_authority?: string;
   state: string;
+  city?: string;
   clinic_institution?: string;
   specialization?: string;
   bio?: string;
   interests?: string[];
-  profile_visibility?: 'members_only' | 'private';
+  
+  // Student-specific fields
+  institution?: string;
+  course_year?: string; // e.g. "3rd Year BHMS", "Intern"
+  mentorship_needs?: string[]; // e.g. ["Case Taking", "Repertory", "Clinical Practice"]
+  student_details?: {
+    institution?: string;
+    course_year?: string;
+    mentorship_needs?: string[];
+  };
+  
+  // Researcher/Educator-specific fields
+  research_interests?: string;
+  publications?: string;
+  teaching_interests?: string;
+  webinar_interest?: boolean;
+  orcid_id?: string;
+  researcher_details?: {
+    academic_affiliation?: string;
+    research_interests?: string[];
+    publications_count?: number;
+  };
+  
+  // Mentorship offering (for doctors/educators)
+  mentorship_available?: boolean;
+  
+  // Settings & Links
+  social_links?: SocialLinks;
+  privacy_settings?: PrivacySettings;
+  profile_visibility?: 'members_only' | 'private' | 'public';
   created_at: string;
   updated_at: string;
 }
@@ -37,13 +97,20 @@ export interface PractitionerApplication {
   full_name: string;
   email: string;
   phone: string;
+  role_applied: AccountType; // 'doctor' | 'student' | 'researcher'
   qualification: string;
-  registration_number: string;
-  registration_authority: string;
+  registration_number?: string;
+  registration_authority?: string;
   state: string;
+  city?: string;
   clinic_institution?: string;
-  experience_years: number;
+  experience_years?: number;
   specialization?: string;
+  institution?: string;
+  course_year?: string;
+  mentorship_needs?: string[];
+  research_interests?: string;
+  publications?: string;
   consent_at: string;
   status: ApplicationStatus;
   submitted_at: string;
@@ -54,6 +121,67 @@ export interface PractitionerApplication {
   verification_checked_at?: string;
   internal_notes?: string;
   document_url?: string;
+}
+
+export type ConnectionStatus = 'pending' | 'accepted' | 'declined';
+
+export interface ConnectionRequest {
+  id: string;
+  sender_id: string;
+  sender_name: string;
+  sender_avatar?: string;
+  sender_role: UserRole;
+  sender_qualification?: string;
+  sender_location?: string;
+  recipient_id: string;
+  recipient_name: string;
+  recipient_avatar?: string;
+  recipient_role: UserRole;
+  status: ConnectionStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MentorshipRequest {
+  id: string;
+  student_id: string;
+  student_name: string;
+  student_avatar?: string;
+  student_institution?: string;
+  student_course_year?: string;
+  mentor_id: string;
+  mentor_name: string;
+  mentor_avatar?: string;
+  mentor_specialization?: string;
+  message: string;
+  goals: string;
+  status: 'pending' | 'accepted' | 'declined';
+  created_at: string;
+  updated_at: string;
+}
+
+export type NotificationType = 
+  | 'connection_request' 
+  | 'connection_accepted' 
+  | 'mentorship_request' 
+  | 'mentorship_accepted' 
+  | 'comment_reply' 
+  | 'event_reminder' 
+  | 'verification_update' 
+  | 'system';
+
+export interface AppNotification {
+  id: string;
+  user_id: string;
+  title: string;
+  message: string;
+  type: NotificationType;
+  link?: string;
+  is_read: boolean;
+  action_id?: string; // e.g. connection_request_id or mentorship_request_id
+  action_status?: 'pending' | 'accepted' | 'declined';
+  metadata?: Record<string, any>;
+  created_at: string;
 }
 
 export interface Post {
@@ -70,6 +198,7 @@ export interface Post {
   category_name: string;
   category_badge_color: string;
   source_url?: string;
+  attachment_url?: string;
   status: 'published' | 'hidden' | 'removed';
   likes_count: number;
   comments_count: number;
@@ -86,6 +215,7 @@ export interface Comment {
   author_name: string;
   author_avatar?: string;
   author_qualification?: string;
+  parent_comment_id?: string;
   body: string;
   status: 'published' | 'hidden' | 'removed';
   created_at: string;
@@ -107,10 +237,21 @@ export interface Event {
   location: string;
   registration_url: string;
   source_url?: string;
-  status: 'published' | 'draft' | 'archived';
+  status: 'published' | 'draft' | 'archived' | 'cancelled';
   attendees_count: number;
   image_url?: string;
+  meeting_link?: string;
   created_by?: string;
+}
+
+export interface EventRegistration {
+  id: string;
+  event_id: string;
+  user_id: string;
+  user_name: string;
+  user_email: string;
+  status: 'registered' | 'cancelled';
+  registered_at: string;
 }
 
 export interface Opportunity {
@@ -126,7 +267,7 @@ export interface Opportunity {
   deadline: string;
   source_url?: string;
   application_url: string;
-  status: 'published' | 'draft' | 'expired';
+  status: 'published' | 'draft' | 'expired' | 'pending_approval';
   posted_time_ago: string;
   created_by?: string;
 }
@@ -137,11 +278,15 @@ export interface KnowledgePost {
   summary: string;
   source_url: string;
   journal: string;
-  content_type: 'Systematic Review' | 'Clinical Trial' | 'Observational Study' | 'Materia Medica Analysis' | 'Regulatory Update';
+  content_type: 'Systematic Review' | 'Clinical Trial' | 'Observational Study' | 'Materia Medica Analysis' | 'Regulatory Update' | 'Educational Resource';
   limitations: string;
   status: 'published' | 'draft' | 'archived';
   published_at: string;
   created_by?: string;
+  author_name?: string;
+  author_affiliation?: string;
+  doi?: string;
+  is_saved?: boolean;
 }
 
 export interface Report {
@@ -168,4 +313,15 @@ export interface AuditLog {
   target_id: string;
   metadata: Record<string, any>;
   created_at: string;
+}
+
+export interface PlatformSettings {
+  require_doctor_verification: boolean;
+  require_researcher_verification: boolean;
+  require_student_verification: boolean;
+  allow_student_mentorship_requests?: boolean;
+  enable_email_notifications?: boolean;
+  auto_appeals_enabled?: boolean;
+  auto_appeal_enabled?: boolean;
+  announcement_banner?: string;
 }

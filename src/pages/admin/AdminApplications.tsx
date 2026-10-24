@@ -74,7 +74,7 @@ export const AdminApplications: React.FC = () => {
     const matchesStatus = filterStatus === 'all' || app.status === filterStatus;
     const matchesSearch = !searchQuery || 
       app.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.registration_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (app.registration_number ? app.registration_number.toLowerCase().includes(searchQuery.toLowerCase()) : false) ||
       app.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
       app.email.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesStatus && matchesSearch;
@@ -257,7 +257,7 @@ export const AdminApplications: React.FC = () => {
                   Official Registration Identifier
                 </span>
                 <button
-                  onClick={() => copyRegistrationNumber(selectedApp.registration_number)}
+                  onClick={() => copyRegistrationNumber(selectedApp.registration_number || '')}
                   className="inline-flex items-center gap-1 text-[11px] font-semibold text-teal-800 hover:text-teal-950"
                 >
                   {copiedReg ? <Check className="w-3.5 h-3.5 text-teal-600" /> : <Copy className="w-3.5 h-3.5" />}

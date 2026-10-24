@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../lib/supabase';
 import { KnowledgePost } from '../../types';
 import { 
@@ -9,51 +10,147 @@ import {
   Search, 
   Filter, 
   FileText,
-  Scale
+  Scale,
+  Plus,
+  X
 } from 'lucide-react';
 
 export const KnowledgePage: React.FC = () => {
+  const { currentUser, isDoctor, isResearcher, isAdmin } = useAuth();
   const [posts, setPosts] = useState<KnowledgePost[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  // New Research Post Form State
+  const [newTitle, setNewTitle] = useState('');
+  const [newJournal, setNewJournal] = useState('');
+  const [newSummary, setNewSummary] = useState('');
+  const [newLimitations, setNewLimitations] = useState('');
+  const [newSourceUrl, setNewSourceUrl] = useState('');
+  const [newContentType, setNewContentType] = useState<'Systematic Review' | 'Clinical Trial' | 'Observational Study' | 'Materia Medica Analysis'>('Clinical Trial');
+
+  const categories = ['All', 'Clinical Trials', 'Meta-Analyses', 'Monographs', 'Observational Studies'];
+
+  const loadPosts = async () => {
+    setLoading(true);
+    try {
+      const res = await dataService.getKnowledgePosts();
+      setPosts(res);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    dataService.getKnowledgePosts().then(res => {
-      setPosts(res);
-      setLoading(false);
-    });
+    loadPosts();
   }, []);
 
-  const filtered = posts.filter(p => 
-    !searchQuery || 
-    p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    p.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.journal.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleCreateResearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTitle.trim() || !newSummary.trim()) return;
+
+    try {
+      await dataService.createKnowledgePost({
+        title: newTitle.trim(),
+        journal: newJournal.trim() || 'Peer-Reviewed Literature',
+        summary: newSummary.trim(),
+        limitations: newLimitations.trim() || 'Methodological constraints and control group details detailed in full paper.',
+        source_url: newSourceUrl.trim() || 'https://pubmed.ncbi.nlm.nih.gov',
+        content_type: newContentType
+      });
+
+      setSubmitSuccess(true);
+      setShowSubmitModal(false);
+      setNewTitle('');
+      setNewJournal('');
+      setNewSummary('');
+      setNewLimitations('');
+      setNewSourceUrl('');
+      loadPosts();
+      setTimeout(() => setSubmitSuccess(false), 4000);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const filtered = posts.filter(p => {
+    const matchesSearch = !searchQuery || 
+      p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      p.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.journal.toLowerCase().includes(searchQuery.toLowerCase());
+
+    if (!matchesSearch) return false;
+    if (selectedCategory === 'All') return true;
+    if (selectedCategory === 'Clinical Trials') return p.content_type === 'Clinical Trial';
+    if (selectedCategory === 'Monographs') return p.content_type === 'Materia Medica Analysis';
+    if (selectedCategory === 'Meta-Analyses') return p.content_type === 'Systematic Review';
+    if (selectedCategory === 'Observational Studies') return p.content_type === 'Observational Study';
+    return true;
+  });
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-serif font-bold text-brand-navy">
-          Curated Research & Publications
-        </h1>
-        <p className="text-xs text-slate-500 mt-0.5">
-          Peer-reviewed homeopathic literature, clinical trials, and meta-analyses with explicit methodological limitations.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-serif font-bold text-brand-navy">
+            Curated Research & Publications
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Peer-reviewed homeopathic literature, clinical trials, and monographs with explicit methodological transparency.
+          </p>
+        </div>
+
+        {(isDoctor || isResearcher || isAdmin) && (
+          <button
+            onClick={() => setShowSubmitModal(true)}
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow-xs transition"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Submit Research Reference</span>
+          </button>
+        )}
       </div>
 
-      {/* Search Input */}
-      <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center gap-3">
+      {submitSuccess && (
+        <div className="p-3 bg-teal-50 border border-teal-200 text-teal-800 rounded-xl text-xs flex items-center gap-2 animate-fadeIn">
+          <CheckCircle2 className="w-4 h-4 text-teal-600" />
+          <span>Research publication submitted successfully and published to the peer library.</span>
+        </div>
+      )}
+
+      {/* Category Pills & Search */}
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search research by keyword, pathology, or journal title..."
-            className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none"
+            placeholder="Search research by pathology, author, or journal..."
+            className="w-full pl-9 pr-4 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none"
           />
           <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3 pointer-events-none" />
+        </div>
+
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition ${
+                selectedCategory === cat
+                  ? 'bg-teal-700 text-white'
+                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -75,6 +172,12 @@ export const KnowledgePage: React.FC = () => {
             </div>
           ))}
         </div>
+      ) : filtered.length === 0 ? (
+        <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 space-y-3">
+          <BookOpen className="w-10 h-10 text-slate-300 mx-auto" />
+          <h3 className="text-base font-bold text-brand-navy">No publications match your criteria</h3>
+          <p className="text-xs text-slate-500">Try adjusting your search query or selected category filter.</p>
+        </div>
       ) : (
         <div className="space-y-4">
           {filtered.map((post) => (
@@ -83,7 +186,7 @@ export const KnowledgePage: React.FC = () => {
               className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs hover:shadow-card hover:border-teal-300 transition space-y-4"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-semibold text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200">
+                <span className="text-[10px] font-semibold text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200 uppercase tracking-wide">
                   {post.content_type}
                 </span>
                 <span className="text-xs text-slate-400">{post.published_at}</span>
@@ -127,6 +230,127 @@ export const KnowledgePage: React.FC = () => {
               </div>
             </article>
           ))}
+        </div>
+      )}
+
+      {/* Submit Research Modal */}
+      {showSubmitModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <span className="text-xs font-bold text-teal-700 uppercase tracking-wider">
+                Submit Research Resource
+              </span>
+              <button onClick={() => setShowSubmitModal(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateResearch} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Study Title *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  placeholder="e.g. Individualized Homeopathy in Chronic Migraine: A Double-Blind Trial"
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Journal / Publisher
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={newJournal}
+                    onChange={(e) => setNewJournal(e.target.value)}
+                    placeholder="e.g. Homeopathy (Thieme)"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Study Type
+                  </label>
+                  <select
+                    value={newContentType}
+                    onChange={(e: any) => setNewContentType(e.target.value)}
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl outline-none bg-white"
+                  >
+                    <option value="Clinical Trial">Randomized Controlled Trial</option>
+                    <option value="Observational Study">Observational Clinical Study</option>
+                    <option value="Systematic Review">Systematic Review & Meta-Analysis</option>
+                    <option value="Materia Medica Analysis">Materia Medica Monograph</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Clinical Summary & Methodology *
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  value={newSummary}
+                  onChange={(e) => setNewSummary(e.target.value)}
+                  placeholder="Detail cohort size, intervention group, potencies evaluated, and primary endpoints..."
+                  className="w-full p-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Documented Study Limitations (Required for Editorial Compliance) *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newLimitations}
+                  onChange={(e) => setNewLimitations(e.target.value)}
+                  placeholder="e.g. Single-center study; limited 12-month follow-up window."
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  DOI or PubMed URL
+                </label>
+                <input
+                  type="url"
+                  value={newSourceUrl}
+                  onChange={(e) => setNewSourceUrl(e.target.value)}
+                  placeholder="https://doi.org/10.1055/s-..."
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowSubmitModal(false)}
+                  className="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-xs font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow"
+                >
+                  Publish Publication
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

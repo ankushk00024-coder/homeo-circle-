@@ -28,6 +28,7 @@ import { MemberProfilePage } from './pages/member/MemberProfilePage';
 import { EventsPage } from './pages/member/EventsPage';
 import { OpportunitiesPage } from './pages/member/OpportunitiesPage';
 import { KnowledgePage } from './pages/member/KnowledgePage';
+import { StudentsPage } from './pages/member/StudentsPage';
 import { ProfileEditPage } from './pages/member/ProfileEditPage';
 import { SettingsPage } from './pages/member/SettingsPage';
 
@@ -126,6 +127,7 @@ export function App() {
             <Route path="/events" element={<EventsPage />} />
             <Route path="/opportunities" element={<OpportunitiesPage />} />
             <Route path="/knowledge" element={<KnowledgePage />} />
+            <Route path="/students" element={<StudentsPage />} />
             <Route path="/profile" element={<ProfileEditPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Route>

@@ -55,8 +55,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       return <Navigate to="/application-status" replace />;
     }
 
-    // If declined
-    if (status === 'declined') {
+    // If declined or rejected
+    if (status === 'declined' || status === 'rejected') {
       return (
         <div className="min-h-[70vh] flex items-center justify-center p-4">
           <div className="max-w-md w-full bg-white rounded-2xl shadow-card p-8 border border-slate-200 text-center space-y-4">
