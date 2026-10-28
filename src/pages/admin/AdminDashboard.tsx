@@ -151,18 +151,18 @@ export const AdminDashboard: React.FC = () => {
                   <h4 className="text-xs font-bold text-brand-navy">
                     {app.full_name}
                   </h4>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-xs text-slate-500">
                     {app.qualification} • {app.state} • <span className="font-mono text-slate-400">{app.registration_number}</span>
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <span className="text-[11px] text-slate-400 hidden sm:inline">
+                <span className="text-xs text-slate-400 hidden sm:inline">
                   {app.submitted_at}
                 </span>
 
-                <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full capitalize ${
+                <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full capitalize ${
                   app.status === 'verified'
                     ? 'bg-teal-50 text-teal-700 border border-teal-200'
                     : app.status === 'declined'
@@ -196,7 +196,7 @@ export const AdminDashboard: React.FC = () => {
           <h3 className="text-xs font-bold text-brand-navy group-hover:text-teal-800 transition">
             Publish New Webinar or CME
           </h3>
-          <p className="text-[11px] text-slate-500">Add upcoming online study circles or state chapter conferences.</p>
+          <p className="text-xs text-slate-500">Add upcoming online study circles or state chapter conferences.</p>
         </Link>
 
         <Link
@@ -209,7 +209,7 @@ export const AdminDashboard: React.FC = () => {
           <h3 className="text-xs font-bold text-brand-navy group-hover:text-teal-800 transition">
             Post Career Opportunity
           </h3>
-          <p className="text-[11px] text-slate-500">List hospital OPD openings, academic fellowships, and research grants.</p>
+          <p className="text-xs text-slate-500">List hospital OPD openings, academic fellowships, and research grants.</p>
         </Link>
 
         <Link
@@ -222,7 +222,7 @@ export const AdminDashboard: React.FC = () => {
           <h3 className="text-xs font-bold text-brand-navy group-hover:text-teal-800 transition">
             Moderation & Reports Queue
           </h3>
-          <p className="text-[11px] text-slate-500">Inspect flagged case discussions and enforce patient confidentiality.</p>
+          <p className="text-xs text-slate-500">Inspect flagged case discussions and enforce patient confidentiality.</p>
         </Link>
       </div>
 

@@ -31,7 +31,7 @@ export const DevBanner: React.FC = () => {
             {currentUser ? (
               <>
                 <span>{currentUser.display_name}</span>
-                <span className="text-[10px] text-teal-400 bg-teal-950 px-1.5 py-0.2 rounded border border-teal-800">
+                <span className="text-[11px] text-teal-400 bg-teal-950 px-1.5 py-0.5 rounded border border-teal-800">
                   {role} • {status}
                 </span>
               </>

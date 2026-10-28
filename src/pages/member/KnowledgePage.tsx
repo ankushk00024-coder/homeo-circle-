@@ -118,7 +118,7 @@ export const KnowledgePage: React.FC = () => {
       </div>
 
       {submitSuccess && (
-        <div className="p-3 bg-teal-50 border border-teal-200 text-teal-800 rounded-xl text-xs flex items-center gap-2 animate-fadeIn">
+        <div className="p-3 bg-teal-50 border border-teal-200 text-teal-800 rounded-xl text-xs flex items-center gap-2 animate-fade-in">
           <CheckCircle2 className="w-4 h-4 text-teal-600" />
           <span>Research publication submitted successfully and published to the peer library.</span>
         </div>
@@ -186,7 +186,7 @@ export const KnowledgePage: React.FC = () => {
               className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs hover:shadow-card hover:border-teal-300 transition space-y-4"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-semibold text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200 uppercase tracking-wide">
+                <span className="text-[11px] font-semibold text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200 uppercase tracking-wide">
                   {post.content_type}
                 </span>
                 <span className="text-xs text-slate-400">{post.published_at}</span>
@@ -207,11 +207,11 @@ export const KnowledgePage: React.FC = () => {
 
               {/* Explicit Limitations Box (PRD requirement) */}
               <div className="p-3 bg-amber-50/70 rounded-xl border border-amber-200/80 text-xs text-amber-900 space-y-1">
-                <div className="flex items-center gap-1.5 font-bold text-[11px] uppercase tracking-wide text-amber-800">
+                <div className="flex items-center gap-1.5 font-bold text-xs uppercase tracking-wide text-amber-800">
                   <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
                   <span>Documented Study Limitations</span>
                 </div>
-                <p className="text-[11px] leading-relaxed text-amber-800">
+                <p className="text-xs leading-relaxed text-amber-800">
                   {post.limitations}
                 </p>
               </div>

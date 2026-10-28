@@ -16,9 +16,11 @@ import {
   Stethoscope,
   Shield
 } from 'lucide-react';
+import { useConfirm } from '../../components/feedback/ToastProvider';
 
 export const AdminMembers: React.FC = () => {
   const { currentUser } = useAuth();
+  const confirmAction = useConfirm();
   const [members, setMembers] = useState<UserProfile[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
@@ -26,9 +28,12 @@ export const AdminMembers: React.FC = () => {
 
   const loadMembers = async () => {
     setLoading(true);
-    const data = await dataService.getMembers(searchQuery);
-    setMembers(data);
-    setLoading(false);
+    try {
+      const data = await dataService.getMembers(searchQuery);
+      setMembers(data);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -39,7 +44,7 @@ export const AdminMembers: React.FC = () => {
     const isSuspending = member.status !== 'suspended';
     const actionDesc = isSuspending ? 'suspend' : 'reactivate';
     
-    if (!window.confirm(`Are you sure you want to ${actionDesc} ${member.full_name}?`)) return;
+    if (!(await confirmAction(`Are you sure you want to ${actionDesc} ${member.full_name}?`, { confirmLabel: isSuspending ? 'Suspend' : 'Reactivate', danger: isSuspending }))) return;
 
     const updatedStatus = isSuspending ? 'suspended' : 'active';
     const updatedMembers = members.map(m => m.id === member.id ? { ...m, status: updatedStatus as any } : m);
@@ -57,7 +62,7 @@ export const AdminMembers: React.FC = () => {
   };
 
   const handleRoleChange = async (member: UserProfile, newRole: UserRole) => {
-    if (!window.confirm(`Change role for ${member.full_name} to "${newRole}"?`)) return;
+    if (!(await confirmAction(`Change role for ${member.full_name} to "${newRole}"?`, { confirmLabel: 'Change role' }))) return;
 
     const updatedMembers = members.map(m => m.id === member.id ? { ...m, role: newRole } : m);
     setMembers(updatedMembers);
@@ -127,7 +132,7 @@ export const AdminMembers: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
                 <th className="py-3 px-4">Member Name</th>
                 <th className="py-3 px-4">Role</th>
                 <th className="py-3 px-4">Degree / Details</th>
@@ -146,7 +151,7 @@ export const AdminMembers: React.FC = () => {
                         <Avatar name={member.full_name} src={member.avatar_url} size="xs" />
                         <div>
                           <div className="font-bold text-brand-navy">{member.full_name}</div>
-                          <div className="text-[11px] text-slate-400">{member.email}</div>
+                          <div className="text-xs text-slate-400">{member.email}</div>
                         </div>
                       </div>
                     </td>
@@ -154,7 +159,7 @@ export const AdminMembers: React.FC = () => {
                       <select
                         value={memberRole}
                         onChange={(e) => handleRoleChange(member, e.target.value as UserRole)}
-                        className="text-[11px] font-semibold px-2 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 outline-none"
+                        className="text-xs font-semibold px-2 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 outline-none"
                       >
                         <option value="doctor">Doctor</option>
                         <option value="student">Student</option>
@@ -164,14 +169,14 @@ export const AdminMembers: React.FC = () => {
                     </td>
                     <td className="py-3.5 px-4 font-medium text-slate-700">
                       <div>{member.qualification}</div>
-                      <div className="text-[11px] text-slate-400">{member.specialization}</div>
+                      <div className="text-xs text-slate-400">{member.specialization}</div>
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="font-semibold text-slate-800">{member.state}</div>
-                      <div className="font-mono text-[10px] text-teal-800">{member.registration_number || 'Enrolled Member'}</div>
+                      <div className="font-mono text-[11px] text-teal-800">{member.registration_number || 'Enrolled Member'}</div>
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full capitalize ${
+                      <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full capitalize ${
                         member.status === 'suspended'
                           ? 'bg-rose-50 text-rose-700 border border-rose-200'
                           : 'bg-teal-50 text-teal-700 border border-teal-200'

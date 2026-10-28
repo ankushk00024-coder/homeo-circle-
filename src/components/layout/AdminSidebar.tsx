@@ -16,18 +16,21 @@ import {
   History,
   Settings, 
   ArrowLeft, 
-  LogOut 
+  LogOut,
+  Menu,
+  X
 } from 'lucide-react';
 
 export const AdminSidebar: React.FC = () => {
-  const { currentUser, logout } = useAuth();
-  const [pendingCount, setPendingCount] = useState<number>(12);
+  const { currentUser, logout, role } = useAuth();
+  const [pendingCount, setPendingCount] = useState<number>(0);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     dataService.getApplications().then(apps => {
       const count = apps.filter(a => a.status === 'pending_review' || a.status === 'submitted').length;
       setPendingCount(count);
-    });
+    }).catch(() => setPendingCount(0));
   }, []);
 
   const navItems = [
@@ -44,7 +47,42 @@ export const AdminSidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="w-64 bg-brand-navy text-slate-200 flex flex-col min-h-screen border-r border-slate-800 flex-shrink-0">
+    <>
+    {/* Mobile top bar (the sidebar becomes a slide-in drawer below md) */}
+    <div className="md:hidden sticky top-0 z-40 flex items-center justify-between px-4 h-14 bg-brand-navy border-b border-slate-800">
+      <BrandLogo theme="dark" size="sm" />
+      <button
+        type="button"
+        onClick={() => setMobileOpen(true)}
+        className="p-2 rounded-lg text-slate-200 hover:bg-slate-800 transition"
+        aria-label="Open admin menu"
+        aria-expanded={mobileOpen}
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+    </div>
+
+    {mobileOpen && (
+      <div
+        className="md:hidden fixed inset-0 z-40 bg-slate-950/50 backdrop-blur-xs animate-fade-in"
+        onClick={() => setMobileOpen(false)}
+        aria-hidden="true"
+      />
+    )}
+
+    <aside
+      className={`fixed inset-y-0 left-0 z-50 w-72 md:w-64 md:sticky md:top-0 md:h-screen overflow-y-auto bg-brand-navy text-slate-200 flex flex-col border-r border-slate-800 flex-shrink-0 transition-transform duration-300 ease-out md:translate-x-0 ${
+        mobileOpen ? 'translate-x-0 shadow-elevated' : '-translate-x-full'
+      }`}
+    >
+      <button
+        type="button"
+        onClick={() => setMobileOpen(false)}
+        className="md:hidden absolute top-4 right-4 p-2 rounded-lg text-slate-300 hover:bg-slate-800 transition"
+        aria-label="Close admin menu"
+      >
+        <X className="w-5 h-5" />
+      </button>
       {/* Brand Header */}
       <div className="p-6 border-b border-slate-800/80">
         <BrandLogo theme="dark" size="md" />
@@ -60,9 +98,9 @@ export const AdminSidebar: React.FC = () => {
         />
         <div className="overflow-hidden">
           <p className="text-xs font-semibold text-white truncate">{currentUser?.full_name || 'Administrator'}</p>
-          <p className="text-[11px] text-slate-400 truncate">{currentUser?.email || 'admin@homeocircle.in'}</p>
-          <span className="inline-block mt-0.5 text-[9px] uppercase tracking-wider font-semibold text-brand-teal bg-teal-950 px-1.5 py-0.2 rounded border border-teal-800">
-            Super Admin
+          <p className="text-xs text-slate-400 truncate">{currentUser?.email || 'admin@homeocircle.in'}</p>
+          <span className="inline-block mt-0.5 text-[10px] uppercase tracking-wider font-semibold text-brand-teal bg-teal-950 px-1.5 py-0.5 rounded border border-teal-800">
+            {role === 'super_admin' ? 'Super Admin' : 'Admin'}
           </span>
         </div>
       </div>
@@ -74,11 +112,12 @@ export const AdminSidebar: React.FC = () => {
             key={item.path}
             to={item.path}
             end={item.exact}
+            onClick={() => setMobileOpen(false)}
             className={({ isActive }) =>
-              `flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition ${
+              `group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition duration-200 ${
                 isActive
-                  ? 'bg-teal-700 text-white font-semibold shadow-sm'
-                  : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                  ? 'bg-teal-700 text-white font-semibold shadow-glow'
+                  : 'text-slate-300 hover:bg-slate-800/80 hover:text-white hover:translate-x-0.5'
               }`
             }
           >
@@ -87,7 +126,7 @@ export const AdminSidebar: React.FC = () => {
               <span>{item.label}</span>
             </div>
             {typeof item.badge === 'number' && item.badge > 0 && (
-              <span className="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+              <span className="bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
                 {item.badge}
               </span>
             )}
@@ -113,5 +152,6 @@ export const AdminSidebar: React.FC = () => {
         </button>
       </div>
     </aside>
+    </>
   );
 };

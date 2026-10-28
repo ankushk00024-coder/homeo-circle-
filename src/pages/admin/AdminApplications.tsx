@@ -17,8 +17,10 @@ import {
   X,
   FileText
 } from 'lucide-react';
+import { useToast } from '../../components/feedback/ToastProvider';
 
 export const AdminApplications: React.FC = () => {
+  const toast = useToast();
   const { currentUser } = useAuth();
   const [applications, setApplications] = useState<PractitionerApplication[]>([]);
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -34,9 +36,12 @@ export const AdminApplications: React.FC = () => {
 
   const loadApplications = async () => {
     setLoading(true);
-    const data = await dataService.getApplications();
-    setApplications(data);
-    setLoading(false);
+    try {
+      const data = await dataService.getApplications();
+      setApplications(data);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -57,8 +62,9 @@ export const AdminApplications: React.FC = () => {
       );
       await loadApplications();
       setSelectedApp(null);
+      toast.success(`Application marked as ${status.replace(/_/g, ' ')}.`);
     } catch (err) {
-      console.error(err);
+      toast.error(err instanceof Error ? err.message : 'The review could not be saved.');
     } finally {
       setIsProcessing(false);
     }
@@ -144,7 +150,7 @@ export const AdminApplications: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
                   <th className="py-3 px-4">Applicant</th>
                   <th className="py-3 px-4">Degree</th>
                   <th className="py-3 px-4">Registration No.</th>
@@ -159,7 +165,7 @@ export const AdminApplications: React.FC = () => {
                   <tr key={app.id} className="hover:bg-slate-50 transition">
                     <td className="py-3.5 px-4">
                       <div className="font-bold text-brand-navy">{app.full_name}</div>
-                      <div className="text-[11px] text-slate-400">{app.email}</div>
+                      <div className="text-xs text-slate-400">{app.email}</div>
                     </td>
                     <td className="py-3.5 px-4 font-medium text-slate-700">
                       {app.qualification}
@@ -171,13 +177,13 @@ export const AdminApplications: React.FC = () => {
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="font-semibold text-slate-800">{app.state}</div>
-                      <div className="text-[10px] text-slate-500 max-w-[200px] truncate">{app.registration_authority}</div>
+                      <div className="text-[11px] text-slate-500 max-w-[200px] truncate">{app.registration_authority}</div>
                     </td>
                     <td className="py-3.5 px-4 text-slate-400">
                       {app.submitted_at}
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize ${
+                      <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full capitalize ${
                         app.status === 'verified'
                           ? 'bg-teal-50 text-teal-700 border border-teal-200'
                           : app.status === 'declined'
@@ -233,19 +239,19 @@ export const AdminApplications: React.FC = () => {
             {/* Applicant Summary */}
             <div className="grid grid-cols-2 gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100 text-xs">
               <div>
-                <span className="text-slate-400 text-[10px] block font-semibold uppercase">Practitioner Legal Name</span>
+                <span className="text-slate-400 text-[11px] block font-semibold uppercase">Practitioner Legal Name</span>
                 <span className="font-bold text-brand-navy text-sm">{selectedApp.full_name}</span>
               </div>
               <div>
-                <span className="text-slate-400 text-[10px] block font-semibold uppercase">Degree / Qualification</span>
+                <span className="text-slate-400 text-[11px] block font-semibold uppercase">Degree / Qualification</span>
                 <span className="font-bold text-slate-800">{selectedApp.qualification} ({selectedApp.experience_years} yrs exp)</span>
               </div>
               <div>
-                <span className="text-slate-400 text-[10px] block font-semibold uppercase">Email & Phone</span>
+                <span className="text-slate-400 text-[11px] block font-semibold uppercase">Email & Phone</span>
                 <span className="text-slate-700">{selectedApp.email} • {selectedApp.phone}</span>
               </div>
               <div>
-                <span className="text-slate-400 text-[10px] block font-semibold uppercase">Clinic / Affiliation</span>
+                <span className="text-slate-400 text-[11px] block font-semibold uppercase">Clinic / Affiliation</span>
                 <span className="text-slate-700">{selectedApp.clinic_institution || 'Independent'}</span>
               </div>
             </div>
@@ -258,7 +264,7 @@ export const AdminApplications: React.FC = () => {
                 </span>
                 <button
                   onClick={() => copyRegistrationNumber(selectedApp.registration_number || '')}
-                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-teal-800 hover:text-teal-950"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-teal-800 hover:text-teal-950"
                 >
                   {copiedReg ? <Check className="w-3.5 h-3.5 text-teal-600" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>{copiedReg ? 'Copied' : 'Copy Reg No'}</span>
@@ -276,7 +282,7 @@ export const AdminApplications: React.FC = () => {
 
             {/* Official Register Check Checklist */}
             <div className="space-y-2 text-xs">
-              <span className="font-bold text-brand-navy block uppercase text-[10px] tracking-wider">
+              <span className="font-bold text-brand-navy block uppercase text-[11px] tracking-wider">
                 Statutory Review Checklist
               </span>
               <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-1.5 text-slate-700">

@@ -24,11 +24,13 @@ import {
   Globe,
   Share2
 } from 'lucide-react';
+import { useToast } from '../../components/feedback/ToastProvider';
 
 export const MemberProfilePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const toast = useToast();
 
   const [member, setMember] = useState<UserProfile | null>(null);
   const [memberPosts, setMemberPosts] = useState<Post[]>([]);
@@ -45,15 +47,18 @@ export const MemberProfilePage: React.FC = () => {
   const loadProfile = async () => {
     if (!id) return;
     setLoading(true);
-    const [foundMember, posts, conns] = await Promise.all([
-      dataService.getMemberById(id),
-      dataService.getPosts().then(posts => posts.filter(p => p.author_id === id)),
-      dataService.getConnectionRequests()
-    ]);
-    setMember(foundMember);
-    setMemberPosts(posts);
-    setConnectionRequests(conns);
-    setLoading(false);
+    try {
+      const [foundMember, posts, conns] = await Promise.all([
+        dataService.getMemberById(id),
+        dataService.getPosts().then(posts => posts.filter(p => p.author_id === id)),
+        dataService.getConnectionRequests()
+      ]);
+      setMember(foundMember);
+      setMemberPosts(posts);
+      setConnectionRequests(conns);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -85,7 +90,7 @@ export const MemberProfilePage: React.FC = () => {
       setTimeout(() => setActionAlert(null), 4000);
       await loadProfile();
     } catch (err: any) {
-      alert(err.message || 'Failed to send connection request.');
+      toast.error(err.message || 'Failed to send connection request.');
     }
   };
 
@@ -99,7 +104,7 @@ export const MemberProfilePage: React.FC = () => {
       setTimeout(() => setActionAlert(null), 4000);
       await loadProfile();
     } catch (err: any) {
-      alert(err.message || 'Failed to update connection.');
+      toast.error(err.message || 'Failed to update connection.');
     }
   };
 
@@ -128,7 +133,7 @@ export const MemberProfilePage: React.FC = () => {
         setTimeout(() => setActionAlert(null), 4000);
       }, 1500);
     } catch (err: any) {
-      alert(err.message || 'Failed to send mentorship request.');
+      toast.error(err.message || 'Failed to send mentorship request.');
     }
   };
 
@@ -176,7 +181,7 @@ export const MemberProfilePage: React.FC = () => {
       </div>
 
       {actionAlert && (
-        <div className="p-3.5 bg-teal-50 border border-teal-200 rounded-xl flex items-center gap-2 text-teal-800 text-xs animate-in fade-in">
+        <div className="p-3.5 bg-teal-50 border border-teal-200 rounded-xl flex items-center gap-2 text-teal-800 text-xs animate-fade-in">
           <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" />
           <span>{actionAlert}</span>
         </div>
@@ -199,11 +204,11 @@ export const MemberProfilePage: React.FC = () => {
                 <h1 className="text-xl sm:text-2xl font-serif font-bold text-brand-navy">
                   {member.full_name}
                 </h1>
-                <span className="bg-teal-50 text-teal-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-teal-200 flex items-center gap-1 uppercase tracking-wider">
+                <span className="bg-teal-50 text-teal-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-teal-200 flex items-center gap-1 uppercase tracking-wider">
                   <ShieldCheck className="w-3 h-3 text-teal-600" />
                   <span>{member.status === 'verified' ? 'Verified Member' : 'Pending Verification'}</span>
                 </span>
-                <span className="bg-slate-100 text-slate-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full capitalize">
+                <span className="bg-slate-100 text-slate-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full capitalize">
                   {member.role === 'student' ? 'Student' : member.role === 'researcher' ? 'Researcher' : 'Doctor'}
                 </span>
               </div>
@@ -281,7 +286,7 @@ export const MemberProfilePage: React.FC = () => {
           <div className="flex items-start gap-2.5">
             <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
             <div>
-              <span className="text-slate-400 text-[10px] block uppercase font-bold">Location</span>
+              <span className="text-slate-400 text-[11px] block uppercase font-bold">Location</span>
               <span className="font-semibold text-brand-navy">
                 {member.city ? `${member.city}, ${member.state}` : member.state}
               </span>
@@ -295,7 +300,7 @@ export const MemberProfilePage: React.FC = () => {
               <Building2 className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
             )}
             <div>
-              <span className="text-slate-400 text-[10px] block uppercase font-bold">
+              <span className="text-slate-400 text-[11px] block uppercase font-bold">
                 {member.role === 'student' ? 'College / University' : 'Affiliated Hospital / Clinic'}
               </span>
               <span className="font-semibold text-brand-navy block">
@@ -309,7 +314,7 @@ export const MemberProfilePage: React.FC = () => {
           <div className="flex items-start gap-2.5">
             <ShieldCheck className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
             <div>
-              <span className="text-slate-400 text-[10px] block uppercase font-bold">
+              <span className="text-slate-400 text-[11px] block uppercase font-bold">
                 {member.role === 'student' ? 'Academic Standing' : 'Statutory Register'}
               </span>
               <span className="font-semibold text-brand-navy block">
@@ -441,10 +446,10 @@ export const MemberProfilePage: React.FC = () => {
                 className="block p-4 rounded-2xl border border-slate-200/80 hover:border-teal-400 hover:shadow-xs transition space-y-1.5 group"
               >
                 <div className="flex items-center justify-between">
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${post.category_badge_color}`}>
+                  <span className={`text-[11px] font-semibold px-2 py-0.5 rounded border ${post.category_badge_color}`}>
                     {post.category_name}
                   </span>
-                  <span className="text-[11px] text-slate-400">{post.created_at}</span>
+                  <span className="text-xs text-slate-400">{post.created_at}</span>
                 </div>
                 <h4 className="text-sm font-bold text-brand-navy group-hover:text-teal-800 transition">
                   {post.title}
@@ -461,7 +466,7 @@ export const MemberProfilePage: React.FC = () => {
       {/* Mentorship Request Modal */}
       {mentorModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5 animate-scale-in">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <HeartHandshake className="w-5 h-5 text-emerald-600" />

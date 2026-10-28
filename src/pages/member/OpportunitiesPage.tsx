@@ -125,7 +125,7 @@ export const OpportunitiesPage: React.FC = () => {
       </div>
 
       {createSuccess && (
-        <div className="p-3 bg-teal-50 border border-teal-200 text-teal-800 rounded-xl text-xs flex items-center gap-2 animate-fadeIn">
+        <div className="p-3 bg-teal-50 border border-teal-200 text-teal-800 rounded-xl text-xs flex items-center gap-2 animate-fade-in">
           <CheckCircle2 className="w-4 h-4 text-teal-600" />
           <span>Opportunity posted successfully and listed for eligible practitioners and students.</span>
         </div>
@@ -188,7 +188,7 @@ export const OpportunitiesPage: React.FC = () => {
                       <h2 className="text-sm font-bold text-brand-navy group-hover:text-teal-800 transition">
                         {opp.title}
                       </h2>
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border capitalize ${getTypeBadgeColor(opp.type)}`}>
+                      <span className={`text-[11px] font-semibold px-2 py-0.5 rounded border capitalize ${getTypeBadgeColor(opp.type)}`}>
                         {opp.type}
                       </span>
                     </div>
@@ -197,7 +197,7 @@ export const OpportunitiesPage: React.FC = () => {
                       {opp.organization}
                     </p>
 
-                    <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-400">
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
                       <span>{opp.timing}</span>
                       <span>•</span>
                       <span>{opp.mode}</span>
@@ -229,7 +229,7 @@ export const OpportunitiesPage: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border capitalize ${getTypeBadgeColor(activeOpp.type)}`}>
+              <span className={`text-[11px] font-semibold px-2 py-0.5 rounded border capitalize ${getTypeBadgeColor(activeOpp.type)}`}>
                 {activeOpp.type}
               </span>
               <button onClick={() => setActiveOpp(null)} className="text-slate-400 hover:text-slate-600">
@@ -254,7 +254,7 @@ export const OpportunitiesPage: React.FC = () => {
                   <span className="font-semibold text-brand-navy block">Description:</span>
                   <span className="leading-relaxed block">{activeOpp.description}</span>
                 </div>
-                <div className="flex items-center justify-between pt-1 text-[11px] text-slate-500">
+                <div className="flex items-center justify-between pt-1 text-xs text-slate-500">
                   <span>Commitment: <strong>{activeOpp.timing}</strong></span>
                   <span>Application Deadline: <strong>{activeOpp.deadline}</strong></span>
                 </div>

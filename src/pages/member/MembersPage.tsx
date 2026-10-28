@@ -24,9 +24,11 @@ import {
   MessageCircle,
   UserCheck
 } from 'lucide-react';
+import { useToast } from '../../components/feedback/ToastProvider';
 
 export const MembersPage: React.FC = () => {
   const { currentUser } = useAuth();
+  const toast = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = searchParams.get('tab') === 'network' ? 'network' : 'directory';
 
@@ -53,13 +55,16 @@ export const MembersPage: React.FC = () => {
 
   const loadData = async () => {
     setLoading(true);
-    const [fetchedMembers, fetchedConns] = await Promise.all([
-      dataService.getMembers(searchQuery, selectedState, selectedSpec, selectedRole),
-      dataService.getConnectionRequests()
-    ]);
-    setMembers(fetchedMembers);
-    setConnectionRequests(fetchedConns);
-    setLoading(false);
+    try {
+      const [fetchedMembers, fetchedConns] = await Promise.all([
+        dataService.getMembers(searchQuery, selectedState, selectedSpec, selectedRole),
+        dataService.getConnectionRequests()
+      ]);
+      setMembers(fetchedMembers);
+      setConnectionRequests(fetchedConns);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -98,7 +103,7 @@ export const MembersPage: React.FC = () => {
       setTimeout(() => setActionMessage(null), 5000);
       await loadData();
     } catch (err: any) {
-      alert(err.message || 'Failed to send connection request.');
+      toast.error(err.message || 'Failed to send connection request.');
     }
   };
 
@@ -110,7 +115,7 @@ export const MembersPage: React.FC = () => {
       setTimeout(() => setActionMessage(null), 4000);
       await loadData();
     } catch (err: any) {
-      alert(err.message || 'Failed to update connection request.');
+      toast.error(err.message || 'Failed to update connection request.');
     }
   };
 
@@ -173,7 +178,7 @@ export const MembersPage: React.FC = () => {
 
       {/* Success / Feedback Alert */}
       {actionMessage && (
-        <div className="p-3.5 bg-teal-50 border border-teal-200 rounded-xl flex items-center gap-2.5 text-teal-800 text-xs animate-in fade-in">
+        <div className="p-3.5 bg-teal-50 border border-teal-200 rounded-xl flex items-center gap-2.5 text-teal-800 text-xs animate-fade-in">
           <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" />
           <span>{actionMessage}</span>
         </div>
@@ -258,7 +263,7 @@ export const MembersPage: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="text-[11px] font-semibold text-slate-500 mb-1 block">Account Type / Role</label>
+                  <label className="text-xs font-semibold text-slate-500 mb-1 block">Account Type / Role</label>
                   <select
                     value={selectedRole}
                     onChange={(e) => setSelectedRole(e.target.value)}
@@ -268,7 +273,7 @@ export const MembersPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="text-[11px] font-semibold text-slate-500 mb-1 block">State / Region</label>
+                  <label className="text-xs font-semibold text-slate-500 mb-1 block">State / Region</label>
                   <select
                     value={selectedState}
                     onChange={(e) => setSelectedState(e.target.value)}
@@ -278,7 +283,7 @@ export const MembersPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="text-[11px] font-semibold text-slate-500 mb-1 block">Clinical Focus</label>
+                  <label className="text-xs font-semibold text-slate-500 mb-1 block">Clinical Focus</label>
                   <select
                     value={selectedSpec}
                     onChange={(e) => setSelectedSpec(e.target.value)}
@@ -345,7 +350,7 @@ export const MembersPage: React.FC = () => {
                         />
 
                         {/* Role pill badge */}
-                        <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${getRoleBadgeStyle()}`}>
+                        <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${getRoleBadgeStyle()}`}>
                           {member.role === 'student' ? 'Student' : member.role === 'researcher' ? 'Researcher' : 'Doctor'}
                         </span>
                       </div>
@@ -357,7 +362,7 @@ export const MembersPage: React.FC = () => {
                         >
                           {member.full_name}
                         </Link>
-                        <p className="text-[11px] text-[#5A6E85] font-medium mt-0.5">
+                        <p className="text-xs text-[#5A6E85] font-medium mt-0.5">
                           {member.role === 'student' 
                             ? member.qualification 
                             : `${member.qualification}${member.experience_years ? ` • ${member.experience_years} yrs exp` : ''}`}
@@ -367,7 +372,7 @@ export const MembersPage: React.FC = () => {
                       <div className="space-y-1.5 text-xs text-slate-600">
                         <div className="flex items-center justify-center sm:justify-start gap-1.5 text-[#5A6E85]">
                           <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                          <span className="text-[11px] truncate">
+                          <span className="text-xs truncate">
                             {member.city ? `${member.city}, ${member.state}` : member.state}
                           </span>
                         </div>
@@ -378,7 +383,7 @@ export const MembersPage: React.FC = () => {
                           ) : (
                             <Briefcase className="w-3.5 h-3.5 text-brand-teal flex-shrink-0" />
                           )}
-                          <span className="text-[11px] font-medium text-brand-navy bg-[#EEF6FC] px-2 py-0.5 rounded truncate max-w-[200px]">
+                          <span className="text-xs font-medium text-brand-navy bg-[#EEF6FC] px-2 py-0.5 rounded truncate max-w-[200px]">
                             {member.role === 'student'
                               ? member.institution || 'Medical College'
                               : member.specialization || 'Clinical Practice'}
@@ -407,13 +412,13 @@ export const MembersPage: React.FC = () => {
                         <div className="flex-1 flex items-center gap-1">
                           <button
                             onClick={() => handleRespond(req.id, 'accepted')}
-                            className="flex-1 py-1.5 px-2 bg-brand-teal text-white rounded-xl text-[11px] font-semibold hover:bg-teal-700 transition"
+                            className="flex-1 py-1.5 px-2 bg-brand-teal text-white rounded-xl text-xs font-semibold hover:bg-teal-700 transition"
                           >
                             Accept
                           </button>
                           <button
                             onClick={() => handleRespond(req.id, 'declined')}
-                            className="py-1.5 px-2 bg-slate-100 text-slate-600 rounded-xl text-[11px] font-medium hover:bg-slate-200 transition"
+                            className="py-1.5 px-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-medium hover:bg-slate-200 transition"
                           >
                             Decline
                           </button>
@@ -474,10 +479,10 @@ export const MembersPage: React.FC = () => {
                         <Link to={`/members/${req.sender_id}`} className="text-xs font-bold text-brand-navy hover:text-teal-700">
                           {req.sender_name}
                         </Link>
-                        <p className="text-[11px] text-slate-500">
+                        <p className="text-xs text-slate-500">
                           {req.sender_qualification || 'Member'} • Role: <span className="capitalize">{req.sender_role}</span>
                         </p>
-                        <span className="text-[10px] text-slate-400">Received request</span>
+                        <span className="text-[11px] text-slate-400">Received request</span>
                       </div>
                     </div>
 
@@ -528,7 +533,7 @@ export const MembersPage: React.FC = () => {
                         <span className="text-xs font-bold text-brand-navy block">
                           {req.recipient_name}
                         </span>
-                        <span className="text-[11px] text-slate-500">
+                        <span className="text-xs text-slate-500">
                           Waiting for peer response
                         </span>
                       </div>
@@ -580,7 +585,7 @@ export const MembersPage: React.FC = () => {
                           <Link to={`/members/${otherId}`} className="text-xs font-bold text-brand-navy hover:text-teal-700 truncate block">
                             {otherName}
                           </Link>
-                          <span className="text-[10px] text-teal-700 bg-teal-50 px-2 py-0.2 rounded font-medium border border-teal-200 inline-block mt-0.5">
+                          <span className="text-[11px] text-teal-700 bg-teal-50 px-2 py-0.5 rounded font-medium border border-teal-200 inline-block mt-0.5">
                             Connected
                           </span>
                         </div>

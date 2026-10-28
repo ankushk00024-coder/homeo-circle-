@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { BrandLogo } from '../common/BrandLogo';
 import { useAuth } from '../../context/AuthContext';
 import { Avatar } from '../common/Avatar';
-import { Menu, X, ArrowRight, Search, GraduationCap } from 'lucide-react';
+import { Menu, X, ArrowRight } from 'lucide-react';
 
 export const PublicNavbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isAuthenticated, isVerifiedMember, currentUser } = useAuth();
   const location = useLocation();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const navLinks = [
     { label: 'Home', path: '/' },
@@ -26,9 +33,13 @@ export const PublicNavbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-[#EAF3FA]/95 backdrop-blur-md border-b border-[#D4E4F0]/70">
+    <header
+      className={`sticky top-0 z-40 backdrop-blur-md border-b transition-all duration-300 ${
+        scrolled ? 'bg-white/85 border-brand-border shadow-card' : 'bg-brand-pale/80 border-transparent'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-[68px]">
+        <div className={`flex items-center justify-between transition-all duration-300 ${scrolled ? 'h-16' : 'h-[72px]'}`}>
 
           {/* Logo */}
           <div className="flex-shrink-0">
@@ -41,16 +52,18 @@ export const PublicNavbar: React.FC = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`relative py-2 text-sm transition-colors ${
+                className={`group relative py-2 text-sm transition-colors ${
                   isActive(link.path)
                     ? 'text-[#0D817B] font-semibold'
                     : 'text-[#4A627A] hover:text-[#14243F] font-medium'
                 }`}
               >
                 <span>{link.label}</span>
-                {isActive(link.path) && (
-                  <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#0D817B] rounded-full" />
-                )}
+                <span
+                  className={`absolute bottom-0 left-0 h-[2.5px] bg-brand-teal rounded-full transition-all duration-300 ${
+                    isActive(link.path) ? 'w-full' : 'w-0 group-hover:w-full'
+                  }`}
+                />
               </Link>
             ))}
           </nav>
@@ -70,12 +83,9 @@ export const PublicNavbar: React.FC = () => {
                 <Link to="/login" className="text-sm font-medium text-[#4A627A] hover:text-[#14243F] px-3 py-2 transition">
                   Sign in
                 </Link>
-                <Link
-                  to="/apply"
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#0D817B] hover:bg-[#0a6b66] text-white text-sm font-semibold shadow-sm transition"
-                >
+                <Link to="/apply" className="btn-primary group !px-4 !py-2.5">
                   Join Homeo Circle
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
                 </Link>
               </>
             )}
@@ -85,8 +95,9 @@ export const PublicNavbar: React.FC = () => {
           <div className="flex lg:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-[#5A6E85] hover:text-[#14243F] hover:bg-[#EEF6FC] focus:outline-none"
+              className="p-2 rounded-lg text-[#5A6E85] hover:text-[#14243F] hover:bg-[#EEF6FC]"
               aria-label="Toggle navigation"
+              aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -96,7 +107,7 @@ export const PublicNavbar: React.FC = () => {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-b border-[#D7E5F0] bg-white px-4 pt-3 pb-6 space-y-3">
+        <div className="lg:hidden border-b border-[#D7E5F0] bg-white px-4 pt-3 pb-6 space-y-3 animate-slide-down shadow-card">
           <div className="flex flex-col space-y-1">
             {navLinks.map((link) => (
               <Link

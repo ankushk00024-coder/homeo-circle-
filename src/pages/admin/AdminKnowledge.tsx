@@ -21,9 +21,12 @@ export const AdminKnowledge: React.FC = () => {
 
   const loadData = async () => {
     setLoading(true);
-    const data = await dataService.getKnowledgePosts();
-    setPosts(data);
-    setLoading(false);
+    try {
+      const data = await dataService.getKnowledgePosts();
+      setPosts(data);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -91,7 +94,7 @@ export const AdminKnowledge: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
                 <th className="py-3 px-4">Study Title</th>
                 <th className="py-3 px-4">Journal</th>
                 <th className="py-3 px-4">Design Type</th>
@@ -104,20 +107,20 @@ export const AdminKnowledge: React.FC = () => {
                 <tr key={post.id} className="hover:bg-slate-50 transition">
                   <td className="py-3.5 px-4 max-w-sm">
                     <span className="font-bold text-brand-navy block truncate">{post.title}</span>
-                    <span className="text-[11px] text-slate-400 line-clamp-1">{post.summary}</span>
+                    <span className="text-xs text-slate-400 line-clamp-1">{post.summary}</span>
                   </td>
                   <td className="py-3.5 px-4 font-medium text-slate-700 italic">
                     {post.journal}
                   </td>
                   <td className="py-3.5 px-4">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-sky-50 text-sky-800 border border-sky-200">
+                    <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-sky-50 text-sky-800 border border-sky-200">
                       {post.content_type}
                     </span>
                   </td>
-                  <td className="py-3.5 px-4 text-amber-800 max-w-xs text-[11px]">
+                  <td className="py-3.5 px-4 text-amber-800 max-w-xs text-xs">
                     <span className="line-clamp-1">{post.limitations}</span>
                   </td>
-                  <td className="py-3.5 px-4 text-slate-500 font-mono text-[11px]">
+                  <td className="py-3.5 px-4 text-slate-500 font-mono text-xs">
                     {post.published_at}
                   </td>
                 </tr>

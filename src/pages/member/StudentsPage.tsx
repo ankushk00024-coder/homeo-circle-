@@ -35,9 +35,11 @@ import {
   X,
   MapPin
 } from 'lucide-react';
+import { useToast } from '../../components/feedback/ToastProvider';
 
 export const StudentsPage: React.FC = () => {
   const { currentUser } = useAuth();
+  const toast = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get('tab') || 'overview';
 
@@ -171,7 +173,7 @@ export const StudentsPage: React.FC = () => {
         loadStudentData();
       }, 1800);
     } catch (err: any) {
-      alert(err.message || 'Failed to dispatch mentorship request.');
+      toast.error(err.message || 'Failed to send mentorship request.');
     }
   };
 
@@ -202,7 +204,7 @@ export const StudentsPage: React.FC = () => {
       const updatedConns = await dataService.getConnectionRequests();
       setConnectionRequests(updatedConns);
     } catch (err: any) {
-      alert(err.message || 'Failed to send connection request.');
+      toast.error(err.message || 'Failed to send connection request.');
     }
   };
 
@@ -285,7 +287,7 @@ export const StudentsPage: React.FC = () => {
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-[#0F2836] via-[#133E4D] to-[#0A4D54] rounded-3xl p-6 sm:p-8 text-white shadow-card relative overflow-hidden">
         <div className="relative z-10 max-w-2xl space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-600/60 text-emerald-300 text-[11px] font-semibold">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-600/60 text-emerald-300 text-xs font-semibold">
             <GraduationCap className="w-3.5 h-3.5 text-emerald-400" />
             <span>Dedicated Student Corner & Clinical Mentorship</span>
           </div>
@@ -316,7 +318,7 @@ export const StudentsPage: React.FC = () => {
       </div>
 
       {actionFeedback && (
-        <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-2xl text-xs flex items-center justify-between animate-fadeIn shadow-2xs">
+        <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-2xl text-xs flex items-center justify-between animate-fade-in shadow-2xs">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
             <span>{actionFeedback}</span>
@@ -370,7 +372,7 @@ export const StudentsPage: React.FC = () => {
                     <h2 className="text-lg font-bold text-brand-navy">
                       {currentUser?.full_name || 'Rahul Verma'}
                     </h2>
-                    <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.2 rounded-full border border-emerald-200">
+                    <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                       Student Member
                     </span>
                   </div>
@@ -438,7 +440,7 @@ export const StudentsPage: React.FC = () => {
                       <Avatar name={req.mentor_name} src={req.mentor_avatar} size="md" />
                       <div className="space-y-0.5">
                         <span className="text-xs font-bold text-brand-navy block">{req.mentor_name}</span>
-                        <p className="text-[11px] text-teal-700 font-medium">{req.mentor_specialization}</p>
+                        <p className="text-xs text-teal-700 font-medium">{req.mentor_specialization}</p>
                         <p className="text-xs text-slate-600 line-clamp-1 italic">"{req.goals}"</p>
                       </div>
                     </div>
@@ -470,7 +472,7 @@ export const StudentsPage: React.FC = () => {
                 <BookOpen className="w-4 h-4" />
               </div>
               <h4 className="text-xs font-bold text-brand-navy">Study Aids & Rubrics</h4>
-              <p className="text-[11px] text-slate-500">Classic Boenninghausen Concordance index and Organon aphorism analysis.</p>
+              <p className="text-xs text-slate-500">Classic Boenninghausen Concordance index and Organon aphorism analysis.</p>
             </div>
 
             <div 
@@ -481,7 +483,7 @@ export const StudentsPage: React.FC = () => {
                 <Calendar className="w-4 h-4" />
               </div>
               <h4 className="text-xs font-bold text-brand-navy">Student CMEs & Webinars</h4>
-              <p className="text-[11px] text-slate-500">Live clinical case-taking sessions tailored for BHMS interns.</p>
+              <p className="text-xs text-slate-500">Live clinical case-taking sessions tailored for BHMS interns.</p>
             </div>
 
             <div 
@@ -492,7 +494,7 @@ export const StudentsPage: React.FC = () => {
                 <Briefcase className="w-4 h-4" />
               </div>
               <h4 className="text-xs font-bold text-brand-navy">Internships & Fellowships</h4>
-              <p className="text-[11px] text-slate-500">Apply for clinical registry clerkships and hospital OPD attachments.</p>
+              <p className="text-xs text-slate-500">Apply for clinical registry clerkships and hospital OPD attachments.</p>
             </div>
           </div>
 
@@ -531,7 +533,7 @@ export const StudentsPage: React.FC = () => {
               
               {/* Specialization Filter */}
               <div>
-                <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">
+                <label className="block text-[11px] uppercase font-bold text-slate-400 mb-1">
                   Specialization Focus
                 </label>
                 <select
@@ -547,7 +549,7 @@ export const StudentsPage: React.FC = () => {
 
               {/* State Filter */}
               <div>
-                <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">
+                <label className="block text-[11px] uppercase font-bold text-slate-400 mb-1">
                   State / Council
                 </label>
                 <select
@@ -563,7 +565,7 @@ export const StudentsPage: React.FC = () => {
 
               {/* Verification Status Filter */}
               <div>
-                <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">
+                <label className="block text-[11px] uppercase font-bold text-slate-400 mb-1">
                   Verification Status
                 </label>
                 <select
@@ -578,7 +580,7 @@ export const StudentsPage: React.FC = () => {
 
               {/* Mentorship Availability Filter */}
               <div>
-                <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">
+                <label className="block text-[11px] uppercase font-bold text-slate-400 mb-1">
                   Mentorship Status
                 </label>
                 <button
@@ -591,7 +593,7 @@ export const StudentsPage: React.FC = () => {
                   }`}
                 >
                   <span>Accepting Mentees</span>
-                  <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[10px] ${
+                  <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[11px] ${
                     onlyAcceptingMentorship ? 'bg-emerald-600 text-white' : 'border border-slate-300'
                   }`}>
                     {onlyAcceptingMentorship ? '✓' : ''}
@@ -681,16 +683,16 @@ export const StudentsPage: React.FC = () => {
                           />
                           <div className="flex flex-col items-end gap-1">
                             {mentor.mentorship_available !== false ? (
-                              <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                              <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
                                 ✓ Accepting Mentees
                               </span>
                             ) : (
-                              <span className="text-[10px] font-semibold text-slate-600 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-200">
+                              <span className="text-[11px] font-semibold text-slate-600 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-200">
                                 Practitioner
                               </span>
                             )}
                             {isVerified && (
-                              <span className="text-[9.5px] font-bold text-teal-800 bg-teal-50/80 px-2 py-0.2 rounded border border-teal-200">
+                              <span className="text-[10.5px] font-bold text-teal-800 bg-teal-50/80 px-2 py-0.5 rounded border border-teal-200">
                                 Verified Council
                               </span>
                             )}
@@ -713,23 +715,23 @@ export const StudentsPage: React.FC = () => {
                         {/* Location & Specialty Box */}
                         <div className="p-3 bg-slate-50 rounded-2xl text-xs space-y-1.5 border border-slate-100">
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] uppercase font-bold text-slate-400">Specialty</span>
+                            <span className="text-[11px] uppercase font-bold text-slate-400">Specialty</span>
                             <span className="font-semibold text-brand-navy truncate max-w-[160px]">
                               {mentor.specialization || 'Classical Homoeopathy'}
                             </span>
                           </div>
 
                           <div className="flex items-center justify-between pt-1 border-t border-slate-200/60">
-                            <span className="text-[10px] uppercase font-bold text-slate-400">Location</span>
-                            <span className="text-slate-600 truncate max-w-[160px] flex items-center gap-1 text-[11px]">
+                            <span className="text-[11px] uppercase font-bold text-slate-400">Location</span>
+                            <span className="text-slate-600 truncate max-w-[160px] flex items-center gap-1 text-xs">
                               <MapPin className="w-3 h-3 text-slate-400" />
                               {mentor.city ? `${mentor.city}, ${mentor.state}` : mentor.state}
                             </span>
                           </div>
 
                           {mentor.registration_number && (
-                            <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 text-[10.5px]">
-                              <span className="text-[10px] uppercase font-bold text-slate-400">Council</span>
+                            <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 text-xs">
+                              <span className="text-[11px] uppercase font-bold text-slate-400">Council</span>
                               <span className="font-mono text-teal-900 font-semibold truncate max-w-[160px]">
                                 {mentor.registration_number}
                               </span>
@@ -746,7 +748,7 @@ export const StudentsPage: React.FC = () => {
                         {mentor.interests && mentor.interests.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 pt-0.5">
                             {mentor.interests.slice(0, 3).map(interest => (
-                              <span key={interest} className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-medium">
+                              <span key={interest} className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[11px] font-medium">
                                 #{interest}
                               </span>
                             ))}
@@ -792,12 +794,12 @@ export const StudentsPage: React.FC = () => {
 
                             {connStatus === 'pending_sent' && (
                               <div className="flex items-center justify-between p-1.5 px-3 bg-amber-50 rounded-xl border border-amber-200 text-xs">
-                                <span className="text-[11px] font-semibold text-amber-800 flex items-center gap-1">
+                                <span className="text-xs font-semibold text-amber-800 flex items-center gap-1">
                                   <Clock className="w-3 h-3" /> Request Sent
                                 </span>
                                 <button
                                   onClick={() => handleCancelConnection(mentor.id)}
-                                  className="text-[10px] font-semibold text-slate-500 hover:text-rose-600 underline"
+                                  className="text-[11px] font-semibold text-slate-500 hover:text-rose-600 underline"
                                 >
                                   Cancel
                                 </button>
@@ -848,7 +850,7 @@ export const StudentsPage: React.FC = () => {
               <div key={res.id} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs hover:shadow-card transition space-y-3 flex flex-col justify-between">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200">
+                    <span className="text-[11px] font-bold text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200">
                       {res.content_type}
                     </span>
                     <span className="text-xs text-slate-400">{res.published_at}</span>
@@ -888,12 +890,12 @@ export const StudentsPage: React.FC = () => {
               <div className="flex items-start gap-4">
                 <div className="w-16 h-16 rounded-2xl bg-[#0F1E36] text-white flex flex-col items-center justify-center flex-shrink-0 text-center shadow-xs">
                   <span className="text-xl font-bold leading-none">{evt.date_badge_day}</span>
-                  <span className="text-[10px] uppercase tracking-wider font-semibold text-teal-300 mt-0.5">
+                  <span className="text-[11px] uppercase tracking-wider font-semibold text-teal-300 mt-0.5">
                     {evt.date_badge_month}
                   </span>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-[10px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
+                  <span className="text-[11px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
                     {evt.format}
                   </span>
                   <h3 className="text-sm sm:text-base font-bold text-brand-navy">{evt.title}</h3>
@@ -924,12 +926,12 @@ export const StudentsPage: React.FC = () => {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-bold text-brand-navy">{opp.title}</h3>
-                    <span className="text-[10px] font-semibold text-purple-700 bg-purple-50 px-2 py-0.2 rounded border border-purple-200">
+                    <span className="text-[11px] font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
                       {opp.type}
                     </span>
                   </div>
                   <p className="text-xs text-slate-600">{opp.organization} • {opp.location}</p>
-                  <p className="text-[11px] text-slate-500 italic">{opp.eligibility}</p>
+                  <p className="text-xs text-slate-500 italic">{opp.eligibility}</p>
                 </div>
               </div>
 
@@ -947,7 +949,7 @@ export const StudentsPage: React.FC = () => {
       {/* Mentorship Request Modal */}
       {selectedMentor && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5 animate-scale-in">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <HeartHandshake className="w-5 h-5 text-emerald-600" />

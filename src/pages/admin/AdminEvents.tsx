@@ -34,9 +34,12 @@ export const AdminEvents: React.FC = () => {
 
   const loadEvents = async () => {
     setLoading(true);
-    const data = await dataService.getEvents();
-    setEvents(data);
-    setLoading(false);
+    try {
+      const data = await dataService.getEvents();
+      setEvents(data);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -111,7 +114,7 @@ export const AdminEvents: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
                 <th className="py-3 px-4">Date Badge</th>
                 <th className="py-3 px-4">Event Title</th>
                 <th className="py-3 px-4">Speaker & Organizer</th>
@@ -124,28 +127,28 @@ export const AdminEvents: React.FC = () => {
               {events.map((evt) => (
                 <tr key={evt.id} className="hover:bg-slate-50 transition">
                   <td className="py-3 px-4">
-                    <span className="font-bold text-teal-800 bg-teal-50 px-2 py-0.5 rounded border border-teal-200 font-mono text-[11px]">
+                    <span className="font-bold text-teal-800 bg-teal-50 px-2 py-0.5 rounded border border-teal-200 font-mono text-xs">
                       {evt.date_badge_day} {evt.date_badge_month}
                     </span>
                   </td>
                   <td className="py-3 px-4 max-w-xs">
                     <div className="font-bold text-brand-navy truncate">{evt.title}</div>
-                    <div className="text-[11px] text-slate-400 line-clamp-1">{evt.summary}</div>
+                    <div className="text-xs text-slate-400 line-clamp-1">{evt.summary}</div>
                   </td>
                   <td className="py-3 px-4">
                     <div className="font-medium text-slate-800">{evt.speaker}</div>
-                    <div className="text-[10px] text-slate-500">{evt.organizer}</div>
+                    <div className="text-[11px] text-slate-500">{evt.organizer}</div>
                   </td>
                   <td className="py-3 px-4">
-                    <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-semibold">
+                    <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[11px] font-semibold">
                       {evt.format}
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-slate-600 text-[11px]">
+                  <td className="py-3 px-4 text-slate-600 text-xs">
                     {evt.time_display}
                   </td>
                   <td className="py-3 px-4">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 capitalize">
+                    <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 capitalize">
                       {evt.status}
                     </span>
                   </td>

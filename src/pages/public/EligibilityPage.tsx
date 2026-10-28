@@ -46,15 +46,15 @@ export const EligibilityPage: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
           <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
             <span className="text-xs font-bold text-teal-800 block">BHMS</span>
-            <span className="text-[11px] text-slate-500">Bachelor of Homoeopathic Medicine and Surgery (5½ year degree program)</span>
+            <span className="text-xs text-slate-500">Bachelor of Homoeopathic Medicine and Surgery (5½ year degree program)</span>
           </div>
           <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
             <span className="text-xs font-bold text-teal-800 block">MD (Hom)</span>
-            <span className="text-[11px] text-slate-500">Doctor of Medicine in Homoeopathy (Postgraduate specialization)</span>
+            <span className="text-xs text-slate-500">Doctor of Medicine in Homoeopathy (Postgraduate specialization)</span>
           </div>
           <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
             <span className="text-xs font-bold text-teal-800 block">DHMS / LCEH</span>
-            <span className="text-[11px] text-slate-500">Recognized historical diplomas registered prior to prevailing statutory cutoff dates</span>
+            <span className="text-xs text-slate-500">Recognized historical diplomas registered prior to prevailing statutory cutoff dates</span>
           </div>
         </div>
       </div>

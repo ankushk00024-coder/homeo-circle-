@@ -55,7 +55,7 @@ export const MemberSidebar: React.FC = () => {
             <ShieldCheck className="w-4 h-4 text-teal-600" />
             <span>Unified Professional Network</span>
           </div>
-          <p className="text-[11px] text-slate-500 leading-relaxed">
+          <p className="text-xs text-slate-500 leading-relaxed">
             Connecting registered doctors, researchers, and students across India.
           </p>
         </div>

@@ -24,9 +24,12 @@ export const AdminOpportunities: React.FC = () => {
 
   const loadData = async () => {
     setLoading(true);
-    const data = await dataService.getOpportunities();
-    setOpportunities(data);
-    setLoading(false);
+    try {
+      const data = await dataService.getOpportunities();
+      setOpportunities(data);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -97,7 +100,7 @@ export const AdminOpportunities: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
                 <th className="py-3 px-4">Role Title</th>
                 <th className="py-3 px-4">Organization</th>
                 <th className="py-3 px-4">Type</th>
@@ -111,24 +114,24 @@ export const AdminOpportunities: React.FC = () => {
                 <tr key={opp.id} className="hover:bg-slate-50 transition">
                   <td className="py-3.5 px-4">
                     <span className="font-bold text-brand-navy block">{opp.title}</span>
-                    <span className="text-[11px] text-slate-400">{opp.timing}</span>
+                    <span className="text-xs text-slate-400">{opp.timing}</span>
                   </td>
                   <td className="py-3.5 px-4 font-medium text-slate-700">
                     {opp.organization}
                   </td>
                   <td className="py-3.5 px-4">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-teal-50 text-teal-800 border border-teal-200">
+                    <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-teal-50 text-teal-800 border border-teal-200">
                       {opp.type}
                     </span>
                   </td>
                   <td className="py-3.5 px-4 text-slate-600">
                     {opp.location} ({opp.mode})
                   </td>
-                  <td className="py-3.5 px-4 text-slate-500 font-mono text-[11px]">
+                  <td className="py-3.5 px-4 text-slate-500 font-mono text-xs">
                     {opp.deadline}
                   </td>
                   <td className="py-3.5 px-4">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 capitalize">
+                    <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 capitalize">
                       {opp.status}
                     </span>
                   </td>

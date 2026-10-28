@@ -25,13 +25,16 @@ export const AdminContent: React.FC = () => {
 
   const loadData = async () => {
     setLoading(true);
-    const [postsData, reportsData] = await Promise.all([
-      dataService.getPosts(),
-      dataService.getReports()
-    ]);
-    setPosts(postsData);
-    setReports(reportsData);
-    setLoading(false);
+    try {
+      const [postsData, reportsData] = await Promise.all([
+        dataService.getPosts(),
+        dataService.getReports()
+      ]);
+      setPosts(postsData);
+      setReports(reportsData);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -127,7 +130,7 @@ export const AdminContent: React.FC = () => {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
                       <th className="py-3 px-4">Reported Target</th>
                       <th className="py-3 px-4">Reason</th>
                       <th className="py-3 px-4">Reporter Note</th>
@@ -140,10 +143,10 @@ export const AdminContent: React.FC = () => {
                       <tr key={rep.id} className="hover:bg-slate-50 transition">
                         <td className="py-3.5 px-4">
                           <span className="font-bold text-brand-navy block">{rep.target_title}</span>
-                          <span className="text-[10px] text-slate-400 capitalize">Target: {rep.target_type} • ID: {rep.target_id}</span>
+                          <span className="text-[11px] text-slate-400 capitalize">Target: {rep.target_type} • ID: {rep.target_id}</span>
                         </td>
                         <td className="py-3.5 px-4">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                          <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
                             {rep.reason.replace(/_/g, ' ')}
                           </span>
                         </td>
@@ -151,7 +154,7 @@ export const AdminContent: React.FC = () => {
                           {rep.note || 'No additional note provided.'}
                         </td>
                         <td className="py-3.5 px-4">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold capitalize ${
+                          <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold capitalize ${
                             rep.status === 'open' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-slate-100 text-slate-600'
                           }`}>
                             {rep.status}
@@ -174,7 +177,7 @@ export const AdminContent: React.FC = () => {
                               </button>
                             </>
                           ) : (
-                            <span className="text-slate-400 text-[11px]">Completed</span>
+                            <span className="text-slate-400 text-xs">Completed</span>
                           )}
                         </td>
                       </tr>
@@ -191,7 +194,7 @@ export const AdminContent: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
                   <th className="py-3 px-4">Title & Author</th>
                   <th className="py-3 px-4">Category</th>
                   <th className="py-3 px-4">Stats</th>
@@ -204,10 +207,10 @@ export const AdminContent: React.FC = () => {
                   <tr key={post.id} className="hover:bg-slate-50 transition">
                     <td className="py-3.5 px-4 max-w-sm">
                       <div className="font-bold text-brand-navy truncate">{post.title}</div>
-                      <div className="text-[11px] text-slate-400">By {post.author_name} ({post.author_qualification})</div>
+                      <div className="text-xs text-slate-400">By {post.author_name} ({post.author_qualification})</div>
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${post.category_badge_color}`}>
+                      <span className={`text-[11px] font-semibold px-2 py-0.5 rounded border ${post.category_badge_color}`}>
                         {post.category_name}
                       </span>
                     </td>
@@ -215,7 +218,7 @@ export const AdminContent: React.FC = () => {
                       {post.likes_count} likes • {post.comments_count} replies
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold capitalize ${
+                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold capitalize ${
                         post.status === 'published' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
                       }`}>
                         {post.status}

@@ -63,7 +63,7 @@ export const AdminSettings: React.FC = () => {
       </div>
 
       {saved && (
-        <div className="p-4 bg-teal-50 border border-teal-200 rounded-xl flex items-center gap-2 text-teal-800 text-xs animate-fadeIn">
+        <div className="p-4 bg-teal-50 border border-teal-200 rounded-xl flex items-center gap-2 text-teal-800 text-xs animate-fade-in">
           <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" />
           <span>Platform configuration and verification requirements saved successfully.</span>
         </div>
@@ -76,7 +76,7 @@ export const AdminSettings: React.FC = () => {
             <Shield className="w-4 h-4 text-teal-700" />
             <span>Role-Based Verification Gates</span>
           </h2>
-          <span className="text-[11px] font-semibold text-slate-400">
+          <span className="text-xs font-semibold text-slate-400">
             Admins decide which roles require manual or council document verification
           </span>
         </div>
@@ -89,7 +89,7 @@ export const AdminSettings: React.FC = () => {
                 <span className="text-xs font-bold text-brand-navy block">
                   Mandatory Doctor / Practitioner Verification
                 </span>
-                <span className="text-[11px] text-slate-500 leading-relaxed block mt-0.5">
+                <span className="text-xs text-slate-500 leading-relaxed block mt-0.5">
                   When enabled, doctor registrations start in <strong>Pending</strong> status until an admin verifies their Central Council (NCH) or State Board registration number against official gazettes.
                 </span>
               </div>
@@ -109,7 +109,7 @@ export const AdminSettings: React.FC = () => {
                 <span className="text-xs font-bold text-brand-navy block">
                   Mandatory Academic Researcher Verification
                 </span>
-                <span className="text-[11px] text-slate-500 leading-relaxed block mt-0.5">
+                <span className="text-xs text-slate-500 leading-relaxed block mt-0.5">
                   When enabled, researcher accounts must provide verified university affiliation, institutional email, or ORCID identifier before obtaining publishing rights in the Research Library.
                 </span>
               </div>
@@ -129,7 +129,7 @@ export const AdminSettings: React.FC = () => {
                 <span className="text-xs font-bold text-brand-navy block">
                   Student Medical College ID Check
                 </span>
-                <span className="text-[11px] text-slate-500 leading-relaxed block mt-0.5">
+                <span className="text-xs text-slate-500 leading-relaxed block mt-0.5">
                   When enabled, homoeopathic students must upload college ID / enrollment slip to access the Student Corner and send clinical mentorship requests. (Default: Instant Community Access).
                 </span>
               </div>
@@ -149,7 +149,7 @@ export const AdminSettings: React.FC = () => {
                 <span className="text-xs font-bold text-brand-navy block">
                   Permit Student Mentorship Requests to Verified Doctors
                 </span>
-                <span className="text-[11px] text-slate-500 leading-relaxed block mt-0.5">
+                <span className="text-xs text-slate-500 leading-relaxed block mt-0.5">
                   Allows students to submit structured clinical case-taking and repertory mentorship requests to willing doctors.
                 </span>
               </div>
@@ -185,10 +185,10 @@ export const AdminSettings: React.FC = () => {
             <Info className="w-4 h-4 text-teal-700" />
             <span>Secure Backend Elevation Process</span>
           </div>
-          <p className="text-[11px] leading-relaxed text-slate-600">
+          <p className="text-xs leading-relaxed text-slate-600">
             Homeo Circle strictly rejects insecure client-side role manipulation or hard-coded passwords. To designate a new Super Administrator on a production Supabase instance, execute the following SQL migration command with service-role permissions:
           </p>
-          <pre className="p-3 bg-slate-900 text-teal-300 rounded-lg text-[11px] font-mono overflow-x-auto">
+          <pre className="p-3 bg-slate-900 text-teal-300 rounded-lg text-xs font-mono overflow-x-auto">
 {`-- Run in Supabase SQL Editor to grant verified administrative rights:
 UPDATE public.profiles
 SET 
@@ -203,9 +203,9 @@ WHERE email = 'target_admin@homeocircle.in';`}
           <div className="py-3 flex items-center justify-between">
             <div>
               <span className="font-bold text-brand-navy block">Dr. Sanjeev Bannerjee</span>
-              <span className="text-[11px] text-slate-500">admin@homeocircle.in • Reg: NCH/SUPER/2006/0012</span>
+              <span className="text-xs text-slate-500">admin@homeocircle.in • Reg: NCH/SUPER/2006/0012</span>
             </div>
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-200">
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-200">
               Super Admin (DB Backed)
             </span>
           </div>

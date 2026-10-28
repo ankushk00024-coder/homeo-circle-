@@ -88,7 +88,7 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-8">
       {actionSuccess && (
-        <div className="p-3 bg-teal-50 border border-teal-200 text-teal-800 rounded-xl text-xs flex items-center justify-between animate-fadeIn">
+        <div className="p-3 bg-teal-50 border border-teal-200 text-teal-800 rounded-xl text-xs flex items-center justify-between animate-fade-in">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-teal-600" />
             <span>{actionSuccess}</span>
@@ -104,25 +104,25 @@ export const DashboardPage: React.FC = () => {
         <div className="relative z-10 max-w-3xl space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             {isDoctor && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-950/80 border border-teal-600/60 text-teal-300 text-[11px] font-semibold">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-950/80 border border-teal-600/60 text-teal-300 text-xs font-semibold">
                 <Stethoscope className="w-3.5 h-3.5 text-teal-400" />
                 <span>Doctor / Registered Practitioner</span>
               </span>
             )}
             {isStudent && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-950/80 border border-blue-600/60 text-blue-300 text-[11px] font-semibold">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-950/80 border border-blue-600/60 text-blue-300 text-xs font-semibold">
                 <GraduationCap className="w-3.5 h-3.5 text-blue-400" />
                 <span>Homoeopathic Student Member</span>
               </span>
             )}
             {isResearcher && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-950/80 border border-purple-600/60 text-purple-300 text-[11px] font-semibold">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-950/80 border border-purple-600/60 text-purple-300 text-xs font-semibold">
                 <Microscope className="w-3.5 h-3.5 text-purple-400" />
                 <span>Researcher & Academic Educator</span>
               </span>
             )}
             {isAdmin && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-950/80 border border-amber-600/60 text-amber-300 text-[11px] font-semibold">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-950/80 border border-amber-600/60 text-amber-300 text-xs font-semibold">
                 <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
                 <span>Super Administrator</span>
               </span>
@@ -130,17 +130,17 @@ export const DashboardPage: React.FC = () => {
 
             {/* Verification Status Pill */}
             {verificationStatus === 'verified' ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-900/60 border border-emerald-500/50 text-emerald-300 text-[10px] font-bold">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-900/60 border border-emerald-500/50 text-emerald-300 text-[11px] font-bold">
                 <ShieldCheck className="w-3 h-3 text-emerald-400" />
                 <span>Verified</span>
               </span>
             ) : verificationStatus === 'pending' ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-900/60 border border-amber-500/50 text-amber-300 text-[10px] font-bold">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-900/60 border border-amber-500/50 text-amber-300 text-[11px] font-bold">
                 <Clock className="w-3 h-3 text-amber-400" />
                 <span>Verification Pending</span>
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-900/60 border border-rose-500/50 text-rose-300 text-[10px] font-bold">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-900/60 border border-rose-500/50 text-rose-300 text-[11px] font-bold">
                 <ShieldAlert className="w-3 h-3 text-rose-400" />
                 <span>Needs Correction</span>
               </span>
@@ -228,7 +228,7 @@ export const DashboardPage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Verification</span>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Verification</span>
             <span className="text-sm font-bold text-brand-navy capitalize">{verificationStatus}</span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center text-teal-700">
@@ -238,7 +238,7 @@ export const DashboardPage: React.FC = () => {
 
         <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Network Requests</span>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Network Requests</span>
             <span className="text-sm font-bold text-brand-navy">{pendingRequests.length} Pending</span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-700">
@@ -248,7 +248,7 @@ export const DashboardPage: React.FC = () => {
 
         <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Saved Bookmarks</span>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Saved Bookmarks</span>
             <span className="text-sm font-bold text-brand-navy">{savedPostIds.length} Posts</span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-700">
@@ -258,7 +258,7 @@ export const DashboardPage: React.FC = () => {
 
         <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Registered Events</span>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Registered Events</span>
             <span className="text-sm font-bold text-brand-navy">{registeredEvents.length} Events</span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-700">
@@ -289,8 +289,8 @@ export const DashboardPage: React.FC = () => {
                   <Avatar name={req.sender_name} src={req.sender_avatar} size="sm" />
                   <div className="truncate">
                     <h4 className="text-xs font-bold text-slate-900 truncate">{req.sender_name}</h4>
-                    <p className="text-[11px] text-slate-500 truncate">{req.sender_qualification} • {req.sender_location}</p>
-                    <span className="text-[10px] text-slate-400">{req.created_at}</span>
+                    <p className="text-xs text-slate-500 truncate">{req.sender_qualification} • {req.sender_location}</p>
+                    <span className="text-[11px] text-slate-400">{req.created_at}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -347,9 +347,9 @@ export const DashboardPage: React.FC = () => {
                       size="xs"
                     />
                     <span className="text-xs font-semibold text-brand-navy">{post.author_name}</span>
-                    <span className="text-[11px] text-slate-400">• {post.author_qualification}</span>
+                    <span className="text-xs text-slate-400">• {post.author_qualification}</span>
                   </div>
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${post.category_badge_color}`}>
+                  <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${post.category_badge_color}`}>
                     {post.category_name}
                   </span>
                 </div>
@@ -361,7 +361,7 @@ export const DashboardPage: React.FC = () => {
                   {post.body}
                 </p>
 
-                <div className="flex items-center gap-4 text-[11px] text-slate-400 pt-1">
+                <div className="flex items-center gap-4 text-xs text-slate-400 pt-1">
                   <span>{post.likes_count} likes</span>
                   <span>{post.comments_count} replies</span>
                   <span>{post.created_at}</span>
@@ -398,15 +398,15 @@ export const DashboardPage: React.FC = () => {
                   >
                     <div className="w-12 h-12 rounded-xl bg-[#0F1E36] text-white flex flex-col items-center justify-center flex-shrink-0 text-center">
                       <span className="text-sm font-bold leading-none">{evt.date_badge_day}</span>
-                      <span className="text-[9px] uppercase tracking-wider font-semibold text-teal-300">{evt.date_badge_month}</span>
+                      <span className="text-[10px] uppercase tracking-wider font-semibold text-teal-300">{evt.date_badge_month}</span>
                     </div>
                     <div className="flex-1 overflow-hidden">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-bold text-teal-700 uppercase tracking-wide">
+                        <span className="text-[11px] font-bold text-teal-700 uppercase tracking-wide">
                           {evt.format}
                         </span>
                         {isRegistered && (
-                          <span className="text-[9px] font-semibold bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded">
+                          <span className="text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded">
                             Registered
                           </span>
                         )}
@@ -414,7 +414,7 @@ export const DashboardPage: React.FC = () => {
                       <h4 className="text-xs font-bold text-brand-navy truncate">
                         {evt.title}
                       </h4>
-                      <p className="text-[11px] text-slate-500 truncate">{evt.time_display}</p>
+                      <p className="text-xs text-slate-500 truncate">{evt.time_display}</p>
                     </div>
                     <Link
                       to="/events"
@@ -450,12 +450,12 @@ export const DashboardPage: React.FC = () => {
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-brand-navy">{opp.title}</span>
-                    <span className="text-[10px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded">
+                    <span className="text-[11px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded">
                       {opp.type}
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-500">{opp.organization} • {opp.location}</p>
-                  <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                  <p className="text-xs text-slate-500">{opp.organization} • {opp.location}</p>
+                  <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
                     <span>{opp.timing}</span>
                     <span>Deadline: {opp.deadline}</span>
                   </div>
@@ -470,7 +470,7 @@ export const DashboardPage: React.FC = () => {
               <BookOpen className="w-3.5 h-3.5 text-teal-700" />
               <span>Professional Standards</span>
             </h4>
-            <p className="text-[11px] text-slate-500 leading-relaxed">
+            <p className="text-xs text-slate-500 leading-relaxed">
               Always de-identify patient names and records before publishing clinical queries. Homeo Circle adheres to NCH India ethical guidelines and Digital Information Security in Healthcare guidelines (DISHA).
             </p>
           </div>

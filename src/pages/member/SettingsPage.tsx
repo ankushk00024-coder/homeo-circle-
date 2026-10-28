@@ -12,9 +12,11 @@ import {
   ShieldCheck,
   UserCheck
 } from 'lucide-react';
+import { useToast } from '../../components/feedback/ToastProvider';
 
 export const SettingsPage: React.FC = () => {
   const { currentUser } = useAuth();
+  const toast = useToast();
   
   // Notification states
   const [notifyConnections, setNotifyConnections] = useState(true);
@@ -48,7 +50,7 @@ export const SettingsPage: React.FC = () => {
       </div>
 
       {savedSettings && (
-        <div className="p-3 bg-teal-50 border border-teal-200 text-teal-800 rounded-xl text-xs flex items-center gap-2 animate-fadeIn">
+        <div className="p-3 bg-teal-50 border border-teal-200 text-teal-800 rounded-xl text-xs flex items-center gap-2 animate-fade-in">
           <CheckCircle2 className="w-4 h-4 text-teal-600" />
           <span>Notification preferences updated successfully.</span>
         </div>
@@ -61,7 +63,7 @@ export const SettingsPage: React.FC = () => {
             <Bell className="w-4 h-4 text-teal-700" />
             <span>In-App Notification Triggers</span>
           </h2>
-          <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+          <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
             Real-Time Active
           </span>
         </div>
@@ -70,7 +72,7 @@ export const SettingsPage: React.FC = () => {
           <label className="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100/70 transition">
             <div className="pr-4">
               <span className="font-semibold text-slate-800 block">Connection Requests & Network Updates</span>
-              <span className="text-[11px] text-slate-500">Alert me when a practitioner, researcher or student sends or accepts a connection request.</span>
+              <span className="text-xs text-slate-500">Alert me when a practitioner, researcher or student sends or accepts a connection request.</span>
             </div>
             <input
               type="checkbox"
@@ -83,7 +85,7 @@ export const SettingsPage: React.FC = () => {
           <label className="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100/70 transition">
             <div className="pr-4">
               <span className="font-semibold text-slate-800 block">Case Observations, Replies & Mentions</span>
-              <span className="text-[11px] text-slate-500">Alert me when peers reply to my clinical cases or mention my profile in discussions.</span>
+              <span className="text-xs text-slate-500">Alert me when peers reply to my clinical cases or mention my profile in discussions.</span>
             </div>
             <input
               type="checkbox"
@@ -96,7 +98,7 @@ export const SettingsPage: React.FC = () => {
           <label className="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100/70 transition">
             <div className="pr-4">
               <span className="font-semibold text-slate-800 block">Student Mentorship Inquiries</span>
-              <span className="text-[11px] text-slate-500">Receive alerts when eligible students submit clinical learning or mentorship guidance requests.</span>
+              <span className="text-xs text-slate-500">Receive alerts when eligible students submit clinical learning or mentorship guidance requests.</span>
             </div>
             <input
               type="checkbox"
@@ -109,7 +111,7 @@ export const SettingsPage: React.FC = () => {
           <label className="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100/70 transition">
             <div className="pr-4">
               <span className="font-semibold text-slate-800 block">Accredited Webinars & CME Announcements</span>
-              <span className="text-[11px] text-slate-500">Receive notifications for new national study circles, clinical workshops, and event registrations.</span>
+              <span className="text-xs text-slate-500">Receive notifications for new national study circles, clinical workshops, and event registrations.</span>
             </div>
             <input
               type="checkbox"
@@ -126,7 +128,7 @@ export const SettingsPage: React.FC = () => {
             <Info className="w-4 h-4 text-amber-700 flex-shrink-0" />
             <h4 className="text-xs font-bold text-amber-900">Email Notification Integration Status</h4>
           </div>
-          <p className="text-[11px] text-amber-800 leading-relaxed">
+          <p className="text-xs text-amber-800 leading-relaxed">
             All in-app alerts are delivered live. However, automatic external email dispatch requires an integrated SMTP server or transactional email provider (such as Resend or SendGrid) configured via backend environment variables (<code className="bg-amber-100 px-1 rounded">SMTP_HOST</code> or <code className="bg-amber-100 px-1 rounded">RESEND_API_KEY</code>). Until configured, email alerts are queued safely without simulated success.
           </p>
         </div>
@@ -178,7 +180,7 @@ export const SettingsPage: React.FC = () => {
           Under Indian Digital Personal Data Protection laws (DPDP Act) and medical confidentiality guidelines, you can request an export of your authored clinical posts or permanent erasure of your account.
         </p>
         <button
-          onClick={() => alert('Data portability and account deletion request queued for Data Protection Officer (dpo@homeocircle.in).')}
+          onClick={() => toast.info('To export or delete your data, email our Data Protection Officer at dpo@homeocircle.in. We respond within 30 days.')}
           className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-semibold border border-rose-200 transition"
         >
           Request Account Deletion & Data Export

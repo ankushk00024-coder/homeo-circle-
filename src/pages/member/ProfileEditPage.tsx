@@ -145,7 +145,7 @@ export const ProfileEditPage: React.FC = () => {
           />
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-slate-500 pt-1">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-500 pt-1">
           <span className={displayName ? "text-teal-700 font-medium flex items-center gap-1" : "text-slate-400 flex items-center gap-1"}>
             <CheckCircle2 className="w-3 h-3" /> Basic Info
           </span>
@@ -162,7 +162,7 @@ export const ProfileEditPage: React.FC = () => {
       </div>
 
       {saved && (
-        <div className="p-4 bg-teal-50 border border-teal-200 rounded-xl flex items-center gap-2 text-teal-800 text-xs animate-fadeIn">
+        <div className="p-4 bg-teal-50 border border-teal-200 rounded-xl flex items-center gap-2 text-teal-800 text-xs animate-fade-in">
           <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" />
           <span>Profile updated successfully. Changes are now visible across your member profile.</span>
         </div>
@@ -173,7 +173,7 @@ export const ProfileEditPage: React.FC = () => {
         {/* Verification Status Banner */}
         <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between text-xs">
           <div>
-            <span className="text-[10px] uppercase font-bold text-slate-400 block">Registration & Verification</span>
+            <span className="text-[11px] uppercase font-bold text-slate-400 block">Registration & Verification</span>
             <span className="font-semibold text-brand-navy">
               {currentUser?.registration_number ? `Reg #${currentUser.registration_number}` : (currentUser?.email || 'Registered Member')}
             </span>
