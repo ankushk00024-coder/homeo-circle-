@@ -1,5 +1,13 @@
 # Homeo Circle — Frontend Audit & UI/Animation Plan
 
+> **Status (branch `feat/security-fixes-and-ui-upgrade`):** Part A (A1–A6) is
+> implemented. B1, B3 (focus, dialogs, reduced motion), B4 (code-splitting,
+> WebP images, slower polling) and B5 cleanup are implemented. D1–D10 are
+> implemented. Still open:
+> - the hard-coded hex colour clean-up (B2)
+> - splitting the very large page files (B5)
+> - the demo-only data features listed in `docs/backend/README.md`
+
 Scope: everything under `src/`, plus `index.html`, `tailwind.config.js` and `public/`
 (commit `24031a5`). This is a static code review. I could not run
 `npm ci` / `npm run build` / `oxlint` in this session, so build and lint errors are

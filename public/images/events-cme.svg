@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-labelledby="t">
+  <title id="t">Illustration of a live CME webinar on a laptop with a calendar card</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#EEF6FC"/>
+      <stop offset="1" stop-color="#D5ECF8"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#172B46"/>
+      <stop offset="1" stop-color="#0B1726"/>
+    </linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#13B5A9"/>
+      <stop offset="1" stop-color="#0D817B"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <circle cx="110" cy="110" r="140" fill="#C9E2F4" opacity=".55"/>
+  <circle cx="700" cy="520" r="170" fill="#BCE8E0" opacity=".45"/>
+  <!-- laptop -->
+  <ellipse cx="390" cy="505" rx="260" ry="20" fill="#122238" opacity=".12"/>
+  <rect x="170" y="150" width="440" height="290" rx="20" fill="url(#screen)"/>
+  <rect x="190" y="170" width="400" height="250" rx="10" fill="#122238"/>
+  <!-- slide -->
+  <rect x="210" y="190" width="240" height="150" rx="10" fill="#F1F7FC"/>
+  <rect x="228" y="208" width="120" height="12" rx="6" fill="#0D817B"/>
+  <rect x="228" y="232" width="190" height="8" rx="4" fill="#9BB8D0"/>
+  <rect x="228" y="250" width="160" height="8" rx="4" fill="#9BB8D0"/>
+  <path d="M232 320 L 270 290 L 300 305 L 340 268 L 380 282 L 425 250" stroke="#0D817B" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- speaker tile -->
+  <rect x="466" y="190" width="106" height="98" rx="10" fill="#344A78"/>
+  <circle cx="519" cy="228" r="20" fill="#F1F7FC"/>
+  <path d="M484 288 C 488 258 550 258 554 288 Z" fill="#F1F7FC"/>
+  <circle cx="556" cy="204" r="6" fill="#F43F5E"/>
+  <!-- attendee tiles -->
+  <g>
+    <rect x="466" y="300" width="50" height="40" rx="8" fill="#243456"/>
+    <rect x="522" y="300" width="50" height="40" rx="8" fill="#243456"/>
+    <circle cx="491" cy="316" r="8" fill="#9BB8D0"/>
+    <circle cx="547" cy="316" r="8" fill="#13B5A9"/>
+  </g>
+  <!-- controls -->
+  <g transform="translate(330 380)">
+    <rect x="-10" y="-14" width="140" height="28" rx="14" fill="#243456"/>
+    <circle cx="14" cy="0" r="8" fill="#9BB8D0"/>
+    <circle cx="44" cy="0" r="8" fill="#9BB8D0"/>
+    <circle cx="74" cy="0" r="8" fill="#9BB8D0"/>
+    <circle cx="104" cy="0" r="8" fill="#F43F5E"/>
+  </g>
+  <path d="M130 440 L 650 440 L 680 480 C 682 486 678 490 672 490 L 108 490 C 102 490 98 486 100 480 Z" fill="#C4D7E6"/>
+  <rect x="345" y="452" width="90" height="10" rx="5" fill="#9BB8D0"/>
+  <!-- LIVE pill -->
+  <g transform="translate(205 120)">
+    <rect width="96" height="34" rx="17" fill="#FFFFFF"/>
+    <circle cx="22" cy="17" r="7" fill="#F43F5E"/>
+    <text x="38" y="23" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="15" font-weight="700" fill="#122238">LIVE</text>
+  </g>
+  <!-- calendar card -->
+  <g transform="translate(590 90) rotate(6)">
+    <rect width="150" height="160" rx="18" fill="#FFFFFF"/>
+    <rect width="150" height="44" rx="18" fill="url(#teal)"/>
+    <rect y="26" width="150" height="18" fill="#0D817B"/>
+    <text x="75" y="31" text-anchor="middle" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="15" font-weight="700" fill="#FFFFFF" letter-spacing="3">CME</text>
+    <text x="75" y="112" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-size="58" font-weight="700" fill="#122238">24</text>
+    <text x="75" y="140" text-anchor="middle" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="14" font-weight="600" fill="#3E556E" letter-spacing="2">WEBINAR</text>
+  </g>
+  <!-- certificate badge -->
+  <g transform="translate(110 330)">
+    <circle r="48" fill="#FFFFFF"/>
+    <circle r="36" fill="url(#teal)"/>
+    <path d="M-14 0 L -4 11 L 16 -11" stroke="#FFFFFF" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
