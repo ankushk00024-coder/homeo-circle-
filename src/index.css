@@ -171,3 +171,67 @@
     transform: none;
   }
 }
+
+/* ── Community hero: tilted photo cards, hand-drawn notes ─────────────── */
+/* Structure: .photo-enter (entrance) > .photo-card (tilt + hover lift) > .photo-shake (hover jiggle) */
+@layer components {
+  .photo-enter {
+    animation: photo-enter .9s cubic-bezier(.22, 1, .36, 1) both;
+  }
+
+  .photo-card {
+    --tilt: 0deg;
+    @apply relative block cursor-pointer;
+    transform: rotate(var(--tilt));
+    transition: transform .5s cubic-bezier(.22, 1, .36, 1);
+  }
+  .photo-card:hover,
+  .photo-card:focus-visible {
+    transform: rotate(calc(var(--tilt) * 0.4)) translateY(-6px) scale(1.06);
+    z-index: 30;
+  }
+
+  .photo-shake {
+    @apply block rounded-[18px] bg-white p-2 sm:p-2.5 shadow-elevated ring-1 ring-black/5 transition-shadow duration-500;
+  }
+  .photo-card:hover .photo-shake,
+  .photo-card:focus-visible .photo-shake {
+    animation: photo-shake .6s ease-in-out;
+    box-shadow: 0 30px 55px -14px rgba(18, 34, 56, 0.32);
+  }
+  .photo-shake img {
+    @apply block w-full h-full object-cover rounded-[12px];
+  }
+
+  .hand-note {
+    @apply font-hand text-[#2B3A4E] leading-snug select-none;
+  }
+
+  /* Hand-drawn strokes (arrows, brush underline) draw themselves in */
+  .draw-in {
+    stroke-dasharray: var(--len, 400);
+    stroke-dashoffset: var(--len, 400);
+    animation: draw-stroke 1.1s cubic-bezier(.65, 0, .35, 1) forwards;
+  }
+}
+
+@keyframes photo-shake {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(4deg); }
+  40% { transform: rotate(-3.5deg); }
+  60% { transform: rotate(2.5deg); }
+  80% { transform: rotate(-1.2deg); }
+}
+
+@keyframes photo-enter {
+  from { opacity: 0; transform: translateY(36px) scale(.92); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes draw-stroke {
+  to { stroke-dashoffset: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .draw-in { stroke-dashoffset: 0; }
+}

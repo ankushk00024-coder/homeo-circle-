@@ -18,12 +18,7 @@ export const PublicNavbar: React.FC = () => {
   }, []);
 
   const navLinks = [
-    { label: 'Home', path: '/' },
-    { label: 'Community', path: '/community' },
-    { label: 'Student Corner', path: '/students' },
-    { label: 'Events', path: '/events' },
-    { label: 'Opportunities', path: '/opportunities' },
-    { label: 'Research', path: '/knowledge' },
+    { label: 'Community', path: '/explore' },
     { label: 'About', path: '/about' },
   ];
 
@@ -38,24 +33,25 @@ export const PublicNavbar: React.FC = () => {
         scrolled ? 'bg-white/85 border-brand-border shadow-card' : 'bg-brand-pale/80 border-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className={`flex items-center justify-between transition-all duration-300 ${scrolled ? 'h-16' : 'h-[72px]'}`}>
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
+        <div className={`flex items-center justify-between transition-all duration-300 ${scrolled ? 'h-16' : 'h-[76px]'}`}>
 
           {/* Logo */}
           <div className="flex-shrink-0">
             <BrandLogo size="md" />
           </div>
 
-          {/* Desktop Nav Links */}
-          <nav className="hidden lg:flex items-center gap-6 xl:gap-7">
+          {/* Right: links + actions */}
+          <div className="hidden md:flex items-center gap-8">
+          <nav className="flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                className={`group relative py-2 text-sm transition-colors ${
+                className={`group relative py-2 text-[15px] transition-colors ${
                   isActive(link.path)
                     ? 'text-[#0D817B] font-semibold'
-                    : 'text-[#4A627A] hover:text-[#14243F] font-medium'
+                    : 'text-brand-navy/85 hover:text-brand-navy font-medium'
                 }`}
               >
                 <span>{link.label}</span>
@@ -68,8 +64,7 @@ export const PublicNavbar: React.FC = () => {
             ))}
           </nav>
 
-          {/* Right actions */}
-          <div className="hidden md:flex items-center gap-3">
+            <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <Link
                 to={isVerifiedMember ? '/dashboard' : '/application-status'}
@@ -80,19 +75,20 @@ export const PublicNavbar: React.FC = () => {
               </Link>
             ) : (
               <>
-                <Link to="/login" className="text-sm font-medium text-[#4A627A] hover:text-[#14243F] px-3 py-2 transition">
+                <Link to="/login" className="text-[15px] font-medium text-brand-navy/85 hover:text-brand-navy px-3 py-2 transition">
                   Sign in
                 </Link>
-                <Link to="/apply" className="btn-primary group !px-4 !py-2.5">
-                  Join Homeo Circle
-                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                <Link to="/apply" className="btn-primary group !px-6 !py-3 !text-base">
+                  Join the Circle
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </>
             )}
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="flex lg:hidden">
+          <div className="flex md:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-lg text-[#5A6E85] hover:text-[#14243F] hover:bg-[#EEF6FC]"
@@ -107,7 +103,7 @@ export const PublicNavbar: React.FC = () => {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-b border-[#D7E5F0] bg-white px-4 pt-3 pb-6 space-y-3 animate-slide-down shadow-card">
+        <div className="md:hidden border-b border-[#D7E5F0] bg-white px-4 pt-3 pb-6 space-y-3 animate-slide-down shadow-card">
           <div className="flex flex-col space-y-1">
             {navLinks.map((link) => (
               <Link
@@ -148,7 +144,7 @@ export const PublicNavbar: React.FC = () => {
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full text-center px-4 py-2.5 rounded-xl bg-[#0D817B] text-white text-xs font-semibold"
                 >
-                  Join Homeo Circle
+                  Join the Circle
                 </Link>
               </>
             )}

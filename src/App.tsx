@@ -22,6 +22,7 @@ const PrivacyPage = lazy(() => import('./pages/public/PrivacyPage').then((m) => 
 const TermsPage = lazy(() => import('./pages/public/TermsPage').then((m) => ({ default: m.TermsPage })));
 const ApplyPage = lazy(() => import('./pages/public/ApplyPage').then((m) => ({ default: m.ApplyPage })));
 const ApplicationStatusPage = lazy(() => import('./pages/public/ApplicationStatusPage').then((m) => ({ default: m.ApplicationStatusPage })));
+const ExplorePage = lazy(() => import('./pages/public/ExplorePage').then((m) => ({ default: m.ExplorePage })));
 const ResetPasswordPage = lazy(() => import('./pages/public/ResetPasswordPage').then((m) => ({ default: m.ResetPasswordPage })));
 
 // Member pages (lazy)
@@ -147,6 +148,7 @@ export function App() {
           {/* Public Routes */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/explore" element={<ExplorePage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/eligibility" element={<EligibilityPage />} />
             <Route path="/community-rules" element={<CommunityRulesPage />} />

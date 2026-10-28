@@ -47,7 +47,7 @@ export const initialMembers: UserProfile[] = [
       show_location: true,
       profile_visibility: 'members_only'
     },
-    profile_visibility: 'members_only',
+    profile_visibility: 'public',
     created_at: '2025-01-15T10:00:00Z',
     updated_at: '2026-02-10T14:30:00Z'
   },
@@ -126,7 +126,7 @@ export const initialMembers: UserProfile[] = [
       show_location: true,
       profile_visibility: 'members_only'
     },
-    profile_visibility: 'members_only',
+    profile_visibility: 'public',
     created_at: '2025-02-05T09:30:00Z',
     updated_at: '2026-03-01T15:00:00Z'
   },
@@ -161,7 +161,7 @@ export const initialMembers: UserProfile[] = [
       show_location: true,
       profile_visibility: 'members_only'
     },
-    profile_visibility: 'members_only',
+    profile_visibility: 'public',
     created_at: '2025-03-10T10:00:00Z',
     updated_at: '2026-03-15T12:00:00Z'
   },
@@ -197,7 +197,7 @@ export const initialMembers: UserProfile[] = [
       show_location: true,
       profile_visibility: 'members_only'
     },
-    profile_visibility: 'members_only',
+    profile_visibility: 'public',
     created_at: '2025-02-12T12:00:00Z',
     updated_at: '2026-03-10T10:00:00Z'
   },
@@ -249,7 +249,7 @@ export const initialMembers: UserProfile[] = [
     bio: 'Specialized focus on recurring childhood infections, constitutional prescribing in pediatric allergies, and gentle remedies.',
     interests: ['Pediatrics', 'Childhood Immunity', 'Constitutional Prescribing'],
     mentorship_available: true,
-    profile_visibility: 'members_only',
+    profile_visibility: 'public',
     created_at: '2025-03-01T14:00:00Z',
     updated_at: '2026-03-12T09:00:00Z'
   },

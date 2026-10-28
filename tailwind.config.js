@@ -43,6 +43,7 @@ export default {
       fontFamily: {
         serif: ['"Playfair Display"', 'Georgia', 'serif'],
         sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+        hand: ['"Gochi Hand"', '"Comic Sans MS"', 'cursive'],
       },
       boxShadow: {
         'subtle': '0 1px 3px 0 rgba(20, 36, 63, 0.04), 0 1px 2px -1px rgba(20, 36, 63, 0.03)',
