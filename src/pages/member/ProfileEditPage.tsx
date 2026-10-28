@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { dataService } from '../../lib/supabase';
+import { Avatar } from '../../components/common/Avatar';
 import { 
   ShieldCheck, 
   CheckCircle2, 
-  User, 
-  Lock, 
-  ArrowLeft,
   Sparkles,
   GraduationCap,
   Microscope,
@@ -13,16 +12,47 @@ import {
   Globe,
   ExternalLink,
   Phone,
-  Mail,
-  Eye,
-  EyeOff
+  Camera,
+  AlertCircle
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 export const ProfileEditPage: React.FC = () => {
-  const { currentUser, updateCurrentUser, isDoctor, isStudent, isResearcher } = useAuth();
+  const { currentUser, updateCurrentUser } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Permitted user categories (doctor/practitioner, student/intern, researcher/educator)
+  const [category, setCategory] = useState<'doctor' | 'student' | 'researcher'>(() => {
+    if (currentUser?.account_type) return currentUser.account_type;
+    if (currentUser?.role === 'student') return 'student';
+    if (currentUser?.role === 'researcher') return 'researcher';
+    return 'doctor';
+  });
+
+  const isDoctor = category === 'doctor';
+  const isStudent = category === 'student';
+  const isResearcher = category === 'researcher';
+
+  const returnDestination = (): string | null => {
+    const searchParams = new URLSearchParams(location.search);
+    const returnUrl = searchParams.get('returnUrl');
+    if (returnUrl) return returnUrl;
+
+    const from = (location.state as any)?.from;
+    if (typeof from === 'string') return from;
+    if (from && typeof from === 'object') {
+      return `${from.pathname || ''}${from.search || ''}`;
+    }
+    return null;
+  };
+
+  const returnTo = returnDestination();
+  const noticeMessage = (location.state as any)?.message;
 
   const [displayName, setDisplayName] = useState(currentUser?.display_name || '');
+  const [avatarUrl, setAvatarUrl] = useState(currentUser?.avatar_url || '');
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [qualification, setQualification] = useState(currentUser?.qualification || '');
   const [specialization, setSpecialization] = useState(currentUser?.specialization || 'Clinical Practice');
   const [clinic, setClinic] = useState(currentUser?.clinic_institution || '');
@@ -64,12 +94,45 @@ export const ProfileEditPage: React.FC = () => {
 
   const completionPct = calculateCompletion();
 
+  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !currentUser?.id) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload a valid image file (JPEG, PNG, WebP).');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size must be less than 5MB.');
+      return;
+    }
+
+    try {
+      setUploadingAvatar(true);
+      const result = await dataService.uploadAvatar(currentUser.id, file);
+      setAvatarUrl(result.publicUrl);
+      updateCurrentUser({ avatar_url: result.publicUrl });
+    } catch (err: any) {
+      console.error('Failed to upload avatar:', err);
+      alert(err.message || 'Failed to upload photo. Please verify Supabase Storage configuration.');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     const interests = interestsStr.split(',').map(s => s.trim()).filter(Boolean);
     
+    // Preserve admin/moderator roles; otherwise allow updating role to match chosen category
+    const isPrivileged = ['admin', 'super_admin', 'moderator'].includes(currentUser?.role || '');
+    const targetRole = isPrivileged ? currentUser?.role : category;
+
     updateCurrentUser({
+      account_type: category,
+      role: targetRole,
       display_name: displayName.trim(),
+      avatar_url: avatarUrl || currentUser?.avatar_url,
       qualification: qualification.trim(),
       specialization: specialization.trim(),
       clinic_institution: isStudent ? institution.trim() : clinic.trim(),
@@ -102,11 +165,31 @@ export const ProfileEditPage: React.FC = () => {
     });
 
     setSaved(true);
-    setTimeout(() => setSaved(false), 3500);
+    if (returnTo) {
+      setTimeout(() => {
+        navigate(returnTo, { replace: true });
+      }, 1500);
+    } else {
+      setTimeout(() => setSaved(false), 3500);
+    }
   };
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
+      {noticeMessage && (
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between text-amber-900 text-xs animate-fadeIn">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+            <span>{noticeMessage}</span>
+          </div>
+          {returnTo && (
+            <Link to={returnTo} className="text-amber-800 underline font-semibold text-[11px] hover:text-amber-950">
+              Return without saving
+            </Link>
+          )}
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-serif font-bold text-brand-navy">
@@ -164,7 +247,11 @@ export const ProfileEditPage: React.FC = () => {
       {saved && (
         <div className="p-4 bg-teal-50 border border-teal-200 rounded-xl flex items-center gap-2 text-teal-800 text-xs animate-fadeIn">
           <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" />
-          <span>Profile updated successfully. Changes are now visible across your member profile.</span>
+          <span>
+            {returnTo 
+              ? 'Profile updated successfully! Returning you to your action...' 
+              : 'Profile updated successfully. Changes are now visible across your member profile.'}
+          </span>
         </div>
       )}
 
@@ -178,7 +265,7 @@ export const ProfileEditPage: React.FC = () => {
               {currentUser?.registration_number ? `Reg #${currentUser.registration_number}` : (currentUser?.email || 'Registered Member')}
             </span>
             <span className="text-slate-500 block">
-              {currentUser?.registration_authority || (isStudent ? 'Enrolled Student' : 'Academic Member')}
+              {currentUser?.registration_authority || (isStudent ? 'Enrolled Student' : isResearcher ? 'Academic Faculty / Researcher' : 'Registered Practitioner')}
             </span>
           </div>
           <span className="text-xs font-semibold text-teal-800 bg-teal-50 px-2.5 py-1 rounded-lg border border-teal-200 flex items-center gap-1">
@@ -187,11 +274,139 @@ export const ProfileEditPage: React.FC = () => {
           </span>
         </div>
 
+        {/* Profile Category Selection */}
+        <div className="p-5 bg-gradient-to-br from-[#F8FBFE] to-teal-50/40 rounded-2xl border border-teal-200/80 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h3 className="text-sm font-bold text-brand-navy flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-brand-teal" />
+                <span>Choose Your Profile Type</span>
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Select the category that best matches your practice. You can change this anytime.
+              </p>
+            </div>
+            <span className="self-start sm:self-auto text-[11px] font-semibold text-teal-800 bg-teal-100/70 px-2.5 py-0.5 rounded-full capitalize">
+              Active: {category === 'doctor' ? 'Practitioner' : category === 'student' ? 'Student / Intern' : 'Researcher'}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+            <button
+              type="button"
+              onClick={() => setCategory('doctor')}
+              className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
+                category === 'doctor'
+                  ? 'bg-white border-teal-600 shadow-xs ring-2 ring-teal-500/20'
+                  : 'bg-white/70 border-slate-200 hover:border-slate-300 hover:bg-white'
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${category === 'doctor' ? 'bg-teal-100 text-teal-800' : 'bg-slate-100 text-slate-600'}`}>
+                  <Stethoscope className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold text-slate-800">Practitioner</span>
+              </div>
+              <p className="text-[11px] text-slate-500 leading-snug">
+                Practicing clinician in OPD or private consultation practice.
+              </p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setCategory('student')}
+              className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
+                category === 'student'
+                  ? 'bg-white border-teal-600 shadow-xs ring-2 ring-teal-500/20'
+                  : 'bg-white/70 border-slate-200 hover:border-slate-300 hover:bg-white'
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${category === 'student' ? 'bg-teal-100 text-teal-800' : 'bg-slate-100 text-slate-600'}`}>
+                  <GraduationCap className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold text-slate-800">Student / Intern</span>
+              </div>
+              <p className="text-[11px] text-slate-500 leading-snug">
+                Enrolled BHMS undergraduate or rotating hospital intern.
+              </p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setCategory('researcher')}
+              className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
+                category === 'researcher'
+                  ? 'bg-white border-teal-600 shadow-xs ring-2 ring-teal-500/20'
+                  : 'bg-white/70 border-slate-200 hover:border-slate-300 hover:bg-white'
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${category === 'researcher' ? 'bg-teal-100 text-teal-800' : 'bg-slate-100 text-slate-600'}`}>
+                  <Microscope className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold text-slate-800">Researcher</span>
+              </div>
+              <p className="text-[11px] text-slate-500 leading-snug">
+                Academic faculty, clinical researcher, or medical author.
+              </p>
+            </button>
+          </div>
+        </div>
+
         {/* Basic Section */}
         <div className="space-y-4">
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 border-b pb-1">
             Core Identity
           </h3>
+
+          {/* Profile Photo Uploader */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200/80">
+            <div className="relative group">
+              <Avatar
+                src={avatarUrl || currentUser?.avatar_url}
+                name={displayName || currentUser?.display_name || 'Member'}
+                size="lg"
+                className="w-16 h-16 rounded-full object-cover border-2 border-teal-600/30 shadow-xs"
+              />
+              {uploadingAvatar && (
+                <div className="absolute inset-0 bg-brand-navy/60 rounded-full flex items-center justify-center text-white text-[10px] font-semibold">
+                  ...
+                </div>
+              )}
+            </div>
+            <div className="flex-1 space-y-1">
+              <span className="block text-xs font-bold text-slate-800">Profile Photo</span>
+              <p className="text-[11px] text-slate-500">
+                Upload a professional photo or portrait (JPEG, PNG, WebP up to 5MB).
+              </p>
+              <div className="pt-1 flex items-center gap-3">
+                <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-300 hover:border-teal-600 rounded-lg text-xs font-medium text-slate-700 hover:text-teal-700 transition-colors shadow-xs">
+                  <Camera className="w-3.5 h-3.5 text-slate-500" />
+                  <span>{uploadingAvatar ? 'Uploading...' : 'Upload New Photo'}</span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={handleAvatarFileChange}
+                    disabled={uploadingAvatar}
+                  />
+                </label>
+                {avatarUrl && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAvatarUrl('');
+                      updateCurrentUser({ avatar_url: undefined });
+                    }}
+                    className="text-[11px] text-slate-400 hover:text-red-600"
+                  >
+                    Remove Photo
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -510,16 +725,26 @@ export const ProfileEditPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="pt-4 flex items-center justify-between border-t border-slate-100">
+        <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100">
           <span className="text-xs text-slate-400">
             Complies with DISHA & NCH India professional privacy standards.
           </span>
-          <button
-            type="submit"
-            className="px-6 py-2.5 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow transition"
-          >
-            Save Profile Changes
-          </button>
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+            {returnTo && (
+              <Link
+                to={returnTo}
+                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 transition"
+              >
+                Cancel & Return
+              </Link>
+            )}
+            <button
+              type="submit"
+              className="px-6 py-2.5 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow transition"
+            >
+              {returnTo ? 'Save & Return to Action' : 'Save Profile Changes'}
+            </button>
+          </div>
         </div>
 
       </form>

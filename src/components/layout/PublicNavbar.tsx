@@ -13,6 +13,7 @@ export const PublicNavbar: React.FC = () => {
   const navLinks = [
     { label: 'Home', path: '/' },
     { label: 'Community', path: '/community' },
+    { label: 'Directory', path: '/members' },
     { label: 'Student Corner', path: '/students' },
     { label: 'Events', path: '/events' },
     { label: 'Opportunities', path: '/opportunities' },
@@ -71,7 +72,7 @@ export const PublicNavbar: React.FC = () => {
                   Sign in
                 </Link>
                 <Link
-                  to="/apply"
+                  to="/login"
                   className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#0D817B] hover:bg-[#0a6b66] text-white text-sm font-semibold shadow-sm transition"
                 >
                   Join Homeo Circle
@@ -133,7 +134,7 @@ export const PublicNavbar: React.FC = () => {
                   Sign in
                 </Link>
                 <Link
-                  to="/apply"
+                  to="/login"
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full text-center px-4 py-2.5 rounded-xl bg-[#0D817B] text-white text-xs font-semibold"
                 >

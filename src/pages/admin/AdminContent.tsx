@@ -43,18 +43,21 @@ export const AdminContent: React.FC = () => {
     const reason = prompt(`Enter moderation reason for changing status to ${newStatus}:`, 'Breach of clinical case de-identification guidelines');
     if (reason === null) return;
 
-    const updated = posts.map(p => p.id === post.id ? { ...p, status: newStatus as any } : p);
-    setPosts(updated);
-    localStorage.setItem('homeocircle_posts', JSON.stringify(updated));
+    try {
+      await dataService.updatePost(post.id, { status: newStatus as any });
+      await loadData();
 
-    await dataService.addAuditLog({
-      actor_id: currentUser?.id || 'admin',
-      actor_name: currentUser?.display_name || 'Administrator',
-      action: newStatus === 'hidden' ? 'POST_HIDDEN' : 'POST_RESTORED',
-      target_type: 'post',
-      target_id: post.id,
-      metadata: { title: post.title, author: post.author_name, reason }
-    });
+      await dataService.addAuditLog({
+        actor_id: currentUser?.id || 'admin',
+        actor_name: currentUser?.display_name || 'Administrator',
+        action: newStatus === 'hidden' ? 'POST_HIDDEN' : 'POST_RESTORED',
+        target_type: 'post',
+        target_id: post.id,
+        metadata: { title: post.title, author: post.author_name, reason }
+      });
+    } catch (err: any) {
+      alert(err.message || 'Failed to update post status.');
+    }
   };
 
   const handleResolveReport = async (reportId: string, status: 'resolved' | 'dismissed') => {

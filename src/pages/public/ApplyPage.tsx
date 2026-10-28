@@ -54,13 +54,27 @@ const STUDENT_MENTORSHIP_OPTIONS = [
 export const ApplyPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { currentUser, loginAs } = useAuth();
+  const { currentUser, loginAs, isVerifiedMember } = useAuth();
 
   // Step 1: Account Type Selection
   const initialRole = (searchParams.get('role') as AccountType) || 'doctor';
   const [accountType, setAccountType] = useState<AccountType>(
     ['doctor', 'student', 'researcher'].includes(initialRole) ? initialRole : 'doctor'
   );
+
+  useEffect(() => {
+    const roleParam = searchParams.get('role') as AccountType;
+    if (roleParam && ['doctor', 'student', 'researcher'].includes(roleParam)) {
+      setAccountType(roleParam);
+    }
+  }, [searchParams]);
+
+  // If already authenticated and verified, redirect to dashboard rather than forcing re-application
+  useEffect(() => {
+    if (currentUser && isVerifiedMember) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [currentUser, isVerifiedMember]);
 
   // Common Fields
   const [fullName, setFullName] = useState(currentUser?.full_name || '');
@@ -97,8 +111,8 @@ export const ApplyPage: React.FC = () => {
   const [teachingInterests, setTeachingInterests] = useState('Research Methodology, Organon of Medicine');
   const [orcidId, setOrcidId] = useState('');
 
-  // Submission State
   const [documentName, setDocumentName] = useState('');
+  const [selectedDocFile, setSelectedDocFile] = useState<File | null>(null);
   const [consent, setConsent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -129,8 +143,27 @@ export const ApplyPage: React.FC = () => {
     setSubmitting(true);
 
     try {
+      let docPath: string | undefined = undefined;
+      if (selectedDocFile) {
+        if (!currentUser?.id) {
+          setError(
+            'Attaching official verification documents requires an authenticated practitioner account to ensure end-to-end security and prevent unauthorized document access. Please sign in or register first to attach your document, or clear the file selection to proceed with manual statutory council register verification.'
+          );
+          setSubmitting(false);
+          return;
+        }
+        try {
+          const uploadRes = await dataService.uploadVerificationDocument(currentUser.id, selectedDocFile);
+          docPath = uploadRes.path;
+        } catch (uploadErr: any) {
+          setError(`Verification certificate upload failed: ${uploadErr.message || 'Storage error'}. Please verify your file format and size.`);
+          setSubmitting(false);
+          return;
+        }
+      }
+
       const newApp = await dataService.submitApplication({
-        user_id: currentUser?.id || 'user-' + Date.now(),
+        user_id: currentUser?.id || null,
         full_name: fullName.trim(),
         email: email.trim(),
         phone: phone.trim(),
@@ -157,11 +190,8 @@ export const ApplyPage: React.FC = () => {
         research_interests: accountType === 'researcher' ? researchInterests : undefined,
         publications: accountType === 'researcher' ? publications : undefined,
         consent_at: new Date().toISOString(),
-        document_url: documentName ? `/storage/private/docs/${documentName}` : undefined
+        document_url: docPath || (documentName ? `docs/${documentName}` : undefined)
       });
-
-      // Switch auth to this applicant session
-      loginAs('applicant');
 
       if (newApp.status === 'verified') {
         // If automatically approved by platform settings
@@ -170,7 +200,10 @@ export const ApplyPage: React.FC = () => {
         navigate('/application-status', { 
           state: { 
             justSubmitted: true, 
+            app: newApp,
             appId: newApp.id, 
+            email: email.trim(),
+            fullName: fullName.trim(),
             regNumber: newApp.registration_number,
             roleApplied: accountType
           } 
@@ -681,8 +714,43 @@ export const ApplyPage: React.FC = () => {
           <div className="space-y-4 pt-4 border-t border-slate-100">
             <h3 className="text-xs font-bold text-brand-navy uppercase tracking-wider pb-1 border-b border-slate-100 flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-teal-600" />
-              <span>3. Verification & Community Ethics Consent</span>
+              <span>3. Supporting Documentation & Community Ethics Consent</span>
             </h3>
+
+            {/* Document / Certificate Upload */}
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2">
+              <label className="block text-xs font-semibold text-brand-navy">
+                Supporting Verification Certificate (PDF, JPG, or PNG)
+              </label>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <input
+                  type="file"
+                  accept=".pdf,.png,.jpg,.jpeg"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setSelectedDocFile(file);
+                      setDocumentName(file.name);
+                    }
+                  }}
+                  className="text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer"
+                />
+                {documentName && (
+                  <span className="text-xs text-teal-800 font-semibold flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-teal-600" />
+                    <span>{documentName}</span>
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Upload state council registration certificate, degree certificate, or student enrollment ID. Uploaded securely to private Supabase Storage, accessible only by verification officers.
+                {!currentUser && (
+                  <span className="block mt-1 text-amber-700 font-medium">
+                    Note: Attaching verification files requires an active practitioner account. Guests can submit without file attachment for manual state council register audit.
+                  </span>
+                )}
+              </p>
+            </div>
 
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 text-xs text-slate-600 space-y-2 leading-relaxed">
               <p>

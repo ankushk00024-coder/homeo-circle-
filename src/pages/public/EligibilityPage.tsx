@@ -106,7 +106,7 @@ export const EligibilityPage: React.FC = () => {
       {/* Apply CTA */}
       <div className="text-center pt-2">
         <Link
-          to="/apply"
+          to="/apply?role=doctor"
           className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-teal-700 text-white text-sm font-semibold hover:bg-teal-800 shadow transition"
         >
           <span>Begin Practitioner Application</span>

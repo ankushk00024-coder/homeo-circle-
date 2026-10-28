@@ -36,10 +36,15 @@ import { SettingsPage } from './pages/member/SettingsPage';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminApplications } from './pages/admin/AdminApplications';
 import { AdminMembers } from './pages/admin/AdminMembers';
-import { AdminContent } from './pages/admin/AdminContent';
+import { AdminStudents } from './pages/admin/AdminStudents';
+import { AdminResearchers } from './pages/admin/AdminResearchers';
+import { AdminPosts } from './pages/admin/AdminPosts';
+import { AdminReports } from './pages/admin/AdminReports';
 import { AdminEvents } from './pages/admin/AdminEvents';
 import { AdminOpportunities } from './pages/admin/AdminOpportunities';
 import { AdminKnowledge } from './pages/admin/AdminKnowledge';
+import { AdminCategories } from './pages/admin/AdminCategories';
+import { AdminNotifications } from './pages/admin/AdminNotifications';
 import { AdminAuditLogs } from './pages/admin/AdminAuditLogs';
 import { AdminSettings } from './pages/admin/AdminSettings';
 
@@ -113,13 +118,8 @@ export function App() {
             <Route path="/login" element={<LoginPage />} />
           </Route>
 
-          {/* Member Community Routes (Protected) */}
-          <Route element={
-            <ProtectedRoute>
-              <MemberLayout />
-            </ProtectedRoute>
-          }>
-            <Route path="/dashboard" element={<DashboardPage />} />
+          {/* Public Community & Discovery Routes (Open to all visitors without auth) */}
+          <Route element={<MemberLayout />}>
             <Route path="/community" element={<DiscussionsPage />} />
             <Route path="/community/:postId" element={<PostDetailPage />} />
             <Route path="/members" element={<MembersPage />} />
@@ -128,6 +128,15 @@ export function App() {
             <Route path="/opportunities" element={<OpportunitiesPage />} />
             <Route path="/knowledge" element={<KnowledgePage />} />
             <Route path="/students" element={<StudentsPage />} />
+          </Route>
+
+          {/* Member Protected Routes (Require Authentication) */}
+          <Route element={
+            <ProtectedRoute>
+              <MemberLayout />
+            </ProtectedRoute>
+          }>
+            <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/profile" element={<ProfileEditPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Route>
@@ -141,13 +150,18 @@ export function App() {
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/applications" element={<AdminApplications />} />
             <Route path="/admin/members" element={<AdminMembers />} />
-            <Route path="/admin/content" element={<AdminContent />} />
+            <Route path="/admin/students" element={<AdminStudents />} />
+            <Route path="/admin/researchers" element={<AdminResearchers />} />
+            <Route path="/admin/posts" element={<AdminPosts />} />
+            <Route path="/admin/content" element={<AdminPosts />} />
+            <Route path="/admin/reports" element={<AdminReports />} />
             <Route path="/admin/events" element={<AdminEvents />} />
             <Route path="/admin/opportunities" element={<AdminOpportunities />} />
             <Route path="/admin/knowledge" element={<AdminKnowledge />} />
-            <Route path="/admin/reports" element={<AdminContent />} />
-            <Route path="/admin/audit-logs" element={<AdminAuditLogs />} />
+            <Route path="/admin/categories" element={<AdminCategories />} />
+            <Route path="/admin/notifications" element={<AdminNotifications />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
+            <Route path="/admin/audit-logs" element={<AdminAuditLogs />} />
           </Route>
 
           {/* 404 Fallback */}

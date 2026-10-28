@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../lib/supabase';
 import { Post, Report } from '../../types';
@@ -30,6 +30,8 @@ import {
 
 export const DiscussionsPage: React.FC = () => {
   const { currentUser, role } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeCategory = searchParams.get('category') || 'all';
   const filterParam = searchParams.get('filter');
@@ -105,14 +107,21 @@ export const DiscussionsPage: React.FC = () => {
   const handleLike = async (e: React.MouseEvent, postId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    const newCount = await dataService.toggleLikePost(postId);
+    if (!currentUser?.id) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
+    const newCount = await dataService.toggleLikePost(postId, currentUser.id);
     setPosts(posts.map(p => p.id === postId ? { ...p, is_liked: !p.is_liked, likes_count: newCount } : p));
   };
 
   const handleSave = async (e: React.MouseEvent, postId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!currentUser?.id) return;
+    if (!currentUser?.id) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
     const isSaved = await dataService.toggleBookmarkPost(postId, currentUser.id);
     setSavedPostIds(prev => isSaved ? [...prev, postId] : prev.filter(id => id !== postId));
   };
@@ -128,6 +137,10 @@ export const DiscussionsPage: React.FC = () => {
   };
 
   const openCreateComposer = () => {
+    if (!currentUser?.id) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
     setEditingPost(null);
     setPostTitle('');
     setPostBody('');
@@ -187,7 +200,7 @@ export const DiscussionsPage: React.FC = () => {
         await dataService.createPost({
           author_id: currentUser?.id,
           author_name: currentUser?.display_name || currentUser?.full_name || 'Practitioner',
-          author_avatar: currentUser?.avatar_url,
+          author_avatar: currentUser?.avatar_url || currentUser?.avatar_path,
           author_qualification: currentUser?.qualification || 'BHMS',
           author_experience: currentUser?.role === 'student' ? currentUser.course_year : `${currentUser?.experience_years || 5} yrs exp`,
           author_role: currentUser?.role || 'doctor',
@@ -495,7 +508,13 @@ export const DiscussionsPage: React.FC = () => {
                     <div className="flex items-center gap-3">
                       <span className="text-[11px] text-slate-400">{post.created_at}</span>
                       <button
-                        onClick={() => setReportingPost(post)}
+                        onClick={() => {
+                          if (!currentUser?.id) {
+                            navigate('/login', { state: { from: location } });
+                            return;
+                          }
+                          setReportingPost(post);
+                        }}
                         className="text-slate-300 hover:text-slate-500 p-1"
                         title="Report inappropriate content"
                       >

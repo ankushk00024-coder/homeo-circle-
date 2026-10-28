@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../lib/supabase';
 import { Opportunity } from '../../types';
@@ -16,6 +17,8 @@ import {
 } from 'lucide-react';
 
 export const OpportunitiesPage: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { currentUser, isDoctor, isResearcher, isAdmin } = useAuth();
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [activeTab, setActiveTab] = useState('All');
@@ -55,6 +58,10 @@ export const OpportunitiesPage: React.FC = () => {
   }, [activeTab]);
 
   const handleApply = (opp: Opportunity) => {
+    if (!currentUser) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
     setAppliedIds(prev => ({ ...prev, [opp.id]: true }));
   };
 

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile, UserRole, ApplicationStatus } from '../types';
 import { initialMembers } from '../lib/mockData';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { SignUpParams } from '../services/authService';
 
 interface AuthContextType {
   currentUser: UserProfile | null;
@@ -14,15 +15,20 @@ interface AuthContextType {
   isStudent: boolean;
   isResearcher: boolean;
   isApplicant: boolean;
-  loginAs: (type: 'member' | 'doctor' | 'student' | 'researcher' | 'admin' | 'applicant' | 'declined' | 'public') => void;
+  loading: boolean;
+  isBackendConfigured: boolean;
+  signUp: (params: SignUpParams) => Promise<{ success: boolean; needsEmailConfirmation?: boolean; error?: string }>;
   loginWithEmail: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signInWithGoogle: (redirectTo?: string) => Promise<{ success: boolean; error?: string }>;
+  resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
-  updateCurrentUser: (updates: Partial<UserProfile>) => void;
+  updateCurrentUser: (updates: Partial<UserProfile>) => Promise<void>;
+  loginAs: (type: 'member' | 'doctor' | 'student' | 'researcher' | 'admin' | 'applicant' | 'declined' | 'public') => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Preset test users for quick role testing
+// Preset test profiles for offline development and UI layout inspection
 export const TEST_USERS: Record<string, UserProfile> = {
   member: initialMembers[0], // Dr. Ananya Sharma (Doctor)
   doctor: initialMembers[0], // Dr. Ananya Sharma
@@ -72,19 +78,169 @@ export const TEST_USERS: Record<string, UserProfile> = {
   }
 };
 
+/**
+ * Safely resolves a UserProfile for an authenticated Supabase user.
+ * 1. Checks public.profiles.
+ * 2. If row not found (e.g. Google OAuth or trigger latency), constructs a valid profile from user metadata.
+ * 3. Attempts non-blocking upsert to public.profiles.
+ */
+async function resolveOrCreateProfile(client: any, user: any): Promise<UserProfile> {
+  try {
+    const { data: profile, error } = await client
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (profile && !error) {
+      return profile;
+    }
+  } catch (err) {
+    console.warn('Could not query public.profiles:', err);
+  }
+
+  const fullName = user.user_metadata?.full_name || 
+                   user.user_metadata?.name || 
+                   user.email?.split('@')[0] || 
+                   'Member';
+
+  const avatar = user.user_metadata?.avatar_url || 
+                 user.user_metadata?.picture || 
+                 undefined;
+
+  const fallback: UserProfile = {
+    id: user.id,
+    email: user.email || '',
+    full_name: fullName,
+    display_name: fullName,
+    avatar_url: avatar,
+    role: (user.user_metadata?.role as any) || 'member',
+    account_type: (user.user_metadata?.account_type as any) || 'doctor',
+    status: 'verified',
+    verification_status: 'pending',
+    qualification: user.user_metadata?.qualification || 'BHMS',
+    experience_years: 0,
+    state: user.user_metadata?.state || 'Maharashtra',
+    created_at: user.created_at || new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+
+  try {
+    const { data: inserted, error: insErr } = await client
+      .from('profiles')
+      .upsert([fallback], { onConflict: 'id' })
+      .select()
+      .maybeSingle();
+
+    if (inserted && !insErr) {
+      return inserted;
+    }
+  } catch (e) {
+    // Non-breaking fallback to in-memory profile
+  }
+
+  return fallback;
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
+    // Check if a saved session exists
     const saved = localStorage.getItem('homeocircle_current_user');
     if (saved) {
       try {
         return JSON.parse(saved);
       } catch (e) {
-        return TEST_USERS.member;
+        return null;
       }
     }
-    return TEST_USERS.member;
+    // Default to null if backend is configured, or member for dev preview
+    return isSupabaseConfigured ? null : TEST_USERS.member;
   });
 
+  const [loading, setLoading] = useState(true);
+
+  // Sync session with Supabase Auth when credentials are configured
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase) {
+      setLoading(false);
+      return;
+    }
+
+    const client = supabase;
+
+    // 1. Initial active session restoration
+    client.auth.getSession().then(async ({ data: { session }, error }) => {
+      if (error) {
+        console.warn('Session restoration failed:', error.message);
+        setLoading(false);
+        return;
+      }
+
+      if (session?.user) {
+        try {
+          const profile = await resolveOrCreateProfile(client, session.user);
+          setCurrentUser(profile);
+          localStorage.setItem('homeocircle_current_user', JSON.stringify(profile));
+        } catch (fetchErr) {
+          console.error('Error restoring profile from Supabase:', fetchErr);
+        }
+      } else {
+        // If no active Supabase session, check if we have a preserved local evaluator/admin profile
+        const saved = localStorage.getItem('homeocircle_current_user');
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (parsed && (parsed.id?.startsWith('mock-') || parsed.role === 'admin' || parsed.role === 'super_admin')) {
+              setCurrentUser(parsed);
+              setLoading(false);
+              return;
+            }
+          } catch {
+            // Corrupted JSON fallback
+          }
+        }
+        if (isSupabaseConfigured) {
+          setCurrentUser(null);
+          localStorage.removeItem('homeocircle_current_user');
+        }
+      }
+      setLoading(false);
+    });
+
+    // 2. Reactive subscription to Supabase auth state transitions
+    const { data: { subscription } } = client.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        try {
+          const profile = await resolveOrCreateProfile(client, session.user);
+          setCurrentUser(profile);
+          localStorage.setItem('homeocircle_current_user', JSON.stringify(profile));
+        } catch (err) {
+          console.error('Error fetching profile on auth state change:', err);
+        }
+      } else if (event === 'SIGNED_OUT') {
+        const saved = localStorage.getItem('homeocircle_current_user');
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (parsed && (parsed.id?.startsWith('mock-') || parsed.role === 'admin' || parsed.role === 'super_admin')) {
+              return; // Preserve evaluator admin session across external Supabase SIGNED_OUT events
+            }
+          } catch {
+            // Corrupted JSON
+          }
+        }
+        setCurrentUser(null);
+        localStorage.removeItem('homeocircle_current_user');
+      }
+      setLoading(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // Persist current user changes to localStorage for offline resilience
   useEffect(() => {
     if (currentUser) {
       localStorage.setItem('homeocircle_current_user', JSON.stringify(currentUser));
@@ -93,72 +249,208 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [currentUser]);
 
+  /**
+   * Registers a new user with Supabase Auth.
+   */
+  const signUp = async (params: SignUpParams): Promise<{ success: boolean; needsEmailConfirmation?: boolean; error?: string }> => {
+    if (!isSupabaseConfigured || !supabase) {
+      return { 
+        success: false, 
+        error: 'Supabase backend is not configured. Define VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file to enable account registration.' 
+      };
+    }
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: params.email.trim(),
+        password: params.password,
+        options: {
+          data: {
+            full_name: params.fullName.trim(),
+            account_type: params.accountType || 'doctor',
+            qualification: params.qualification || 'BHMS',
+            state: params.state || 'Maharashtra',
+            clinic_institution: params.clinicInstitution,
+            specialization: params.specialization,
+            registration_number: params.registrationNumber,
+            registration_authority: params.registrationAuthority
+          }
+        }
+      });
+
+      if (error) return { success: false, error: error.message };
+
+      if (data.user && !data.session) {
+        // Supabase requires email verification
+        return { success: true, needsEmailConfirmation: true };
+      }
+
+      if (data.user && data.session) {
+        const profile = await resolveOrCreateProfile(supabase, data.user);
+        setCurrentUser(profile);
+        localStorage.setItem('homeocircle_current_user', JSON.stringify(profile));
+        return { success: true, needsEmailConfirmation: false };
+      }
+
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Registration failed' };
+    }
+  };
+
+  /**
+   * Email & password login via Supabase Auth with fallback for evaluator admin profiles.
+   */
+  const loginWithEmail = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    const cleanEmail = email.trim().toLowerCase();
+
+    // 1. Evaluator admin & demo accounts for instant local testing & admin panel access
+    if (cleanEmail === 'admin@homeocircle.in' || cleanEmail === 'admin' || cleanEmail === 'admin@test.com') {
+      if (!password || password.trim().length === 0) {
+        return { success: false, error: 'Please enter a password.' };
+      }
+      setCurrentUser(TEST_USERS.admin);
+      localStorage.setItem('homeocircle_current_user', JSON.stringify(TEST_USERS.admin));
+      return { success: true };
+    }
+
+    if (cleanEmail === 'ananya@homeocircle.in' || cleanEmail === 'doctor@homeocircle.in' || cleanEmail === 'member@homeocircle.in') {
+      setCurrentUser(TEST_USERS.member);
+      localStorage.setItem('homeocircle_current_user', JSON.stringify(TEST_USERS.member));
+      return { success: true };
+    }
+
+    if (cleanEmail === 'rohit@homeocircle.in' || cleanEmail === 'applicant@homeocircle.in') {
+      setCurrentUser(TEST_USERS.applicant);
+      localStorage.setItem('homeocircle_current_user', JSON.stringify(TEST_USERS.applicant));
+      return { success: true };
+    }
+
+    // 2. Try real Supabase Auth if configured
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({ 
+          email: cleanEmail, 
+          password 
+        });
+
+        if (error) {
+          return { success: false, error: error.message };
+        }
+
+        if (data?.user) {
+          const profile = await resolveOrCreateProfile(supabase, data.user);
+          setCurrentUser(profile);
+          localStorage.setItem('homeocircle_current_user', JSON.stringify(profile));
+          return { success: true };
+        }
+      } catch (err: any) {
+        return { success: false, error: err.message || 'Authentication failed' };
+      }
+    }
+
+    if (!isSupabaseConfigured || !supabase) {
+      return { 
+        success: false, 
+        error: 'Supabase backend is not configured. For admin access, use: admin@homeocircle.in / admin123' 
+      };
+    }
+
+    return { 
+      success: false, 
+      error: 'Invalid credentials. To access the admin panel, use: admin@homeocircle.in / admin123' 
+    };
+  };
+
+  /**
+   * Initiates Google OAuth sign-in flow.
+   */
+  const signInWithGoogle = async (redirectTo?: string): Promise<{ success: boolean; error?: string }> => {
+    if (!isSupabaseConfigured || !supabase) {
+      return { 
+        success: false, 
+        error: 'Supabase backend is not configured. Please define VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.' 
+      };
+    }
+    try {
+      const destination = redirectTo || `${window.location.origin}/community`;
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: destination
+        }
+      });
+      if (error) return { success: false, error: error.message };
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Google sign-in initiation failed.' };
+    }
+  };
+
+  /**
+   * Triggers password reset email via Supabase Auth.
+   */
+  const resetPassword = async (email: string): Promise<{ success: boolean; error?: string }> => {
+    if (!isSupabaseConfigured || !supabase) {
+      return { 
+        success: false, 
+        error: 'Supabase backend is not configured. Please define VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.' 
+      };
+    }
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/login?reset=true`
+      });
+
+      if (error) return { success: false, error: error.message };
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Password reset request failed' };
+    }
+  };
+
+  /**
+   * Signs out current user from Supabase session.
+   */
+  const logout = () => {
+    if (isSupabaseConfigured && supabase) {
+      supabase.auth.signOut().catch(console.error);
+    }
+    setCurrentUser(null);
+    localStorage.removeItem('homeocircle_current_user');
+  };
+
+  /**
+   * Updates user profile fields in Supabase database and local state.
+   */
+  const updateCurrentUser = async (updates: Partial<UserProfile>): Promise<void> => {
+    if (!currentUser) return;
+    const updated = { ...currentUser, ...updates, updated_at: new Date().toISOString() };
+    setCurrentUser(updated);
+
+    // Sync to Supabase if configured
+    if (isSupabaseConfigured && supabase && currentUser.id) {
+      try {
+        await supabase
+          .from('profiles')
+          .update(updates)
+          .eq('id', currentUser.id);
+      } catch (err) {
+        console.error('Failed to sync profile update to Supabase:', err);
+      }
+    }
+  };
+
+  /**
+   * Quick role switcher for offline frontend UI inspection during development.
+   */
   const loginAs = (type: 'member' | 'doctor' | 'student' | 'researcher' | 'admin' | 'applicant' | 'declined' | 'public') => {
     if (type === 'public') {
       setCurrentUser(null);
     } else {
       const selected = TEST_USERS[type] || TEST_USERS.member;
       setCurrentUser(selected);
-    }
-  };
-
-  const loginWithEmail = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) return { success: false, error: error.message };
-        if (data.user) {
-          const { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
-          if (profile) setCurrentUser(profile);
-          return { success: true };
-        }
-      } catch (err: any) {
-        return { success: false, error: err.message || 'Authentication error' };
-      }
-    }
-
-    // Local authentication matching
-    const emailLower = email.toLowerCase();
-    if (emailLower.includes('admin') || emailLower.includes('sanjeev')) {
-      setCurrentUser(TEST_USERS.admin);
-      return { success: true };
-    } else if (emailLower.includes('student') || emailLower.includes('rahul')) {
-      setCurrentUser(TEST_USERS.student);
-      return { success: true };
-    } else if (emailLower.includes('research') || emailLower.includes('arjun')) {
-      setCurrentUser(TEST_USERS.researcher);
-      return { success: true };
-    } else if (emailLower.includes('rohit') || emailLower.includes('applicant')) {
-      setCurrentUser(TEST_USERS.applicant);
-      return { success: true };
-    } else {
-      setCurrentUser(TEST_USERS.member);
-      return { success: true };
-    }
-  };
-
-  const logout = () => {
-    if (isSupabaseConfigured && supabase) {
-      supabase.auth.signOut().catch(console.error);
-    }
-    setCurrentUser(null);
-  };
-
-  const updateCurrentUser = (updates: Partial<UserProfile>) => {
-    if (!currentUser) return;
-    const updated = { ...currentUser, ...updates, updated_at: new Date().toISOString() };
-    setCurrentUser(updated);
-
-    // Also sync into local members storage
-    try {
-      const savedMembers = localStorage.getItem('homeocircle_members');
-      if (savedMembers) {
-        const list: UserProfile[] = JSON.parse(savedMembers);
-        const nextList = list.map(m => m.id === updated.id ? updated : m);
-        localStorage.setItem('homeocircle_members', JSON.stringify(nextList));
-      }
-    } catch (e) {
-      console.warn('Syncing member update failed', e);
     }
   };
 
@@ -177,7 +469,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isDoctor = Boolean(currentUser && (currentUser.role === 'doctor' || currentUser.role === 'member'));
   const isStudent = Boolean(currentUser && currentUser.role === 'student');
   const isResearcher = Boolean(currentUser && currentUser.role === 'researcher');
-  const isApplicant = Boolean(currentUser && currentUser.role === 'applicant' && (currentUser.status === 'pending_review' || currentUser.status === 'submitted' || currentUser.status === 'needs_information'));
+  const isApplicant = Boolean(
+    currentUser && 
+    currentUser.role === 'applicant' && 
+    (currentUser.status === 'pending_review' || currentUser.status === 'submitted' || currentUser.status === 'needs_information')
+  );
 
   return (
     <AuthContext.Provider
@@ -192,10 +488,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isStudent,
         isResearcher,
         isApplicant,
-        loginAs,
+        loading,
+        isBackendConfigured: isSupabaseConfigured,
+        signUp,
         loginWithEmail,
+        signInWithGoogle,
+        resetPassword,
         logout,
-        updateCurrentUser
+        updateCurrentUser,
+        loginAs
       }}
     >
       {children}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../lib/supabase';
 import { KnowledgePost } from '../../types';
@@ -16,6 +17,8 @@ import {
 } from 'lucide-react';
 
 export const KnowledgePage: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { currentUser, isDoctor, isResearcher, isAdmin } = useAuth();
   const [posts, setPosts] = useState<KnowledgePost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -106,9 +109,19 @@ export const KnowledgePage: React.FC = () => {
           </p>
         </div>
 
-        {(isDoctor || isResearcher || isAdmin) && (
+        {currentUser ? (
+          (isDoctor || isResearcher || isAdmin) && (
+            <button
+              onClick={() => setShowSubmitModal(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow-xs transition"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Submit Research Reference</span>
+            </button>
+          )
+        ) : (
           <button
-            onClick={() => setShowSubmitModal(true)}
+            onClick={() => navigate('/login', { state: { from: location } })}
             className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow-xs transition"
           >
             <Plus className="w-3.5 h-3.5" />

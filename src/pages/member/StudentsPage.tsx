@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../lib/supabase';
 import { 
@@ -38,6 +38,8 @@ import {
 
 export const StudentsPage: React.FC = () => {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get('tab') || 'overview';
 
@@ -194,7 +196,10 @@ export const StudentsPage: React.FC = () => {
   };
 
   const handleConnect = async (targetMember: UserProfile) => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
     try {
       await dataService.sendConnectionRequest(currentUser, targetMember);
       setActionFeedback(`Connection request sent to ${targetMember.display_name || targetMember.full_name}. Real-time in-app notification delivered!`);
@@ -306,6 +311,15 @@ export const StudentsPage: React.FC = () => {
               <HeartHandshake className="w-3.5 h-3.5" />
               <span>Find Clinical Mentors</span>
             </button>
+            {!currentUser && (
+              <Link
+                to="/apply?role=student"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white font-semibold text-xs border border-white/25 transition cursor-pointer"
+              >
+                <GraduationCap className="w-3.5 h-3.5 text-emerald-300" />
+                <span>Register as Student</span>
+              </Link>
+            )}
           </div>
         </div>
 
@@ -420,7 +434,17 @@ export const StudentsPage: React.FC = () => {
               </button>
             </div>
 
-            {myMentorshipRequests.length === 0 ? (
+            {!currentUser ? (
+              <div className="text-center py-6 space-y-2">
+                <p className="text-xs text-slate-500">Sign in to track your mentorship requests and connect directly with senior clinicians.</p>
+                <button
+                  onClick={() => navigate('/login', { state: { from: location } })}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold cursor-pointer shadow-xs transition"
+                >
+                  Sign in to Request Mentorship
+                </button>
+              </div>
+            ) : myMentorshipRequests.length === 0 ? (
               <div className="text-center py-6 space-y-2">
                 <p className="text-xs text-slate-500">You haven’t submitted any clinical mentorship requests yet.</p>
                 <button
@@ -761,7 +785,13 @@ export const StudentsPage: React.FC = () => {
                           
                           {/* 1. Request Mentorship Button */}
                           <button
-                            onClick={() => setSelectedMentor(mentor)}
+                            onClick={() => {
+                              if (!currentUser) {
+                                navigate('/login', { state: { from: location } });
+                                return;
+                              }
+                              setSelectedMentor(mentor);
+                            }}
                             className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                           >
                             <HeartHandshake className="w-3.5 h-3.5" />

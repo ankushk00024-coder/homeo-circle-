@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { dataService } from '../../lib/supabase';
 import { KnowledgePost } from '../../types';
 import { useAuth } from '../../context/AuthContext';
-import { BookOpen, Plus, ExternalLink, AlertCircle, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 
 export const AdminKnowledge: React.FC = () => {
   const { currentUser } = useAuth();
@@ -88,19 +88,24 @@ export const AdminKnowledge: React.FC = () => {
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
-                <th className="py-3 px-4">Study Title</th>
-                <th className="py-3 px-4">Journal</th>
-                <th className="py-3 px-4">Design Type</th>
-                <th className="py-3 px-4">Limitations Statement</th>
-                <th className="py-3 px-4">Indexed Date</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {posts.map((post) => (
+        {loading ? (
+          <div className="py-20 text-center text-xs text-slate-400">Loading research entries...</div>
+        ) : posts.length === 0 ? (
+          <div className="py-20 text-center text-xs text-slate-500">No research studies indexed yet.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+                  <th className="py-3 px-4">Study Title</th>
+                  <th className="py-3 px-4">Journal</th>
+                  <th className="py-3 px-4">Design Type</th>
+                  <th className="py-3 px-4">Limitations Statement</th>
+                  <th className="py-3 px-4">Indexed Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {posts.map((post) => (
                 <tr key={post.id} className="hover:bg-slate-50 transition">
                   <td className="py-3.5 px-4 max-w-sm">
                     <span className="font-bold text-brand-navy block truncate">{post.title}</span>
@@ -125,6 +130,7 @@ export const AdminKnowledge: React.FC = () => {
             </tbody>
           </table>
         </div>
+        )}
       </div>
 
       {/* Modal */}

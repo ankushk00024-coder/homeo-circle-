@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../lib/supabase';
 import { Event, EventRegistration } from '../../types';
@@ -18,6 +19,9 @@ import {
 
 export const EventsPage: React.FC = () => {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [events, setEvents] = useState<Event[]>([]);
   const [activeTab, setActiveTab] = useState('All');
   const [loading, setLoading] = useState(true);
@@ -57,14 +61,84 @@ export const EventsPage: React.FC = () => {
     loadEventsAndRegistrations();
   }, [activeTab, currentUser]);
 
+  const isProfileComplete = (user: any): boolean => {
+    if (!user) return false;
+    if (!user.display_name || user.display_name.trim().length === 0) return false;
+    if (user.role === 'student') {
+      return Boolean(user.student_details?.institution || user.clinic_institution || user.course_year);
+    }
+    return Boolean(user.qualification || user.clinic_institution || user.specialization);
+  };
+
+  // Handle auto-registration after returning from login
+  useEffect(() => {
+    const registerEventId = searchParams.get('register');
+    if (registerEventId && events.length > 0 && currentUser && isProfileComplete(currentUser)) {
+      if (!isUserRegistered(registerEventId)) {
+        const targetEvt = events.find(e => e.id === registerEventId);
+        if (targetEvt) {
+          dataService.registerForEvent(registerEventId, currentUser).then(reg => {
+            if (reg) {
+              setUserRegistrations(prev => [...prev, reg]);
+              setStatusMessage({
+                type: 'success',
+                text: `Welcome back! You have been registered for "${targetEvt.title}".`
+              });
+              setTimeout(() => setStatusMessage(null), 5000);
+            }
+          });
+        }
+      }
+      searchParams.delete('register');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [events, currentUser]);
+
   const isUserRegistered = (eventId: string) => {
     return userRegistrations.some(r => r.event_id === eventId);
   };
 
   const handleRegister = async (e: React.MouseEvent, evt: Event) => {
     e.stopPropagation();
-    if (!currentUser) return;
 
+    // 1. If not authenticated, redirect to login then return to selected event
+    if (!currentUser) {
+      navigate('/login', {
+        state: {
+          from: {
+            pathname: '/events',
+            search: `?register=${evt.id}`
+          }
+        }
+      });
+      return;
+    }
+
+    // 4. If already registered, show existing registration status
+    if (isUserRegistered(evt.id)) {
+      setStatusMessage({
+        type: 'info',
+        text: `You have already registered for "${evt.title}". Your seat is confirmed.`
+      });
+      setTimeout(() => setStatusMessage(null), 5000);
+      return;
+    }
+
+    // 2. If authenticated but missing required profile information, redirect to complete profile
+    if (!isProfileComplete(currentUser)) {
+      navigate('/profile', {
+        state: {
+          from: {
+            pathname: '/events',
+            search: `?register=${evt.id}`
+          },
+          message: 'Please complete your basic profile information before registering for events.'
+        }
+      });
+      return;
+    }
+
+    // 3. Profile complete: register directly
     try {
       const reg = await dataService.registerForEvent(evt.id, currentUser);
       if (reg) {
@@ -75,8 +149,13 @@ export const EventsPage: React.FC = () => {
         });
         setTimeout(() => setStatusMessage(null), 5000);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      setStatusMessage({
+        type: 'info',
+        text: err.message || 'Registration failed. Please try again.'
+      });
+      setTimeout(() => setStatusMessage(null), 5000);
     }
   };
 

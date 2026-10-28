@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../lib/supabase';
 import { Post, Comment, Report } from '../../types';
@@ -25,6 +25,7 @@ import {
 export const PostDetailPage: React.FC = () => {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { currentUser } = useAuth();
 
   const [post, setPost] = useState<Post | null>(null);
@@ -50,20 +51,30 @@ export const PostDetailPage: React.FC = () => {
   const loadPostData = async () => {
     if (!postId) return;
     setLoading(true);
-    const [posts, foundComments, bookmarks] = await Promise.all([
-      dataService.getPosts(),
-      dataService.getComments(postId),
-      currentUser?.id ? dataService.getSavedPostIds(currentUser.id) : Promise.resolve([])
-    ]);
-    const found = posts.find(p => p.id === postId) || null;
-    setPost(found);
-    setComments(foundComments);
-    if (found) {
-      setEditTitle(found.title);
-      setEditBody(found.body);
-      setIsSaved(bookmarks.includes(found.id));
+    try {
+      const [postData, foundComments, bookmarks] = await Promise.all([
+        dataService.getPostById(postId, currentUser?.id),
+        dataService.getComments(postId),
+        currentUser?.id ? dataService.getSavedPostIds(currentUser.id) : Promise.resolve([])
+      ]);
+      let found = postData;
+      if (!found) {
+        // Fallback search across published posts
+        const allPosts = await dataService.getPosts();
+        found = allPosts.find(p => p.id === postId) || null;
+      }
+      setPost(found);
+      setComments(foundComments);
+      if (found) {
+        setEditTitle(found.title);
+        setEditBody(found.body);
+        setIsSaved(found.is_saved ?? bookmarks.includes(found.id));
+      }
+    } catch (err) {
+      console.error('Error loading post:', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -71,13 +82,21 @@ export const PostDetailPage: React.FC = () => {
   }, [postId]);
 
   const handleLike = async () => {
+    if (!currentUser) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
     if (!post) return;
-    const newLikes = await dataService.toggleLikePost(post.id);
+    const newLikes = await dataService.toggleLikePost(post.id, currentUser.id);
     setPost({ ...post, is_liked: !post.is_liked, likes_count: newLikes });
   };
 
   const handleSave = async () => {
-    if (!post || !currentUser?.id) return;
+    if (!currentUser) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
+    if (!post) return;
     const saved = await dataService.toggleBookmarkPost(post.id, currentUser.id);
     setIsSaved(saved);
   };
@@ -370,7 +389,13 @@ export const PostDetailPage: React.FC = () => {
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setReportModalOpen(true)}
+              onClick={() => {
+                if (!currentUser) {
+                  navigate('/login', { state: { from: location } });
+                  return;
+                }
+                setReportModalOpen(true);
+              }}
               className="flex items-center gap-1 text-slate-400 hover:text-rose-600 text-[11px] transition"
               title="Report Content to Moderators"
             >
@@ -389,45 +414,61 @@ export const PostDetailPage: React.FC = () => {
         </h3>
 
         {/* Comment Composer */}
-        <form onSubmit={handleAddComment} className="space-y-3">
-          {replyingToComment && (
-            <div className="p-2.5 bg-teal-50 border border-teal-200 rounded-xl text-xs flex items-center justify-between text-teal-800">
-              <span className="flex items-center gap-1.5">
-                <CornerDownRight className="w-3.5 h-3.5 text-teal-600" />
-                <span>Replying to <strong>{replyingToComment.author_name}</strong></span>
+        {currentUser ? (
+          <form onSubmit={handleAddComment} className="space-y-3">
+            {replyingToComment && (
+              <div className="p-2.5 bg-teal-50 border border-teal-200 rounded-xl text-xs flex items-center justify-between text-teal-800">
+                <span className="flex items-center gap-1.5">
+                  <CornerDownRight className="w-3.5 h-3.5 text-teal-600" />
+                  <span>Replying to <strong>{replyingToComment.author_name}</strong></span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setReplyingToComment(null)}
+                  className="text-teal-600 hover:text-teal-800 font-bold"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            <textarea
+              rows={3}
+              required
+              value={newCommentBody}
+              onChange={(e) => setNewCommentBody(e.target.value)}
+              placeholder="Contribute your clinical observation, repertorial rubrics, or posology question..."
+              className="w-full p-3.5 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 outline-none leading-relaxed"
+            />
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-slate-400">
+                Posting as {currentUser.display_name} ({currentUser.qualification || 'Member'})
               </span>
               <button
-                type="button"
-                onClick={() => setReplyingToComment(null)}
-                className="text-teal-600 hover:text-teal-800 font-bold"
+                type="submit"
+                disabled={submittingComment || !newCommentBody.trim()}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold transition disabled:opacity-50 shadow-2xs"
               >
-                ✕
+                <Send className="w-3 h-3" />
+                <span>{submittingComment ? 'Posting...' : 'Post Reply'}</span>
               </button>
             </div>
-          )}
-
-          <textarea
-            rows={3}
-            required
-            value={newCommentBody}
-            onChange={(e) => setNewCommentBody(e.target.value)}
-            placeholder="Contribute your clinical observation, repertorial rubrics, or posology question..."
-            className="w-full p-3.5 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 outline-none leading-relaxed"
-          />
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] text-slate-400">
-              Posting as {currentUser?.display_name} ({currentUser?.qualification})
-            </span>
+          </form>
+        ) : (
+          <div className="p-5 bg-teal-50/50 border border-teal-100 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <h4 className="text-xs font-bold text-teal-900">Join the Clinical Discussion</h4>
+              <p className="text-[11px] text-teal-700">Sign in with your verified account to contribute clinical observations, ask questions, or reply to peers.</p>
+            </div>
             <button
-              type="submit"
-              disabled={submittingComment || !newCommentBody.trim()}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold transition disabled:opacity-50 shadow-2xs"
+              type="button"
+              onClick={() => navigate('/login', { state: { from: location } })}
+              className="whitespace-nowrap px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold transition shadow-xs"
             >
-              <Send className="w-3 h-3" />
-              <span>{submittingComment ? 'Posting...' : 'Post Reply'}</span>
+              Sign in to Reply
             </button>
           </div>
-        </form>
+        )}
 
         {/* Comments Feed */}
         <div className="space-y-4 pt-4 border-t border-slate-100">
@@ -456,7 +497,13 @@ export const PostDetailPage: React.FC = () => {
 
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => setReplyingToComment(comment)}
+                        onClick={() => {
+                          if (!currentUser) {
+                            navigate('/login', { state: { from: location } });
+                            return;
+                          }
+                          setReplyingToComment(comment);
+                        }}
                         className="text-[11px] text-teal-700 hover:underline flex items-center gap-1"
                       >
                         <CornerDownRight className="w-3 h-3" />
