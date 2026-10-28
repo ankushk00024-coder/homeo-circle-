@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../lib/supabase';
 import { Post, Report } from '../../types';
@@ -27,11 +27,11 @@ import {
   ShieldCheck,
   Scale
 } from 'lucide-react';
-import { useConfirm } from '../../components/feedback/ToastProvider';
 
 export const DiscussionsPage: React.FC = () => {
   const { currentUser, role } = useAuth();
-  const confirmAction = useConfirm();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeCategory = searchParams.get('category') || 'all';
   const filterParam = searchParams.get('filter');
@@ -90,17 +90,14 @@ export const DiscussionsPage: React.FC = () => {
 
   const loadPosts = async () => {
     setLoading(true);
-    try {
-      const catQuery = activeCategory === 'saved' ? 'all' : activeCategory;
-      const [fetchedPosts, bookmarks] = await Promise.all([
-        dataService.getPosts(catQuery, sortBy),
-        currentUser?.id ? dataService.getSavedPostIds(currentUser.id) : Promise.resolve([])
-      ]);
-      setPosts(fetchedPosts);
-      setSavedPostIds(bookmarks);
-    } finally {
-      setLoading(false);
-    }
+    const catQuery = activeCategory === 'saved' ? 'all' : activeCategory;
+    const [fetchedPosts, bookmarks] = await Promise.all([
+      dataService.getPosts(catQuery, sortBy),
+      currentUser?.id ? dataService.getSavedPostIds(currentUser.id) : Promise.resolve([])
+    ]);
+    setPosts(fetchedPosts);
+    setSavedPostIds(bookmarks);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -110,14 +107,21 @@ export const DiscussionsPage: React.FC = () => {
   const handleLike = async (e: React.MouseEvent, postId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    const newCount = await dataService.toggleLikePost(postId);
+    if (!currentUser?.id) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
+    const newCount = await dataService.toggleLikePost(postId, currentUser.id);
     setPosts(posts.map(p => p.id === postId ? { ...p, is_liked: !p.is_liked, likes_count: newCount } : p));
   };
 
   const handleSave = async (e: React.MouseEvent, postId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!currentUser?.id) return;
+    if (!currentUser?.id) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
     const isSaved = await dataService.toggleBookmarkPost(postId, currentUser.id);
     setSavedPostIds(prev => isSaved ? [...prev, postId] : prev.filter(id => id !== postId));
   };
@@ -133,6 +137,10 @@ export const DiscussionsPage: React.FC = () => {
   };
 
   const openCreateComposer = () => {
+    if (!currentUser?.id) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
     setEditingPost(null);
     setPostTitle('');
     setPostBody('');
@@ -157,7 +165,7 @@ export const DiscussionsPage: React.FC = () => {
   const handleDeletePost = async (e: React.MouseEvent, postId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!(await confirmAction('Delete this discussion post? This cannot be undone.', { confirmLabel: 'Delete post', danger: true }))) return;
+    if (!window.confirm('Are you sure you want to delete this discussion post?')) return;
     await dataService.deletePost(postId);
     await loadPosts();
   };
@@ -192,7 +200,7 @@ export const DiscussionsPage: React.FC = () => {
         await dataService.createPost({
           author_id: currentUser?.id,
           author_name: currentUser?.display_name || currentUser?.full_name || 'Practitioner',
-          author_avatar: currentUser?.avatar_url,
+          author_avatar: currentUser?.avatar_url || currentUser?.avatar_path,
           author_qualification: currentUser?.qualification || 'BHMS',
           author_experience: currentUser?.role === 'student' ? currentUser.course_year : `${currentUser?.experience_years || 5} yrs exp`,
           author_role: currentUser?.role || 'doctor',
@@ -272,7 +280,7 @@ export const DiscussionsPage: React.FC = () => {
       </div>
 
       {/* Disclaimer on Professional Medical Judgement */}
-      <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 text-[13px] text-slate-600 flex items-start gap-2.5">
+      <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 text-[11.5px] text-slate-600 flex items-start gap-2.5">
         <Scale className="w-4 h-4 text-teal-700 flex-shrink-0 mt-0.5" />
         <p className="leading-relaxed">
           <strong>Clinical Exchange Standard:</strong> Case observations shared in Homeo Circle are for educational peer review among registered doctors, researchers, and students. Discussions do not constitute formal medical prescription or treatment advice. Patient identifiers must remain completely de-identified.
@@ -387,24 +395,24 @@ export const DiscussionsPage: React.FC = () => {
                             {post.author_name}
                           </Link>
                           {post.author_role === 'student' && (
-                            <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                            <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
                               Student
                             </span>
                           )}
                           {post.author_role === 'researcher' && (
-                            <span className="text-[11px] font-bold text-sky-800 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
+                            <span className="text-[10px] font-bold text-sky-800 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
                               Researcher
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-[#5A6E85]">
+                        <p className="text-[11px] text-[#5A6E85]">
                           {post.author_qualification} • {post.author_experience}
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${post.category_badge_color}`}>
+                      <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border ${post.category_badge_color}`}>
                         {post.category_name}
                       </span>
 
@@ -446,7 +454,7 @@ export const DiscussionsPage: React.FC = () => {
                           href={post.source_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs font-medium text-teal-700 hover:underline"
+                          className="inline-flex items-center gap-1 text-[11px] font-medium text-teal-700 hover:underline"
                         >
                           <span>Reference Source / DOI</span>
                           <ExternalLink className="w-3 h-3" />
@@ -498,9 +506,15 @@ export const DiscussionsPage: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="text-xs text-slate-400">{post.created_at}</span>
+                      <span className="text-[11px] text-slate-400">{post.created_at}</span>
                       <button
-                        onClick={() => setReportingPost(post)}
+                        onClick={() => {
+                          if (!currentUser?.id) {
+                            navigate('/login', { state: { from: location } });
+                            return;
+                          }
+                          setReportingPost(post);
+                        }}
                         className="text-slate-300 hover:text-slate-500 p-1"
                         title="Report inappropriate content"
                       >
@@ -529,7 +543,7 @@ export const DiscussionsPage: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search topics or symptoms..."
-                className="w-full pl-9 pr-3 py-2 text-xs bg-[#EEF6FC]/60 border border-brand-border/80 rounded-xl focus:ring-2 focus:ring-brand-teal/20 text-slate-700"
+                className="w-full pl-9 pr-3 py-2 text-xs bg-[#EEF6FC]/60 border border-brand-border/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-teal/20 text-slate-700"
               />
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3 pointer-events-none" />
             </div>
@@ -553,7 +567,7 @@ export const DiscussionsPage: React.FC = () => {
                   <span className="font-medium text-brand-navy hover:text-brand-teal">
                     #{item.tag}
                   </span>
-                  <span className="text-xs text-[#5A6E85]">{item.count}</span>
+                  <span className="text-[11px] text-[#5A6E85]">{item.count}</span>
                 </div>
               ))}
             </div>
@@ -665,7 +679,7 @@ export const DiscussionsPage: React.FC = () => {
               </div>
 
               {/* Patient Privacy Advisory */}
-              <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-start gap-2">
+              <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-xl text-[11px] text-amber-800 flex items-start gap-2">
                 <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
                 <span>
                   <strong>DISHA & Privacy Rule:</strong> Never include identifiable patient names, facial photos, or Aadhaar/UHID records.
@@ -711,7 +725,7 @@ export const DiscussionsPage: React.FC = () => {
               <div className="py-6 text-center space-y-2">
                 <CheckCircle2 className="w-8 h-8 text-teal-600 mx-auto" />
                 <p className="text-xs font-bold text-brand-navy">Report Submitted to Moderators</p>
-                <p className="text-xs text-slate-500">Thank you for maintaining our community clinical ethics.</p>
+                <p className="text-[11px] text-slate-500">Thank you for maintaining our community clinical ethics.</p>
               </div>
             ) : (
               <form onSubmit={handleReportSubmit} className="space-y-3 text-xs">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { dataService } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { UserProfile, Post, ConnectionRequest } from '../../types';
@@ -29,6 +29,7 @@ import { useToast } from '../../components/feedback/ToastProvider';
 export const MemberProfilePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { currentUser } = useAuth();
   const toast = useToast();
 
@@ -83,7 +84,11 @@ export const MemberProfilePage: React.FC = () => {
   };
 
   const handleConnect = async () => {
-    if (!currentUser || !member) return;
+    if (!currentUser) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
+    if (!member) return;
     try {
       await dataService.sendConnectionRequest(currentUser, member);
       setActionAlert(`Connection request sent to ${member.display_name}! In-app notification delivered.`);
@@ -269,7 +274,13 @@ export const MemberProfilePage: React.FC = () => {
                 {/* Student Request Mentorship CTA */}
                 {offersMentorship && (
                   <button
-                    onClick={() => setMentorModalOpen(true)}
+                    onClick={() => {
+                      if (!currentUser) {
+                        navigate('/login', { state: { from: location } });
+                        return;
+                      }
+                      setMentorModalOpen(true);
+                    }}
                     className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-semibold transition flex items-center gap-1.5"
                   >
                     <HeartHandshake className="w-3.5 h-3.5 text-emerald-600" />

@@ -42,6 +42,7 @@ export interface UserProfile {
   full_name: string;
   display_name: string;
   avatar_url?: string;
+  avatar_path?: string;
   role: UserRole;
   account_type?: AccountType;
   status: ApplicationStatus;
@@ -93,7 +94,7 @@ export interface UserProfile {
 
 export interface PractitionerApplication {
   id: string;
-  user_id: string;
+  user_id?: string | null;
   full_name: string;
   email: string;
   phone: string;
@@ -121,6 +122,26 @@ export interface PractitionerApplication {
   verification_checked_at?: string;
   internal_notes?: string;
   document_url?: string;
+}
+
+export interface VerificationReview {
+  id: string;
+  application_id: string;
+  reviewer_id?: string;
+  reviewer_name: string;
+  previous_status?: string;
+  new_status: string;
+  decision_reason?: string;
+  verification_source?: string;
+  internal_notes?: string;
+  created_at: string;
+}
+
+export interface PostLike {
+  id: string;
+  post_id: string;
+  user_id: string;
+  created_at: string;
 }
 
 export type ConnectionStatus = 'pending' | 'accepted' | 'declined';
@@ -166,9 +187,11 @@ export type NotificationType =
   | 'mentorship_request' 
   | 'mentorship_accepted' 
   | 'comment_reply' 
+  | 'discussion_reply'
   | 'event_reminder' 
   | 'verification_update' 
-  | 'system';
+  | 'system'
+  | 'system_notice';
 
 export interface AppNotification {
   id: string;
@@ -177,6 +200,7 @@ export interface AppNotification {
   message: string;
   type: NotificationType;
   link?: string;
+  action_url?: string;
   is_read: boolean;
   action_id?: string; // e.g. connection_request_id or mentorship_request_id
   action_status?: 'pending' | 'accepted' | 'declined';
@@ -324,4 +348,33 @@ export interface PlatformSettings {
   auto_appeals_enabled?: boolean;
   auto_appeal_enabled?: boolean;
   announcement_banner?: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  type: 'discussion' | 'event' | 'resource' | 'general';
+  badge_color: string;
+  active: boolean;
+  created_at?: string;
+}
+
+export interface MetricItem {
+  value: number | null;
+  isAvailable: boolean;
+  error?: string;
+}
+
+export interface AdminOverviewStats {
+  totalMembers: MetricItem;
+  doctorsCount: MetricItem;
+  studentsCount: MetricItem;
+  researchersCount: MetricItem;
+  pendingApplications: MetricItem;
+  verifiedPractitioners: MetricItem;
+  rejectedApplications: MetricItem;
+  communityPosts: MetricItem;
+  openReports: MetricItem;
+  upcomingEvents: MetricItem;
 }

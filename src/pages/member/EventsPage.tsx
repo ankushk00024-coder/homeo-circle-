@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../lib/supabase';
 import { Event, EventRegistration } from '../../types';
@@ -15,11 +16,12 @@ import {
   AlertCircle,
   CalendarCheck
 } from 'lucide-react';
-import { useConfirm } from '../../components/feedback/ToastProvider';
 
 export const EventsPage: React.FC = () => {
   const { currentUser } = useAuth();
-  const confirmAction = useConfirm();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [events, setEvents] = useState<Event[]>([]);
   const [activeTab, setActiveTab] = useState('All');
   const [loading, setLoading] = useState(true);
@@ -59,14 +61,84 @@ export const EventsPage: React.FC = () => {
     loadEventsAndRegistrations();
   }, [activeTab, currentUser]);
 
+  const isProfileComplete = (user: any): boolean => {
+    if (!user) return false;
+    if (!user.display_name || user.display_name.trim().length === 0) return false;
+    if (user.role === 'student') {
+      return Boolean(user.student_details?.institution || user.clinic_institution || user.course_year);
+    }
+    return Boolean(user.qualification || user.clinic_institution || user.specialization);
+  };
+
+  // Handle auto-registration after returning from login
+  useEffect(() => {
+    const registerEventId = searchParams.get('register');
+    if (registerEventId && events.length > 0 && currentUser && isProfileComplete(currentUser)) {
+      if (!isUserRegistered(registerEventId)) {
+        const targetEvt = events.find(e => e.id === registerEventId);
+        if (targetEvt) {
+          dataService.registerForEvent(registerEventId, currentUser).then(reg => {
+            if (reg) {
+              setUserRegistrations(prev => [...prev, reg]);
+              setStatusMessage({
+                type: 'success',
+                text: `Welcome back! You have been registered for "${targetEvt.title}".`
+              });
+              setTimeout(() => setStatusMessage(null), 5000);
+            }
+          });
+        }
+      }
+      searchParams.delete('register');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [events, currentUser]);
+
   const isUserRegistered = (eventId: string) => {
     return userRegistrations.some(r => r.event_id === eventId);
   };
 
   const handleRegister = async (e: React.MouseEvent, evt: Event) => {
     e.stopPropagation();
-    if (!currentUser) return;
 
+    // 1. If not authenticated, redirect to login then return to selected event
+    if (!currentUser) {
+      navigate('/login', {
+        state: {
+          from: {
+            pathname: '/events',
+            search: `?register=${evt.id}`
+          }
+        }
+      });
+      return;
+    }
+
+    // 4. If already registered, show existing registration status
+    if (isUserRegistered(evt.id)) {
+      setStatusMessage({
+        type: 'info',
+        text: `You have already registered for "${evt.title}". Your seat is confirmed.`
+      });
+      setTimeout(() => setStatusMessage(null), 5000);
+      return;
+    }
+
+    // 2. If authenticated but missing required profile information, redirect to complete profile
+    if (!isProfileComplete(currentUser)) {
+      navigate('/profile', {
+        state: {
+          from: {
+            pathname: '/events',
+            search: `?register=${evt.id}`
+          },
+          message: 'Please complete your basic profile information before registering for events.'
+        }
+      });
+      return;
+    }
+
+    // 3. Profile complete: register directly
     try {
       const reg = await dataService.registerForEvent(evt.id, currentUser);
       if (reg) {
@@ -77,15 +149,20 @@ export const EventsPage: React.FC = () => {
         });
         setTimeout(() => setStatusMessage(null), 5000);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      setStatusMessage({
+        type: 'info',
+        text: err.message || 'Registration failed. Please try again.'
+      });
+      setTimeout(() => setStatusMessage(null), 5000);
     }
   };
 
   const handleCancelRegistration = async (e: React.MouseEvent, evtId: string) => {
     e.stopPropagation();
     if (!currentUser) return;
-    if (!(await confirmAction('Cancel your registration for this session?', { confirmLabel: 'Cancel registration', danger: true }))) return;
+    if (!confirm('Are you sure you want to cancel your registration for this session?')) return;
 
     try {
       await dataService.cancelEventRegistration(evtId, currentUser.id);
@@ -151,7 +228,7 @@ export const EventsPage: React.FC = () => {
               {isMyTab && <CalendarCheck className="w-3.5 h-3.5" />}
               <span>{tab}</span>
               {isMyTab && userRegistrations.length > 0 && (
-                <span className={`px-1.5 py-0.5 rounded-full text-[11px] ${
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
                   isActive ? 'bg-teal-800 text-teal-100' : 'bg-slate-100 text-slate-700'
                 }`}>
                   {userRegistrations.length}
@@ -199,7 +276,7 @@ export const EventsPage: React.FC = () => {
                   {/* Date Badge */}
                   <div className="w-16 h-16 rounded-2xl bg-[#0F1E36] text-white flex flex-col items-center justify-center flex-shrink-0 text-center shadow-xs">
                     <span className="text-xl font-bold leading-none">{evt.date_badge_day}</span>
-                    <span className="text-[11px] uppercase tracking-wider font-semibold text-teal-300 mt-0.5">
+                    <span className="text-[10px] uppercase tracking-wider font-semibold text-teal-300 mt-0.5">
                       {evt.date_badge_month}
                     </span>
                   </div>
@@ -216,11 +293,11 @@ export const EventsPage: React.FC = () => {
                   {/* Info */}
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
+                      <span className="text-[10px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
                         {evt.format}
                       </span>
                       {registered && (
-                        <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded flex items-center gap-1">
+                        <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded flex items-center gap-1">
                           <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                           <span>Seat Reserved</span>
                         </span>
@@ -328,10 +405,10 @@ export const EventsPage: React.FC = () => {
                     <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" />
                     <span>Your Seat is Confirmed</span>
                   </div>
-                  <p className="text-xs text-teal-800">
+                  <p className="text-[11px] text-teal-800">
                     Meeting link: <a href="https://meet.homeocircle.in/cme-hall-1" target="_blank" rel="noopener noreferrer" className="font-semibold underline inline-flex items-center gap-0.5">https://meet.homeocircle.in/cme-hall-1 <ExternalLink className="w-3 h-3" /></a>
                   </p>
-                  <p className="text-[11px] text-teal-700">
+                  <p className="text-[10px] text-teal-700">
                     The video room opens 15 minutes before scheduled start time. Verification token is attached to your registered account.
                   </p>
                 </div>

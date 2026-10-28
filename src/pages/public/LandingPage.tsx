@@ -18,6 +18,7 @@ import {
   HeartHandshake,
   FileCheck2,
   BadgeCheck,
+  CheckCircle2,
 } from 'lucide-react';
 
 const metrics = [
@@ -93,6 +94,11 @@ const whoCanJoin = [
     desc: 'BHMS, MD (Hom), DHMS practitioners registered with the National Commission for Homoeopathy or State Councils.',
     cta: 'Join as Doctor',
     badge: 'Statutory Verification',
+    features: [
+      'Clinical case deliberations & repertory rubrics',
+      'State chapter networks & CME participation',
+      'Referral directory & peer consultations',
+    ],
     icon: Stethoscope,
     applyRole: 'doctor',
   },
@@ -101,6 +107,11 @@ const whoCanJoin = [
     desc: 'Undergraduate BHMS students and clinical interns seeking peer learning, study resources, and clinician mentorship.',
     cta: 'Join as Student',
     badge: 'Educational Access',
+    features: [
+      'Organon study guides & repertory masterclasses',
+      'Clinical mentorship from verified doctors',
+      'Internship postings & hospital rotations',
+    ],
     icon: GraduationCap,
     applyRole: 'student',
   },
@@ -109,6 +120,11 @@ const whoCanJoin = [
     desc: 'Academic faculty, clinical investigators, and research scholars advancing evidence-based homoeopathic science.',
     cta: 'Join as Researcher',
     badge: 'Academic Verification',
+    features: [
+      'Peer-reviewed clinical evidence library',
+      'Multi-centric clinical research collaborations',
+      'DISHA compliant observation documentation',
+    ],
     icon: Microscope,
     applyRole: 'researcher',
   },
@@ -280,8 +296,8 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             center
-            eyebrow="Membership categories"
-            title="How would you like to join?"
+            eyebrow="Community membership"
+            title="A unified space for homoeopathy in India"
             desc="One account system, with a role-specific experience for each stage of your career."
           />
 
@@ -302,6 +318,14 @@ export const LandingPage: React.FC = () => {
                     </span>
                     <h3 className="text-xl font-serif font-bold text-brand-navy">{item.role}</h3>
                     <p className="text-sm text-[#425972] leading-relaxed">{item.desc}</p>
+                    <ul className="pt-3 border-t border-[#E1EDF5] space-y-2">
+                      {item.features.map((feat) => (
+                        <li key={feat} className="flex items-start gap-2 text-sm text-[#2A3E54]">
+                          <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
+                          <span>{feat}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
 
                   <Link

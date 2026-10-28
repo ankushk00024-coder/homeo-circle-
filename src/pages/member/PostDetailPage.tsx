@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../lib/supabase';
 import { Post, Comment, Report } from '../../types';
@@ -21,13 +21,12 @@ import {
   Trash2,
   CornerDownRight
 } from 'lucide-react';
-import { useConfirm } from '../../components/feedback/ToastProvider';
 
 export const PostDetailPage: React.FC = () => {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { currentUser } = useAuth();
-  const confirmAction = useConfirm();
 
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -53,19 +52,26 @@ export const PostDetailPage: React.FC = () => {
     if (!postId) return;
     setLoading(true);
     try {
-      const [posts, foundComments, bookmarks] = await Promise.all([
-        dataService.getPosts(),
+      const [postData, foundComments, bookmarks] = await Promise.all([
+        dataService.getPostById(postId, currentUser?.id),
         dataService.getComments(postId),
         currentUser?.id ? dataService.getSavedPostIds(currentUser.id) : Promise.resolve([])
       ]);
-      const found = posts.find(p => p.id === postId) || null;
+      let found = postData;
+      if (!found) {
+        // Fallback search across published posts
+        const allPosts = await dataService.getPosts();
+        found = allPosts.find(p => p.id === postId) || null;
+      }
       setPost(found);
       setComments(foundComments);
       if (found) {
         setEditTitle(found.title);
         setEditBody(found.body);
-        setIsSaved(bookmarks.includes(found.id));
+        setIsSaved(found.is_saved ?? bookmarks.includes(found.id));
       }
+    } catch (err) {
+      console.error('Error loading post:', err);
     } finally {
       setLoading(false);
     }
@@ -76,13 +82,21 @@ export const PostDetailPage: React.FC = () => {
   }, [postId]);
 
   const handleLike = async () => {
+    if (!currentUser) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
     if (!post) return;
-    const newLikes = await dataService.toggleLikePost(post.id);
+    const newLikes = await dataService.toggleLikePost(post.id, currentUser.id);
     setPost({ ...post, is_liked: !post.is_liked, likes_count: newLikes });
   };
 
   const handleSave = async () => {
-    if (!post || !currentUser?.id) return;
+    if (!currentUser) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
+    if (!post) return;
     const saved = await dataService.toggleBookmarkPost(post.id, currentUser.id);
     setIsSaved(saved);
   };
@@ -118,7 +132,7 @@ export const PostDetailPage: React.FC = () => {
   };
 
   const handleDeleteComment = async (commentId: string) => {
-    if (!(await confirmAction('Delete this comment?', { confirmLabel: 'Delete', danger: true }))) return;
+    if (!window.confirm('Delete this comment?')) return;
     await dataService.deleteComment(commentId);
     setComments(comments.filter(c => c.id !== commentId));
     if (post) setPost({ ...post, comments_count: Math.max(0, post.comments_count - 1) });
@@ -136,7 +150,7 @@ export const PostDetailPage: React.FC = () => {
   };
 
   const handleDeletePost = async () => {
-    if (!post || !(await confirmAction('Delete this discussion post? This cannot be undone.', { confirmLabel: 'Delete post', danger: true }))) return;
+    if (!post || !window.confirm('Are you sure you want to delete this discussion post?')) return;
     await dataService.deletePost(post.id);
     navigate('/community');
   };
@@ -237,26 +251,26 @@ export const PostDetailPage: React.FC = () => {
                   {post.author_name}
                 </Link>
                 {post.author_role === 'student' && (
-                  <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                  <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
                     Student
                   </span>
                 )}
                 {post.author_role === 'researcher' && (
-                  <span className="text-[11px] font-bold text-sky-800 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
+                  <span className="text-[10px] font-bold text-sky-800 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
                     Researcher
                   </span>
                 )}
               </div>
               <p className="text-xs text-brand-muted">{post.author_qualification} • {post.author_experience}</p>
-              <span className="text-[11px] text-brand-teal font-medium">Verified Community Contributor</span>
+              <span className="text-[10px] text-brand-teal font-medium">Verified Community Contributor</span>
             </div>
           </div>
 
           <div className="flex flex-col items-end gap-1.5">
-            <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${post.category_badge_color}`}>
+            <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border ${post.category_badge_color}`}>
               {post.category_name}
             </span>
-            <span className="text-xs text-slate-400">{post.created_at}</span>
+            <span className="text-[11px] text-slate-400">{post.created_at}</span>
           </div>
         </div>
 
@@ -329,7 +343,7 @@ export const PostDetailPage: React.FC = () => {
         )}
 
         {/* Clinical Disclaimer Box */}
-        <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70 text-xs text-slate-500 space-y-1">
+        <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70 text-[11px] text-slate-500 space-y-1">
           <p className="font-semibold text-slate-700">Peer Exchange Advisory:</p>
           <p>
             Case discussions reflect individual practitioner observations. They do not constitute established clinical guidelines or medical treatment advice.
@@ -375,8 +389,14 @@ export const PostDetailPage: React.FC = () => {
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setReportModalOpen(true)}
-              className="flex items-center gap-1 text-slate-400 hover:text-rose-600 text-xs transition"
+              onClick={() => {
+                if (!currentUser) {
+                  navigate('/login', { state: { from: location } });
+                  return;
+                }
+                setReportModalOpen(true);
+              }}
+              className="flex items-center gap-1 text-slate-400 hover:text-rose-600 text-[11px] transition"
               title="Report Content to Moderators"
             >
               <Flag className="w-3.5 h-3.5" />
@@ -394,45 +414,61 @@ export const PostDetailPage: React.FC = () => {
         </h3>
 
         {/* Comment Composer */}
-        <form onSubmit={handleAddComment} className="space-y-3">
-          {replyingToComment && (
-            <div className="p-2.5 bg-teal-50 border border-teal-200 rounded-xl text-xs flex items-center justify-between text-teal-800">
-              <span className="flex items-center gap-1.5">
-                <CornerDownRight className="w-3.5 h-3.5 text-teal-600" />
-                <span>Replying to <strong>{replyingToComment.author_name}</strong></span>
+        {currentUser ? (
+          <form onSubmit={handleAddComment} className="space-y-3">
+            {replyingToComment && (
+              <div className="p-2.5 bg-teal-50 border border-teal-200 rounded-xl text-xs flex items-center justify-between text-teal-800">
+                <span className="flex items-center gap-1.5">
+                  <CornerDownRight className="w-3.5 h-3.5 text-teal-600" />
+                  <span>Replying to <strong>{replyingToComment.author_name}</strong></span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setReplyingToComment(null)}
+                  className="text-teal-600 hover:text-teal-800 font-bold"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            <textarea
+              rows={3}
+              required
+              value={newCommentBody}
+              onChange={(e) => setNewCommentBody(e.target.value)}
+              placeholder="Contribute your clinical observation, repertorial rubrics, or posology question..."
+              className="w-full p-3.5 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 outline-none leading-relaxed"
+            />
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-slate-400">
+                Posting as {currentUser.display_name} ({currentUser.qualification || 'Member'})
               </span>
               <button
-                type="button"
-                onClick={() => setReplyingToComment(null)}
-                className="text-teal-600 hover:text-teal-800 font-bold"
+                type="submit"
+                disabled={submittingComment || !newCommentBody.trim()}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold transition disabled:opacity-50 shadow-2xs"
               >
-                ✕
+                <Send className="w-3 h-3" />
+                <span>{submittingComment ? 'Posting...' : 'Post Reply'}</span>
               </button>
             </div>
-          )}
-
-          <textarea
-            rows={3}
-            required
-            value={newCommentBody}
-            onChange={(e) => setNewCommentBody(e.target.value)}
-            placeholder="Contribute your clinical observation, repertorial rubrics, or posology question..."
-            className="w-full p-3.5 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 outline-none leading-relaxed"
-          />
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] text-slate-400">
-              Posting as {currentUser?.display_name} ({currentUser?.qualification})
-            </span>
+          </form>
+        ) : (
+          <div className="p-5 bg-teal-50/50 border border-teal-100 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <h4 className="text-xs font-bold text-teal-900">Join the Clinical Discussion</h4>
+              <p className="text-[11px] text-teal-700">Sign in with your verified account to contribute clinical observations, ask questions, or reply to peers.</p>
+            </div>
             <button
-              type="submit"
-              disabled={submittingComment || !newCommentBody.trim()}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold transition disabled:opacity-50 shadow-2xs"
+              type="button"
+              onClick={() => navigate('/login', { state: { from: location } })}
+              className="whitespace-nowrap px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold transition shadow-xs"
             >
-              <Send className="w-3 h-3" />
-              <span>{submittingComment ? 'Posting...' : 'Post Reply'}</span>
+              Sign in to Reply
             </button>
           </div>
-        </form>
+        )}
 
         {/* Comments Feed */}
         <div className="space-y-4 pt-4 border-t border-slate-100">
@@ -453,7 +489,7 @@ export const PostDetailPage: React.FC = () => {
                         <span className="text-xs font-bold text-brand-navy block leading-none">
                           {comment.author_name}
                         </span>
-                        <span className="text-[11px] text-slate-400">
+                        <span className="text-[10px] text-slate-400">
                           {comment.author_qualification || 'Doctor'} • {comment.created_at}
                         </span>
                       </div>
@@ -461,8 +497,14 @@ export const PostDetailPage: React.FC = () => {
 
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => setReplyingToComment(comment)}
-                        className="text-xs text-teal-700 hover:underline flex items-center gap-1"
+                        onClick={() => {
+                          if (!currentUser) {
+                            navigate('/login', { state: { from: location } });
+                            return;
+                          }
+                          setReplyingToComment(comment);
+                        }}
+                        className="text-[11px] text-teal-700 hover:underline flex items-center gap-1"
                       >
                         <CornerDownRight className="w-3 h-3" />
                         <span>Reply</span>
@@ -509,7 +551,7 @@ export const PostDetailPage: React.FC = () => {
               <div className="py-6 text-center space-y-2">
                 <CheckCircle2 className="w-8 h-8 text-teal-600 mx-auto" />
                 <p className="text-xs font-bold text-brand-navy">Report Logged for Review</p>
-                <p className="text-xs text-slate-500">Our editorial council reviews reported items within 24 hours.</p>
+                <p className="text-[11px] text-slate-500">Our editorial council reviews reported items within 24 hours.</p>
               </div>
             ) : (
               <form onSubmit={handleReportSubmit} className="space-y-3 text-xs">

@@ -21,15 +21,62 @@ export const ApplicationStatusPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [appealNote, setAppealNote] = useState('');
   const [appealSent, setAppealSent] = useState(false);
+  const [lookupAppId, setLookupAppId] = useState('');
+  const [lookupEmail, setLookupEmail] = useState('');
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [lookupError, setLookupError] = useState<string | null>(null);
 
   useEffect(() => {
-    dataService.getApplications().then(apps => {
-      // Find the user's application
-      const found = apps.find(a => a.user_id === currentUser?.id || a.email === currentUser?.email) || apps[0];
-      setApplication(found || null);
+    const stateApp = (location.state as any)?.app;
+    const stateAppId = (location.state as any)?.appId || stateApp?.id;
+    const stateEmail = (location.state as any)?.email || stateApp?.email;
+
+    if (stateApp) {
+      setApplication(stateApp);
       setLoading(false);
-    });
-  }, [currentUser]);
+    }
+
+    if (currentUser?.id) {
+      dataService.getMyApplication(currentUser.id).then(app => {
+        if (app) setApplication(app);
+        setLoading(false);
+      });
+    } else if (stateAppId && stateEmail) {
+      dataService.lookupGuestApplicationStatus(stateAppId, stateEmail).then(app => {
+        if (app) setApplication(app as PractitionerApplication);
+        setLoading(false);
+      });
+    } else if (stateAppId && !stateApp) {
+      dataService.getApplicationById(stateAppId).then(app => {
+        if (app) setApplication(app);
+        setLoading(false);
+      });
+    } else if (!stateApp) {
+      setLoading(false);
+    }
+  }, [currentUser, location.state]);
+
+  const handleManualLookup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLookupError(null);
+    if (!lookupAppId.trim() || !lookupEmail.trim()) {
+      setLookupError('Please enter both your Application UUID and registered email.');
+      return;
+    }
+    setLookupLoading(true);
+    try {
+      const app = await dataService.lookupGuestApplicationStatus(lookupAppId.trim(), lookupEmail.trim());
+      if (app) {
+        setApplication(app as PractitionerApplication);
+      } else {
+        setLookupError('No application found matching this Application ID and email. Please check your submission confirmation.');
+      }
+    } catch (err: any) {
+      setLookupError(err.message || 'Failed to retrieve application status.');
+    } finally {
+      setLookupLoading(false);
+    }
+  };
 
   const currentStatus = application ? application.status : status;
 
@@ -44,6 +91,59 @@ export const ApplicationStatusPage: React.FC = () => {
           Tracking official state council and National Register audit progress.
         </p>
       </div>
+
+      {!application && !loading && !currentUser && (
+        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-card space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+            <ShieldCheck className="w-5 h-5 text-teal-600" />
+            <h3 className="text-sm font-bold text-brand-navy">Secure Guest Status Lookup</h3>
+          </div>
+          <p className="text-xs text-slate-600">
+            If you submitted an application without logging in, enter your Application ID and registered email address to check your status securely.
+          </p>
+          <form onSubmit={handleManualLookup} className="space-y-3 pt-2">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Application ID (UUID)
+              </label>
+              <input
+                type="text"
+                required
+                value={lookupAppId}
+                onChange={(e) => setLookupAppId(e.target.value)}
+                placeholder="e.g. 123e4567-e89b-12d3-a456-426614174000"
+                className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 outline-none font-mono"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Registered Email Address
+              </label>
+              <input
+                type="email"
+                required
+                value={lookupEmail}
+                onChange={(e) => setLookupEmail(e.target.value)}
+                placeholder="doctor@example.com"
+                className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 outline-none"
+              />
+            </div>
+            {lookupError && (
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{lookupError}</span>
+              </div>
+            )}
+            <button
+              type="submit"
+              disabled={lookupLoading}
+              className="px-4 py-2 bg-teal-700 text-white text-xs font-semibold rounded-lg hover:bg-teal-800 transition disabled:opacity-50"
+            >
+              {lookupLoading ? 'Checking...' : 'Check Status'}
+            </button>
+          </form>
+        </div>
+      )}
 
       {/* Main Status Card */}
       <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-card space-y-6">
@@ -85,7 +185,7 @@ export const ApplicationStatusPage: React.FC = () => {
             <div>
               <h3 className="text-sm font-bold text-sky-900">Additional Clarification Requested</h3>
               <p className="text-xs text-sky-700 leading-relaxed">
-                The verification committee noted: <em>"{application?.internal_notes || 'Please provide updated certificate copy.'}"</em>
+                The verification committee noted: <em>"{application?.decision_reason || 'Please provide updated certificate copy.'}"</em>
               </p>
             </div>
           </div>
@@ -107,27 +207,27 @@ export const ApplicationStatusPage: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100 text-xs">
           <div>
             <span className="text-slate-400 block font-medium">Applicant Name</span>
-            <span className="font-semibold text-brand-navy">{application?.full_name || currentUser?.full_name || 'Dr. Rohit Kumar'}</span>
+            <span className="font-semibold text-brand-navy">{application?.full_name || (location.state as any)?.fullName || currentUser?.full_name || 'Practitioner Applicant'}</span>
           </div>
           <div>
             <span className="text-slate-400 block font-medium">Medical Qualification</span>
-            <span className="font-semibold text-brand-navy">{application?.qualification || 'MD (Hom)'}</span>
+            <span className="font-semibold text-brand-navy">{application?.qualification || (location.state as any)?.qualification || 'Degree / Diploma'}</span>
           </div>
           <div>
             <span className="text-slate-400 block font-medium">Registration Number</span>
-            <span className="font-mono font-bold text-teal-800">{application?.registration_number || 'DHB/2019/8821'}</span>
+            <span className="font-mono font-bold text-teal-800">{application?.registration_number || (location.state as any)?.regNumber || 'Pending Statutory Check'}</span>
           </div>
           <div>
             <span className="text-slate-400 block font-medium">Registration Authority</span>
-            <span className="font-semibold text-brand-navy">{application?.registration_authority || 'Delhi Homoeopathic Board'}</span>
+            <span className="font-semibold text-brand-navy">{application?.registration_authority || (location.state as any)?.authority || 'State Homoeopathic Council'}</span>
           </div>
           <div>
             <span className="text-slate-400 block font-medium">Application ID</span>
-            <span className="font-mono text-slate-600">{application?.id || 'APP-2026-901'}</span>
+            <span className="font-mono text-slate-600">{application?.id || (location.state as any)?.appId || 'Pending'}</span>
           </div>
           <div>
             <span className="text-slate-400 block font-medium">Submitted Time</span>
-            <span className="text-slate-600">{application?.submitted_at || 'Just now'}</span>
+            <span className="text-slate-600">{application?.submitted_at ? new Date(application.submitted_at).toLocaleString('en-IN') : 'Just now'}</span>
           </div>
         </div>
 

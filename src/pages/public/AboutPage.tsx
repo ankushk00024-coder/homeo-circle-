@@ -83,7 +83,7 @@ export const AboutPage: React.FC = () => {
       {/* Action Banner */}
       <div className="text-center pt-4">
         <Link
-          to="/apply"
+          to="/apply?role=doctor"
           className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-teal-700 text-white text-sm font-semibold hover:bg-teal-800 shadow transition"
         >
           <span>Apply for Practitioner Verification</span>

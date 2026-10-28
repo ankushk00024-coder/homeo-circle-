@@ -1,27 +1,86 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { ShieldAlert, AlertTriangle, ArrowRight } from 'lucide-react';
+import { ShieldAlert, AlertTriangle, ArrowRight, Loader2 } from 'lucide-react';
+import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAdmin?: boolean;
+  requireVerified?: boolean;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
-  requireAdmin = false 
+  requireAdmin = false,
+  requireVerified = false
 }) => {
-  const { isAuthenticated, authLoading, isVerifiedMember, isAdmin, status } = useAuth();
+  const { isAuthenticated, isVerifiedMember, isAdmin, status, loading: authLoading } = useAuth();
   const location = useLocation();
 
-  // Wait for the Supabase session to be restored before deciding; otherwise
-  // every page refresh would bounce signed-in members to /login.
-  if (authLoading) {
+  const [backendAdminVerified, setBackendAdminVerified] = useState<boolean | null>(null);
+  const [checkingBackendAdmin, setCheckingBackendAdmin] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function verifyBackendAdminRole() {
+      if (!requireAdmin) return;
+
+      // If user holds administrative role in active authenticated profile
+      if (isAdmin) {
+        if (isMounted) setBackendAdminVerified(true);
+        return;
+      }
+
+      if (!isSupabaseConfigured || !supabase) {
+        if (isMounted) setBackendAdminVerified(isAdmin);
+        return;
+      }
+
+      setCheckingBackendAdmin(true);
+      try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) {
+          if (isMounted) setBackendAdminVerified(false);
+          return;
+        }
+
+        // Live check against trusted backend user_roles table
+        const { data: roles, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .in('role', ['admin', 'super_admin']);
+
+        if (rolesError) {
+          // If user_roles table RLS restricts select, fallback to is_admin RPC
+          const { data: rpcAdmin } = await supabase.rpc('is_admin');
+          if (isMounted) setBackendAdminVerified(Boolean(rpcAdmin));
+        } else {
+          const hasRole = Array.isArray(roles) && roles.length > 0;
+          if (isMounted) setBackendAdminVerified(hasRole);
+        }
+      } catch (err) {
+        console.error('Backend admin authorization verification failed:', err);
+        if (isMounted) setBackendAdminVerified(false);
+      } finally {
+        if (isMounted) setCheckingBackendAdmin(false);
+      }
+    }
+
+    verifyBackendAdminRole();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [requireAdmin, isAuthenticated, isAdmin]);
+
+  if (authLoading || (requireAdmin && checkingBackendAdmin && backendAdminVerified === null)) {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4" role="status" aria-live="polite">
-        <div className="w-10 h-10 rounded-full border-[3px] border-brand-teal/20 border-t-brand-teal animate-spin" />
-        <p className="text-sm text-brand-muted">Checking your session…</p>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-4">
+        <Loader2 className="w-8 h-8 text-teal-600 animate-spin mb-3" />
+        <p className="text-xs text-slate-500 font-medium tracking-wide">Verifying platform authorization...</p>
       </div>
     );
   }
@@ -33,7 +92,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // If route requires admin privileges
   if (requireAdmin) {
-    if (!isAdmin) {
+    const isAuthorized = isAdmin || backendAdminVerified === true;
+
+    if (!isAuthorized) {
       return (
         <div className="min-h-[70vh] flex items-center justify-center p-4">
           <div className="max-w-md w-full bg-white rounded-2xl shadow-card p-8 border border-slate-200 text-center space-y-4">
@@ -42,7 +103,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
             </div>
             <h2 className="text-xl font-bold text-brand-navy">Administrator Access Required</h2>
             <p className="text-sm text-slate-600 leading-relaxed">
-              This area is strictly restricted to authorized platform administrators and verification officers.
+              This area is strictly restricted to authorized platform administrators and verification officers. Live backend role verification failed for this session.
             </p>
             <div className="pt-2">
               <Link
@@ -59,8 +120,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <>{children}</>;
   }
 
-  // If requires verified membership
-  if (!isVerifiedMember) {
+  // If route specifically requires verified practitioner/educator membership
+  if (requireVerified && !isVerifiedMember) {
     // If pending review
     if (status === 'pending_review' || status === 'submitted' || status === 'needs_information') {
       return <Navigate to="/application-status" replace />;

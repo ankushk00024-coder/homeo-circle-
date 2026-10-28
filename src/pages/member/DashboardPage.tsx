@@ -37,6 +37,14 @@ export const DashboardPage: React.FC = () => {
   const [savedPostIds, setSavedPostIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+  const [showRolePrompt, setShowRolePrompt] = useState<boolean>(() => {
+    return localStorage.getItem('hide_role_prompt') !== 'true';
+  });
+
+  const handleDismissRolePrompt = () => {
+    setShowRolePrompt(false);
+    localStorage.setItem('hide_role_prompt', 'true');
+  };
 
   const loadData = async () => {
     if (!currentUser) return;
@@ -96,6 +104,40 @@ export const DashboardPage: React.FC = () => {
           <button onClick={() => setActionSuccess(null)} className="text-teal-600 hover:text-teal-900">
             <X className="w-3.5 h-3.5" />
           </button>
+        </div>
+      )}
+
+      {/* Optional Profile Completion & Role Selection Banner */}
+      {showRolePrompt && (
+        <div className="p-4 sm:p-5 bg-gradient-to-r from-teal-50 via-emerald-50/50 to-white rounded-2xl border border-teal-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-fade-in">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <Sparkles className="w-5 h-5 text-teal-700" />
+            </div>
+            <div>
+              <h4 className="text-xs sm:text-sm font-bold text-brand-navy">
+                Customize Your Homeo Circle Profile
+              </h4>
+              <p className="text-[11.5px] text-slate-600 mt-0.5 leading-relaxed">
+                Select whether you are a Practitioner, Student / Intern, or Academic Researcher to tailor your peer directory and clinical network.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2.5 self-end sm:self-center flex-shrink-0">
+            <Link
+              to="/profile"
+              className="px-4 py-2 bg-[#0D817B] hover:bg-[#096e69] text-white rounded-xl text-xs font-semibold shadow-xs transition"
+            >
+              Choose Profile Type
+            </Link>
+            <button
+              type="button"
+              onClick={handleDismissRolePrompt}
+              className="px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-800 rounded-xl hover:bg-slate-100 transition"
+            >
+              Skip
+            </button>
+          </div>
         </div>
       )}
 

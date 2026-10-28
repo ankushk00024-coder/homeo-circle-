@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { dataService } from '../../lib/supabase';
 import { KnowledgePost } from '../../types';
 import { useAuth } from '../../context/AuthContext';
-import { BookOpen, Plus, ExternalLink, AlertCircle, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 
 export const AdminKnowledge: React.FC = () => {
   const { currentUser } = useAuth();
@@ -21,12 +21,9 @@ export const AdminKnowledge: React.FC = () => {
 
   const loadData = async () => {
     setLoading(true);
-    try {
-      const data = await dataService.getKnowledgePosts();
-      setPosts(data);
-    } finally {
-      setLoading(false);
-    }
+    const data = await dataService.getKnowledgePosts();
+    setPosts(data);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -91,36 +88,41 @@ export const AdminKnowledge: React.FC = () => {
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
-                <th className="py-3 px-4">Study Title</th>
-                <th className="py-3 px-4">Journal</th>
-                <th className="py-3 px-4">Design Type</th>
-                <th className="py-3 px-4">Limitations Statement</th>
-                <th className="py-3 px-4">Indexed Date</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {posts.map((post) => (
+        {loading ? (
+          <div className="py-20 text-center text-xs text-slate-400">Loading research entries...</div>
+        ) : posts.length === 0 ? (
+          <div className="py-20 text-center text-xs text-slate-500">No research studies indexed yet.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+                  <th className="py-3 px-4">Study Title</th>
+                  <th className="py-3 px-4">Journal</th>
+                  <th className="py-3 px-4">Design Type</th>
+                  <th className="py-3 px-4">Limitations Statement</th>
+                  <th className="py-3 px-4">Indexed Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {posts.map((post) => (
                 <tr key={post.id} className="hover:bg-slate-50 transition">
                   <td className="py-3.5 px-4 max-w-sm">
                     <span className="font-bold text-brand-navy block truncate">{post.title}</span>
-                    <span className="text-xs text-slate-400 line-clamp-1">{post.summary}</span>
+                    <span className="text-[11px] text-slate-400 line-clamp-1">{post.summary}</span>
                   </td>
                   <td className="py-3.5 px-4 font-medium text-slate-700 italic">
                     {post.journal}
                   </td>
                   <td className="py-3.5 px-4">
-                    <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-sky-50 text-sky-800 border border-sky-200">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-sky-50 text-sky-800 border border-sky-200">
                       {post.content_type}
                     </span>
                   </td>
-                  <td className="py-3.5 px-4 text-amber-800 max-w-xs text-xs">
+                  <td className="py-3.5 px-4 text-amber-800 max-w-xs text-[11px]">
                     <span className="line-clamp-1">{post.limitations}</span>
                   </td>
-                  <td className="py-3.5 px-4 text-slate-500 font-mono text-xs">
+                  <td className="py-3.5 px-4 text-slate-500 font-mono text-[11px]">
                     {post.published_at}
                   </td>
                 </tr>
@@ -128,6 +130,7 @@ export const AdminKnowledge: React.FC = () => {
             </tbody>
           </table>
         </div>
+        )}
       </div>
 
       {/* Modal */}

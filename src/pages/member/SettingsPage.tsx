@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { authService } from '../../services/authService';
 import { 
   Shield, 
   Bell, 
@@ -26,6 +27,7 @@ export const SettingsPage: React.FC = () => {
   const [emailDigest, setEmailDigest] = useState(false);
 
   const [passwordNotice, setPasswordNotice] = useState<string | null>(null);
+  const [resettingPassword, setResettingPassword] = useState(false);
   const [savedSettings, setSavedSettings] = useState(false);
 
   const handleSaveNotifications = (e: React.FormEvent) => {
@@ -34,8 +36,17 @@ export const SettingsPage: React.FC = () => {
     setTimeout(() => setSavedSettings(false), 3000);
   };
 
-  const handlePasswordReset = () => {
-    setPasswordNotice(`Password recovery initiated for ${currentUser?.email}. Notice: External email dispatch requires a configured SMTP/Resend service.`);
+  const handlePasswordReset = async () => {
+    if (!currentUser?.email) return;
+    try {
+      setResettingPassword(true);
+      await authService.resetPassword(currentUser.email);
+      setPasswordNotice(`Password recovery initiated for ${currentUser.email}. Please check your inbox or spam folder.`);
+    } catch (err: any) {
+      setPasswordNotice(err.message || `Password recovery request registered. (Requires configured SMTP / email provider in Supabase).`);
+    } finally {
+      setResettingPassword(false);
+    }
   };
 
   return (
