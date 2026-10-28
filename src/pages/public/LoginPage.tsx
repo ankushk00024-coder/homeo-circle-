@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { useAuth, TEST_USERS } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { BrandLogo } from '../../components/common/BrandLogo';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { 
@@ -19,7 +19,7 @@ import {
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { loginWithEmail, loginAs } = useAuth();
+  const { loginWithEmail, loginAs, requestPasswordReset, isDemoMode } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -71,13 +71,20 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  const handlePasswordReset = (e: React.FormEvent) => {
+  const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !email.includes('@')) {
       setError('Please enter a valid practitioner email.');
       return;
     }
     setError(null);
+    setLoading(true);
+    const result = await requestPasswordReset(email.trim());
+    setLoading(false);
+    if (!result.success) {
+      setError(result.error || 'Could not send the recovery email. Please try again.');
+      return;
+    }
     setResetSuccess(true);
   };
 
@@ -123,9 +130,11 @@ export const LoginPage: React.FC = () => {
             <div className="p-4 bg-teal-50 border border-teal-200 rounded-xl flex items-start gap-2.5 text-teal-800 text-xs">
               <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold">Password recovery link generated</p>
-                <p className="text-[11px] text-teal-700 mt-0.5">
-                  If an account exists for {email}, a recovery link has been dispatched.
+                <p className="font-bold">Check your inbox</p>
+                <p className="text-xs text-teal-700 mt-0.5">
+                  {isDemoMode
+                    ? 'Demo mode: no email is sent until a Supabase backend is connected.'
+                    : `If an account exists for ${email}, we've sent a link to set a new password.`}
                 </p>
               </div>
             </div>
@@ -158,7 +167,7 @@ export const LoginPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => { setActiveTab('forgot'); setError(null); }}
-                    className="text-[11px] font-medium text-teal-700 hover:text-teal-800"
+                    className="text-xs font-medium text-teal-700 hover:text-teal-800"
                   >
                     Forgot password?
                   </button>
@@ -207,9 +216,10 @@ export const LoginPage: React.FC = () => {
               <div className="flex gap-2">
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 px-4 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-semibold text-xs shadow transition"
+                  disabled={loading}
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-semibold text-xs shadow transition active:scale-[.98] disabled:opacity-50"
                 >
-                  Send Recovery Email
+                  {loading ? 'Sending…' : 'Send Recovery Email'}
                 </button>
                 <button
                   type="button"
@@ -271,12 +281,13 @@ export const LoginPage: React.FC = () => {
 
         </div>
 
-        {/* Discrete Reviewer / Evaluator Credentials Drawer */}
+        {/* Demo profiles: only when no backend is connected */}
+        {isDemoMode && (
         <div className="pt-1">
           <button
             type="button"
             onClick={() => setShowDemoAccounts(!showDemoAccounts)}
-            className="w-full flex items-center justify-between px-3.5 py-2 text-[11px] font-medium text-brand-muted hover:text-brand-navy bg-brand-ice/50 hover:bg-brand-ice border border-brand-border/60 rounded-xl transition"
+            className="w-full flex items-center justify-between px-3.5 py-2 text-xs font-medium text-brand-muted hover:text-brand-navy bg-brand-ice/50 hover:bg-brand-ice border border-brand-border/60 rounded-xl transition"
           >
             <span className="flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-brand-teal" />
@@ -286,39 +297,40 @@ export const LoginPage: React.FC = () => {
           </button>
 
           {showDemoAccounts && (
-            <div className="mt-2 p-3 bg-white border border-brand-border/80 rounded-xl space-y-2 animate-in fade-in duration-150 shadow-xs">
-              <p className="text-[10px] text-brand-muted">
+            <div className="mt-2 p-3 bg-white border border-brand-border/80 rounded-xl space-y-2 animate-fade-in shadow-xs">
+              <p className="text-[11px] text-brand-muted">
                 One-click local authentication for code evaluation and demo inspection:
               </p>
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
                   onClick={() => selectDemoUser('member')}
-                  className="px-2 py-2 bg-brand-ice/40 hover:bg-brand-soft-teal border border-brand-border hover:border-brand-teal/50 rounded-lg text-left transition"
+                  className="px-2 py-2 bg-brand-ice/40 hover:bg-teal-50 border border-brand-border hover:border-brand-teal/50 rounded-lg text-left transition"
                 >
-                  <span className="text-[11px] font-bold text-brand-navy block truncate">Dr. Ananya</span>
-                  <span className="text-[9px] text-brand-teal font-medium">Verified Member</span>
+                  <span className="text-xs font-bold text-brand-navy block truncate">Dr. Ananya</span>
+                  <span className="text-[10px] text-brand-teal font-medium">Verified Member</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => selectDemoUser('admin')}
                   className="px-2 py-2 bg-brand-ice/40 hover:bg-indigo-50 border border-brand-border hover:border-indigo-300 rounded-lg text-left transition"
                 >
-                  <span className="text-[11px] font-bold text-brand-navy block truncate">Dr. Sanjeev</span>
-                  <span className="text-[9px] text-indigo-700 font-medium">Administrator</span>
+                  <span className="text-xs font-bold text-brand-navy block truncate">Dr. Sanjeev</span>
+                  <span className="text-[10px] text-indigo-700 font-medium">Administrator</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => selectDemoUser('applicant')}
                   className="px-2 py-2 bg-brand-ice/40 hover:bg-amber-50 border border-brand-border hover:border-amber-300 rounded-lg text-left transition"
                 >
-                  <span className="text-[11px] font-bold text-brand-navy block truncate">Dr. Rohit</span>
-                  <span className="text-[9px] text-amber-700 font-medium">Pending Review</span>
+                  <span className="text-xs font-bold text-brand-navy block truncate">Dr. Rohit</span>
+                  <span className="text-[10px] text-amber-700 font-medium">Pending Review</span>
                 </button>
               </div>
             </div>
           )}
         </div>
+        )}
 
       </div>
 
@@ -332,7 +344,7 @@ export const LoginPage: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-base font-bold">Google OAuth Configuration Notice</h3>
-                <p className="text-[11px] text-slate-500">PRD Compliance & Security Guidelines</p>
+                <p className="text-xs text-slate-500">PRD Compliance & Security Guidelines</p>
               </div>
             </div>
 
@@ -343,11 +355,11 @@ export const LoginPage: React.FC = () => {
             <ol className="list-decimal pl-5 text-xs text-slate-600 space-y-1.5 leading-relaxed">
               <li>Open Google Cloud Console &rarr; APIs & Services &rarr; Credentials.</li>
               <li>Create an OAuth 2.0 Client ID (Web Application).</li>
-              <li>Add your Supabase callback URL: <code className="bg-slate-100 px-1 py-0.5 rounded text-[10px]">https://&lt;your-project&gt;.supabase.co/auth/v1/callback</code>.</li>
+              <li>Add your Supabase callback URL: <code className="bg-slate-100 px-1 py-0.5 rounded text-[11px]">https://&lt;your-project&gt;.supabase.co/auth/v1/callback</code>.</li>
               <li>In your Supabase Dashboard &rarr; Authentication &rarr; Providers &rarr; Google, enable Google and paste the Client ID & Secret.</li>
             </ol>
 
-            <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-[11px] text-amber-900 leading-normal">
+            <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 leading-normal">
               <strong>Note on Phone Number:</strong> Google Auth does not provide the practitioner's phone number or council registration number. Therefore, all users must still submit the Practitioner Application Form to complete verification.
             </div>
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { ShieldAlert, AlertTriangle, ArrowRight, UserCheck } from 'lucide-react';
+import { ShieldAlert, AlertTriangle, ArrowRight } from 'lucide-react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -12,8 +12,19 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children, 
   requireAdmin = false 
 }) => {
-  const { isAuthenticated, isVerifiedMember, isAdmin, status, currentUser } = useAuth();
+  const { isAuthenticated, authLoading, isVerifiedMember, isAdmin, status } = useAuth();
   const location = useLocation();
+
+  // Wait for the Supabase session to be restored before deciding; otherwise
+  // every page refresh would bounce signed-in members to /login.
+  if (authLoading) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4" role="status" aria-live="polite">
+        <div className="w-10 h-10 rounded-full border-[3px] border-brand-teal/20 border-t-brand-teal animate-spin" />
+        <p className="text-sm text-brand-muted">Checking your session…</p>
+      </div>
+    );
+  }
 
   // If not authenticated at all
   if (!isAuthenticated) {

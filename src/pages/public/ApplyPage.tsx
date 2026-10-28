@@ -160,7 +160,7 @@ export const ApplyPage: React.FC = () => {
         document_url: documentName ? `/storage/private/docs/${documentName}` : undefined
       });
 
-      // Switch auth to this applicant session
+      // Demo mode: switch to the demo applicant (no-op when a backend is connected)
       loginAs('applicant');
 
       if (newApp.status === 'verified') {
@@ -188,7 +188,7 @@ export const ApplyPage: React.FC = () => {
       
       {/* Header */}
       <div className="text-center space-y-3 mb-10">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-200/80 text-[11px] font-bold text-teal-800 uppercase tracking-wider">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-200/80 text-xs font-bold text-teal-800 uppercase tracking-wider">
           <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
           <span>Unified Onboarding & Registration</span>
         </div>
@@ -240,15 +240,15 @@ export const ApplyPage: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-brand-navy">Doctor / Practitioner</h3>
-                  <span className="text-[10px] font-semibold text-teal-800 bg-teal-50 px-2 py-0.2 rounded border border-teal-200 mt-1 inline-block">
+                  <span className="text-[11px] font-semibold text-teal-800 bg-teal-50 px-2 py-0.5 rounded border border-teal-200 mt-1 inline-block">
                     Statutory Verification
                   </span>
                 </div>
-                <p className="text-[11.5px] text-slate-500 leading-snug">
+                <p className="text-[13px] text-slate-500 leading-snug">
                   Registered BHMS, MD (Hom), or DHMS practitioners with state or central council credentials.
                 </p>
               </div>
-              <div className="pt-2 text-[11px] font-semibold text-teal-700">
+              <div className="pt-2 text-xs font-semibold text-teal-700">
                 {accountType === 'doctor' ? '✓ Selected' : 'Select'}
               </div>
             </div>
@@ -270,15 +270,15 @@ export const ApplyPage: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-brand-navy">Student / Intern</h3>
-                  <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.2 rounded border border-emerald-200 mt-1 inline-block">
+                  <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 mt-1 inline-block">
                     Educational Access
                   </span>
                 </div>
-                <p className="text-[11.5px] text-slate-500 leading-snug">
+                <p className="text-[13px] text-slate-500 leading-snug">
                   Undergraduate BHMS students and clinical interns seeking peer learning, study resources, and doctor mentorship.
                 </p>
               </div>
-              <div className="pt-2 text-[11px] font-semibold text-teal-700">
+              <div className="pt-2 text-xs font-semibold text-teal-700">
                 {accountType === 'student' ? '✓ Selected' : 'Select'}
               </div>
             </div>
@@ -300,15 +300,15 @@ export const ApplyPage: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-brand-navy">Researcher / Educator</h3>
-                  <span className="text-[10px] font-semibold text-sky-800 bg-sky-50 px-2 py-0.2 rounded border border-sky-200 mt-1 inline-block">
+                  <span className="text-[11px] font-semibold text-sky-800 bg-sky-50 px-2 py-0.5 rounded border border-sky-200 mt-1 inline-block">
                     Academic Verification
                   </span>
                 </div>
-                <p className="text-[11.5px] text-slate-500 leading-snug">
+                <p className="text-[13px] text-slate-500 leading-snug">
                   Faculty, clinical trial investigators, and research scholars publishing in high-dilution science.
                 </p>
               </div>
-              <div className="pt-2 text-[11px] font-semibold text-teal-700">
+              <div className="pt-2 text-xs font-semibold text-teal-700">
                 {accountType === 'researcher' ? '✓ Selected' : 'Select'}
               </div>
             </div>
@@ -504,7 +504,7 @@ export const ApplyPage: React.FC = () => {
                 <div className="sm:col-span-2 p-3 bg-teal-50/50 rounded-xl border border-teal-100 flex items-center justify-between">
                   <div>
                     <span className="text-xs font-bold text-brand-navy block">Student Mentorship Willingness</span>
-                    <span className="text-[11px] text-slate-500">Allow BHMS interns and final year students to request academic case mentorship from you.</span>
+                    <span className="text-xs text-slate-500">Allow BHMS interns and final year students to request academic case mentorship from you.</span>
                   </div>
                   <input
                     type="checkbox"
@@ -688,7 +688,7 @@ export const ApplyPage: React.FC = () => {
               <p>
                 <strong>Community Standard Declaration:</strong> Homeo Circle is an academic, research, and clinical peer community. In compliance with the National Commission for Homoeopathy rules, the DPDP Act 2023, and DISHA medical guidelines:
               </p>
-              <ul className="list-disc pl-5 space-y-1 text-[11px] text-slate-500">
+              <ul className="list-disc pl-5 space-y-1 text-xs text-slate-500">
                 <li>I confirm that the details provided are accurate and correspond to official records.</li>
                 <li>I agree that patient case discussions must be completely de-identified with zero patient identifiers.</li>
                 <li>I understand that membership does not constitute a public endorsement of clinical competence.</li>

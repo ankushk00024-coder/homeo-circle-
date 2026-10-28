@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 export const ApplicationStatusPage: React.FC = () => {
-  const { currentUser, status, role, loginAs } = useAuth();
+  const { currentUser, status, role, loginAs, isDemoMode } = useAuth();
   const location = useLocation();
   const [application, setApplication] = useState<PractitionerApplication | null>(null);
   const [loading, setLoading] = useState(true);
@@ -140,18 +140,18 @@ export const ApplicationStatusPage: React.FC = () => {
           <div className="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
             {/* Step 1 */}
             <div className="relative">
-              <span className="absolute -left-6 top-0.5 w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px] font-bold">
+              <span className="absolute -left-6 top-0.5 w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center text-[11px] font-bold">
                 &#10003;
               </span>
               <p className="text-xs font-bold text-brand-navy">Application Received</p>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-xs text-slate-500">
                 Credentials submitted with statutory consent declaration.
               </p>
             </div>
 
             {/* Step 2 */}
             <div className="relative">
-              <span className={`absolute -left-6 top-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
+              <span className={`absolute -left-6 top-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[11px] font-bold ${
                 currentStatus === 'verified'
                   ? 'bg-teal-600 text-white'
                   : currentStatus === 'declined'
@@ -161,14 +161,14 @@ export const ApplicationStatusPage: React.FC = () => {
                 {currentStatus === 'verified' ? '✓' : currentStatus === 'declined' ? '×' : '•'}
               </span>
               <p className="text-xs font-bold text-brand-navy">Official Register Cross-Check</p>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-xs text-slate-500">
                 Reviewing official gazettes and statutory council databases ({application?.registration_authority || 'State Board'}).
               </p>
             </div>
 
             {/* Step 3 */}
             <div className="relative">
-              <span className={`absolute -left-6 top-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
+              <span className={`absolute -left-6 top-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[11px] font-bold ${
                 currentStatus === 'verified'
                   ? 'bg-teal-600 text-white'
                   : currentStatus === 'declined'
@@ -178,7 +178,7 @@ export const ApplicationStatusPage: React.FC = () => {
                 {currentStatus === 'verified' ? '✓' : currentStatus === 'declined' ? '×' : '3'}
               </span>
               <p className="text-xs font-bold text-brand-navy">Final Determination</p>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-xs text-slate-500">
                 {currentStatus === 'verified' 
                   ? 'Account approved and verified practitioner badge issued.' 
                   : currentStatus === 'declined'
@@ -223,10 +223,11 @@ export const ApplicationStatusPage: React.FC = () => {
 
       </div>
 
-      {/* Simulator Shortcut for QA testing */}
+      {/* Demo-mode shortcut for testing the review workflow */}
+      {isDemoMode && (
       <div className="p-4 bg-slate-100 rounded-xl text-center text-xs text-slate-600 space-y-2">
-        <p className="font-semibold text-slate-700">Antigravity QA Review Helper:</p>
-        <p className="text-[11px]">
+        <p className="font-semibold text-slate-700">Demo review helper:</p>
+        <p className="text-xs">
           Want to test the Admin review workflow for this applicant? Switch to the Admin view in the top bar or click below to open the Admin Applications queue.
         </p>
         <div className="flex justify-center gap-2 pt-1">
@@ -239,6 +240,7 @@ export const ApplicationStatusPage: React.FC = () => {
           </Link>
         </div>
       </div>
+      )}
     </div>
   );
 };

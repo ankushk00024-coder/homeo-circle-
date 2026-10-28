@@ -1,13 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile, UserRole, ApplicationStatus } from '../types';
 import { initialMembers } from '../lib/mockData';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { supabase, isDemoMode } from '../lib/supabase';
 
 interface AuthContextType {
   currentUser: UserProfile | null;
   role: UserRole;
   status: ApplicationStatus;
   isAuthenticated: boolean;
+  authLoading: boolean;
+  isDemoMode: boolean;
   isVerifiedMember: boolean;
   isAdmin: boolean;
   isDoctor: boolean;
@@ -16,13 +18,15 @@ interface AuthContextType {
   isApplicant: boolean;
   loginAs: (type: 'member' | 'doctor' | 'student' | 'researcher' | 'admin' | 'applicant' | 'declined' | 'public') => void;
   loginWithEmail: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  requestPasswordReset: (email: string) => Promise<{ success: boolean; error?: string }>;
+  updatePassword: (password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   updateCurrentUser: (updates: Partial<UserProfile>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Preset test users for quick role testing
+// Demo profiles — only usable in demo mode (no Supabase configured)
 export const TEST_USERS: Record<string, UserProfile> = {
   member: initialMembers[0], // Dr. Ananya Sharma (Doctor)
   doctor: initialMembers[0], // Dr. Ananya Sharma
@@ -72,73 +76,111 @@ export const TEST_USERS: Record<string, UserProfile> = {
   }
 };
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
-    const saved = localStorage.getItem('homeocircle_current_user');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        return TEST_USERS.member;
-      }
-    }
-    return TEST_USERS.member;
-  });
+const DEMO_USER_KEY = 'homeocircle_current_user';
 
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Nobody is signed in by default. In demo mode (no Supabase configured) the
+  // chosen demo profile is remembered locally; in live mode the session comes
+  // only from Supabase Auth and the profile from the database — never from
+  // localStorage, which the user can edit.
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
+    if (!isDemoMode) return null;
+    try {
+      const saved = localStorage.getItem(DEMO_USER_KEY);
+      return saved ? (JSON.parse(saved) as UserProfile) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [authLoading, setAuthLoading] = useState<boolean>(!isDemoMode);
+
+  // Demo mode: remember the selected demo profile across reloads.
   useEffect(() => {
-    if (currentUser) {
-      localStorage.setItem('homeocircle_current_user', JSON.stringify(currentUser));
-    } else {
-      localStorage.removeItem('homeocircle_current_user');
+    if (!isDemoMode) return;
+    try {
+      if (currentUser) localStorage.setItem(DEMO_USER_KEY, JSON.stringify(currentUser));
+      else localStorage.removeItem(DEMO_USER_KEY);
+    } catch {
+      // Storage can be unavailable (private mode); demo state then lasts for the tab only.
     }
   }, [currentUser]);
 
+  // Live mode: restore the Supabase session and follow sign-in / sign-out / expiry.
+  useEffect(() => {
+    if (!supabase) return;
+    const client = supabase;
+    // Remove any profile a previous demo build may have cached.
+    try { localStorage.removeItem(DEMO_USER_KEY); } catch { /* ignore */ }
+
+    let active = true;
+    const loadProfile = async (userId: string | undefined) => {
+      if (!userId) {
+        if (active) { setCurrentUser(null); setAuthLoading(false); }
+        return;
+      }
+      const { data, error } = await client.from('profiles').select('*').eq('id', userId).maybeSingle();
+      if (!active) return;
+      if (error) console.error('Could not load your profile', error.message);
+      setCurrentUser((data as UserProfile | null) ?? null);
+      setAuthLoading(false);
+    };
+
+    client.auth.getSession().then(({ data }) => loadProfile(data.session?.user.id));
+    const { data: sub } = client.auth.onAuthStateChange((_event, session) => {
+      // Defer the query so it doesn't run inside the auth callback's lock.
+      setTimeout(() => loadProfile(session?.user.id), 0);
+    });
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
   const loginAs = (type: 'member' | 'doctor' | 'student' | 'researcher' | 'admin' | 'applicant' | 'declined' | 'public') => {
-    if (type === 'public') {
-      setCurrentUser(null);
-    } else {
-      const selected = TEST_USERS[type] || TEST_USERS.member;
-      setCurrentUser(selected);
-    }
+    if (!isDemoMode) return; // demo profiles do not exist when a real backend is connected
+    setCurrentUser(type === 'public' ? null : (TEST_USERS[type] || TEST_USERS.member));
   };
 
   const loginWithEmail = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) return { success: false, error: error.message };
-        if (data.user) {
-          const { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
-          if (profile) setCurrentUser(profile);
-          return { success: true };
-        }
-      } catch (err: any) {
-        return { success: false, error: err.message || 'Authentication error' };
+    if (supabase) {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) return { success: false, error: error.message };
+      if (!data.user) return { success: false, error: 'Sign-in did not complete. Please try again.' };
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles').select('*').eq('id', data.user.id).maybeSingle();
+      if (profileError || !profile) {
+        return { success: false, error: 'Signed in, but your member profile could not be loaded. Please contact support.' };
       }
+      setCurrentUser(profile as UserProfile);
+      return { success: true };
     }
 
-    // Local authentication matching
+    // Demo mode only: pick a demo profile from keywords in the email.
     const emailLower = email.toLowerCase();
-    if (emailLower.includes('admin') || emailLower.includes('sanjeev')) {
-      setCurrentUser(TEST_USERS.admin);
-      return { success: true };
-    } else if (emailLower.includes('student') || emailLower.includes('rahul')) {
-      setCurrentUser(TEST_USERS.student);
-      return { success: true };
-    } else if (emailLower.includes('research') || emailLower.includes('arjun')) {
-      setCurrentUser(TEST_USERS.researcher);
-      return { success: true };
-    } else if (emailLower.includes('rohit') || emailLower.includes('applicant')) {
-      setCurrentUser(TEST_USERS.applicant);
-      return { success: true };
-    } else {
-      setCurrentUser(TEST_USERS.member);
-      return { success: true };
-    }
+    if (emailLower.includes('admin') || emailLower.includes('sanjeev')) setCurrentUser(TEST_USERS.admin);
+    else if (emailLower.includes('student') || emailLower.includes('rahul')) setCurrentUser(TEST_USERS.student);
+    else if (emailLower.includes('research') || emailLower.includes('arjun')) setCurrentUser(TEST_USERS.researcher);
+    else if (emailLower.includes('rohit') || emailLower.includes('applicant')) setCurrentUser(TEST_USERS.applicant);
+    else setCurrentUser(TEST_USERS.member);
+    return { success: true };
+  };
+
+  const requestPasswordReset = async (email: string): Promise<{ success: boolean; error?: string }> => {
+    if (!supabase) return { success: true }; // demo mode: nothing to send
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    return error ? { success: false, error: error.message } : { success: true };
+  };
+
+  const updatePassword = async (password: string): Promise<{ success: boolean; error?: string }> => {
+    if (!supabase) return { success: false, error: 'Password changes need a connected backend.' };
+    const { error } = await supabase.auth.updateUser({ password });
+    return error ? { success: false, error: error.message } : { success: true };
   };
 
   const logout = () => {
-    if (isSupabaseConfigured && supabase) {
+    if (supabase) {
       supabase.auth.signOut().catch(console.error);
     }
     setCurrentUser(null);
@@ -148,8 +190,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!currentUser) return;
     const updated = { ...currentUser, ...updates, updated_at: new Date().toISOString() };
     setCurrentUser(updated);
+    if (!isDemoMode) return;
 
-    // Also sync into local members storage
+    // Demo mode: keep the local member directory in sync
     try {
       const savedMembers = localStorage.getItem('homeocircle_members');
       if (savedMembers) {
@@ -186,6 +229,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         role,
         status,
         isAuthenticated,
+        authLoading,
+        isDemoMode,
         isVerifiedMember,
         isAdmin,
         isDoctor,
@@ -194,6 +239,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isApplicant,
         loginAs,
         loginWithEmail,
+        requestPasswordReset,
+        updatePassword,
         logout,
         updateCurrentUser
       }}

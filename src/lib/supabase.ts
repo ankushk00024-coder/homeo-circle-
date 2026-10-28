@@ -47,6 +47,34 @@ export const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null;
 
+// Demo mode: no backend configured, so the app runs entirely on mock data in
+// localStorage. When Supabase IS configured, every live call below surfaces its
+// errors and never falls back to mock data.
+export const isDemoMode = !isSupabaseConfigured;
+
+type QueryResult<T> = { data: T | null; error: { message: string } | null };
+
+// Throws on a Supabase error; an empty result stays empty (never mock data).
+function unwrap<T>(result: QueryResult<T>, empty: T): T {
+  if (result.error) throw new Error(result.error.message);
+  return result.data ?? empty;
+}
+
+function unwrapOne<T>(result: QueryResult<T>): T {
+  if (result.error) throw new Error(result.error.message);
+  if (result.data == null) throw new Error('No record was returned.');
+  return result.data;
+}
+
+function check(result: { error: { message: string } | null }): void {
+  if (result.error) throw new Error(result.error.message);
+}
+
+// Strips characters that would break a PostgREST or() filter string.
+function sanitizeSearch(value: string): string {
+  return value.replace(/[,()%*\\]/g, ' ').trim();
+}
+
 // Local storage keys for resilient mock/offline state
 const STORAGE_KEYS = {
   POSTS: 'homeocircle_posts',
@@ -92,24 +120,19 @@ function setLocal<T>(key: string, value: T): void {
 export const dataService = {
   // ─── POSTS ─────────────────────────────────────────────────────────────
   async getPosts(categoryFilter?: string, sort: 'latest' | 'discussed' | 'liked' = 'latest'): Promise<Post[]> {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        let query = supabase.from('posts').select('*');
-        if (categoryFilter && categoryFilter !== 'all') {
-          query = query.eq('category_id', categoryFilter);
-        }
-        if (sort === 'discussed') {
-          query = query.order('comments_count', { ascending: false });
-        } else if (sort === 'liked') {
-          query = query.order('likes_count', { ascending: false });
-        } else {
-          query = query.order('created_at', { ascending: false });
-        }
-        const { data, error } = await query;
-        if (!error && data && data.length > 0) return data;
-      } catch (err) {
-        console.warn('Supabase query error, falling back to local data', err);
+    if (supabase) {
+      let query = supabase.from('posts').select('*');
+      if (categoryFilter && categoryFilter !== 'all') {
+        query = query.eq('category_id', categoryFilter);
       }
+      if (sort === 'discussed') {
+        query = query.order('comments_count', { ascending: false });
+      } else if (sort === 'liked') {
+        query = query.order('likes_count', { ascending: false });
+      } else {
+        query = query.order('created_at', { ascending: false });
+      }
+      return unwrap(await query, [] as Post[]);
     }
     let posts = getLocal<Post[]>(STORAGE_KEYS.POSTS, initialPosts);
     if (categoryFilter && categoryFilter !== 'all') {
@@ -145,13 +168,10 @@ export const dataService = {
       created_at: 'Just now'
     };
 
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase.from('posts').insert([newPost]).select().single();
-        if (!error && data) return data;
-      } catch (err) {
-        console.warn('Supabase insert failed, persisting locally', err);
-      }
+    if (supabase) {
+      // The database generates id/created_at and owns the counters.
+      const { id: _id, created_at: _createdAt, likes_count: _likes, comments_count: _comments, is_liked: _isLiked, ...row } = newPost;
+      return unwrapOne(await supabase.from('posts').insert([row]).select().single());
     }
 
     const posts = getLocal<Post[]>(STORAGE_KEYS.POSTS, initialPosts);
@@ -161,13 +181,8 @@ export const dataService = {
   },
 
   async updatePost(id: string, updates: Partial<Post>): Promise<Post> {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase.from('posts').update(updates).eq('id', id).select().single();
-        if (!error && data) return data;
-      } catch (err) {
-        console.warn('Supabase update failed', err);
-      }
+    if (supabase) {
+      return unwrapOne(await supabase.from('posts').update(updates).eq('id', id).select().single());
     }
     const posts = getLocal<Post[]>(STORAGE_KEYS.POSTS, initialPosts);
     let updatedItem: Post | null = null;
@@ -183,12 +198,9 @@ export const dataService = {
   },
 
   async deletePost(id: string): Promise<void> {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        await supabase.from('posts').delete().eq('id', id);
-      } catch (err) {
-        console.warn('Supabase delete failed', err);
-      }
+    if (supabase) {
+      check(await supabase.from('posts').delete().eq('id', id));
+      return;
     }
     const posts = getLocal<Post[]>(STORAGE_KEYS.POSTS, initialPosts);
     const updated = posts.filter(p => p.id !== id);
@@ -196,6 +208,13 @@ export const dataService = {
   },
 
   async toggleLikePost(postId: string): Promise<number> {
+    if (supabase) {
+      // Per-user likes are not modelled in the schema yet; this only adjusts the counter.
+      const current = unwrapOne<{ likes_count: number | null }>(await supabase.from('posts').select('likes_count').eq('id', postId).single());
+      const next = (current.likes_count ?? 0) + 1;
+      check(await supabase.from('posts').update({ likes_count: next }).eq('id', postId));
+      return next;
+    }
     const posts = getLocal<Post[]>(STORAGE_KEYS.POSTS, initialPosts);
     let newLikes = 0;
     const updated = posts.map(p => {
@@ -207,14 +226,6 @@ export const dataService = {
       return p;
     });
     setLocal(STORAGE_KEYS.POSTS, updated);
-
-    if (isSupabaseConfigured && supabase) {
-      try {
-        await supabase.from('posts').update({ likes_count: newLikes }).eq('id', postId);
-      } catch (e) {
-        console.warn('Supabase like update failed', e);
-      }
-    }
     return newLikes;
   },
 
@@ -241,13 +252,11 @@ export const dataService = {
 
   // ─── COMMENTS ──────────────────────────────────────────────────────────
   async getComments(postId: string): Promise<Comment[]> {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase.from('comments').select('*').eq('post_id', postId).order('created_at', { ascending: true });
-        if (!error && data && data.length > 0) return data;
-      } catch (err) {
-        console.warn('Supabase comments query failed', err);
-      }
+    if (supabase) {
+      return unwrap(
+        await supabase.from('comments').select('*').eq('post_id', postId).order('created_at', { ascending: true }),
+        [] as Comment[]
+      );
     }
     const allComments = getLocal<Comment[]>(STORAGE_KEYS.COMMENTS, [
       {
@@ -290,12 +299,9 @@ export const dataService = {
       created_at: 'Just now'
     };
 
-    if (isSupabaseConfigured && supabase) {
-      try {
-        await supabase.from('comments').insert([newComment]);
-      } catch (err) {
-        console.warn('Supabase comment insert error', err);
-      }
+    if (supabase) {
+      const { id: _id, created_at: _createdAt, ...row } = newComment;
+      return unwrapOne(await supabase.from('comments').insert([row]).select().single());
     }
 
     const allComments = getLocal<Comment[]>(STORAGE_KEYS.COMMENTS, []);
@@ -317,17 +323,20 @@ export const dataService = {
 
   // ─── MEMBERS & DIRECTORY ───────────────────────────────────────────────
   async getMembers(search = '', stateFilter = 'All', specFilter = 'All', roleFilter = 'All'): Promise<UserProfile[]> {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        let query = supabase.from('profiles').select('*');
-        if (stateFilter !== 'All') query = query.eq('state', stateFilter);
-        if (specFilter !== 'All') query = query.ilike('specialization', `%${specFilter}%`);
-        if (roleFilter !== 'All') query = query.eq('role', roleFilter.toLowerCase());
-        const { data, error } = await query;
-        if (!error && data && data.length > 0) return data;
-      } catch (err) {
-        console.warn('Supabase members query error', err);
+    if (supabase) {
+      // Other members are read from the column-restricted profile_public_view
+      // (see docs/backend). The profiles table itself only returns your own row.
+      let query = supabase.from('profile_public_view').select('*');
+      if (stateFilter !== 'All') query = query.ilike('location', `%${sanitizeSearch(stateFilter)}%`);
+      if (specFilter !== 'All') query = query.ilike('specialization', `%${sanitizeSearch(specFilter)}%`);
+      if (roleFilter !== 'All') query = query.eq('role', roleFilter.toLowerCase());
+      const term = sanitizeSearch(search);
+      if (term) {
+        query = query.or(
+          `display_name.ilike.%${term}%,full_name.ilike.%${term}%,specialization.ilike.%${term}%,location.ilike.%${term}%`
+        );
       }
+      return unwrap(await query, [] as UserProfile[]);
     }
     const stored = getLocal<UserProfile[]>(STORAGE_KEYS.MEMBERS, initialMembers);
     const storedIds = new Set(stored.map(m => m.id));
@@ -359,11 +368,17 @@ export const dataService = {
   },
 
   async getMemberById(id: string): Promise<UserProfile | null> {
+    if (supabase) {
+      return unwrap(await supabase.from('profile_public_view').select('*').eq('id', id).maybeSingle(), null);
+    }
     const members = getLocal<UserProfile[]>(STORAGE_KEYS.MEMBERS, initialMembers);
     return members.find(m => m.id === id) || null;
   },
 
   async updateMemberProfile(id: string, updates: Partial<UserProfile>): Promise<UserProfile> {
+    if (supabase) {
+      return unwrapOne(await supabase.from('profiles').update(updates).eq('id', id).select().single());
+    }
     const members = getLocal<UserProfile[]>(STORAGE_KEYS.MEMBERS, initialMembers);
     let updatedProfile: UserProfile | null = null;
     const updated = members.map(m => {
@@ -374,14 +389,6 @@ export const dataService = {
       return m;
     });
     setLocal(STORAGE_KEYS.MEMBERS, updated);
-
-    if (isSupabaseConfigured && supabase) {
-      try {
-        await supabase.from('profiles').update(updates).eq('id', id);
-      } catch (err) {
-        console.warn('Supabase profile update failed', err);
-      }
-    }
     return updatedProfile || members[0];
   },
 
@@ -438,12 +445,11 @@ export const dataService = {
       action_status: 'pending'
     });
 
-    if (isSupabaseConfigured && supabase) {
-      try {
-        await supabase.from('connection_requests').insert([newConn]);
-      } catch (e) {
-        console.warn('Supabase connection request insert failed', e);
-      }
+    if (supabase) {
+      // Notifications for the recipient are created by a database trigger.
+      check(await supabase.from('connection_requests').insert([
+        { sender_id: sender.id, recipient_id: recipient.id, status: 'pending' }
+      ]));
     }
 
     return newConn;
@@ -484,12 +490,8 @@ export const dataService = {
     });
     setLocal(STORAGE_KEYS.NOTIFICATIONS, updatedNotifs);
 
-    if (isSupabaseConfigured && supabase) {
-      try {
-        await supabase.from('connection_requests').update({ status, updated_at: new Date().toISOString() }).eq('id', requestId);
-      } catch (e) {
-        console.warn('Supabase connection respond failed', e);
-      }
+    if (supabase) {
+      check(await supabase.from('connection_requests').update({ status, updated_at: new Date().toISOString() }).eq('id', requestId));
     }
 
     return targetConn || all[0];
@@ -618,17 +620,12 @@ export const dataService = {
 
   // ─── EVENTS & WEBINARS ─────────────────────────────────────────────────
   async getEvents(formatFilter?: string): Promise<Event[]> {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        let query = supabase.from('events').select('*');
-        if (formatFilter && formatFilter !== 'All') {
-          query = query.ilike('format', `%${formatFilter}%`);
-        }
-        const { data, error } = await query;
-        if (!error && data && data.length > 0) return data;
-      } catch (err) {
-        console.warn('Supabase events query error', err);
+    if (supabase) {
+      let query = supabase.from('events').select('*').order('start_at', { ascending: true });
+      if (formatFilter && formatFilter !== 'All') {
+        query = query.ilike('format', `%${sanitizeSearch(formatFilter)}%`);
       }
+      return unwrap(await query, [] as Event[]);
     }
     const events = getLocal<Event[]>(STORAGE_KEYS.EVENTS, initialEvents);
     if (!formatFilter || formatFilter === 'All') return events;
@@ -652,7 +649,7 @@ export const dataService = {
       registration_url: eventData.registration_url || 'https://homeocircle.in/events',
       status: 'published',
       attendees_count: 0,
-      image_url: eventData.image_url || 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=80',
+      image_url: eventData.image_url || '/images/events-cme.svg',
       meeting_link: eventData.meeting_link
     };
     const events = getLocal<Event[]>(STORAGE_KEYS.EVENTS, initialEvents);
@@ -728,13 +725,11 @@ export const dataService = {
 
   // ─── KNOWLEDGE & RESEARCH ──────────────────────────────────────────────
   async getKnowledgePosts(): Promise<KnowledgePost[]> {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase.from('knowledge_posts').select('*').order('published_at', { ascending: false });
-        if (!error && data && data.length > 0) return data;
-      } catch (err) {
-        console.warn('Supabase knowledge query failed', err);
-      }
+    if (supabase) {
+      return unwrap(
+        await supabase.from('knowledge_posts').select('*').order('published_at', { ascending: false }),
+        [] as KnowledgePost[]
+      );
     }
     return getLocal<KnowledgePost[]>(STORAGE_KEYS.KNOWLEDGE, initialKnowledgePosts);
   },
@@ -775,17 +770,12 @@ export const dataService = {
 
   // ─── OPPORTUNITIES ─────────────────────────────────────────────────────
   async getOpportunities(typeFilter?: string): Promise<Opportunity[]> {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        let query = supabase.from('opportunities').select('*');
-        if (typeFilter && typeFilter !== 'All') {
-          query = query.ilike('type', `%${typeFilter}%`);
-        }
-        const { data, error } = await query;
-        if (!error && data && data.length > 0) return data;
-      } catch (err) {
-        console.warn('Supabase opportunities query error', err);
+    if (supabase) {
+      let query = supabase.from('opportunities').select('*').order('created_at', { ascending: false });
+      if (typeFilter && typeFilter !== 'All') {
+        query = query.ilike('type', `%${sanitizeSearch(typeFilter)}%`);
       }
+      return unwrap(await query, [] as Opportunity[]);
     }
     const opps = getLocal<Opportunity[]>(STORAGE_KEYS.OPPORTUNITIES, initialOpportunities);
     if (!typeFilter || typeFilter === 'All') return opps;
@@ -830,13 +820,11 @@ export const dataService = {
 
   // ─── PRACTITIONER & ONBOARDING APPLICATIONS ───────────────────────────
   async getApplications(): Promise<PractitionerApplication[]> {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase.from('practitioner_applications').select('*').order('submitted_at', { ascending: false });
-        if (!error && data && data.length > 0) return data;
-      } catch (err) {
-        console.warn('Supabase applications query error', err);
-      }
+    if (supabase) {
+      return unwrap(
+        await supabase.from('practitioner_applications').select('*').order('submitted_at', { ascending: false }),
+        [] as PractitionerApplication[]
+      );
     }
     return getLocal<PractitionerApplication[]>(STORAGE_KEYS.APPLICATIONS, initialApplications);
   },
@@ -882,12 +870,22 @@ export const dataService = {
       internal_notes: 'Application registered through unified onboarding.'
     };
 
-    if (isSupabaseConfigured && supabase) {
-      try {
-        await supabase.from('practitioner_applications').insert([newApp]);
-      } catch (err) {
-        console.warn('Supabase application submission failed', err);
-      }
+    if (supabase) {
+      // Status, review fields and ids are owned by the database (RLS blocks
+      // clients from pre-setting a decision). user_id must be the signed-in
+      // user's id, or omitted for guest applications.
+      const { data: auth } = await supabase.auth.getUser();
+      const {
+        id: _id, status: _status, submitted_at: _submittedAt, internal_notes: _notes,
+        consent_at: _consentAt, user_id: _userId, ...row
+      } = newApp;
+      return unwrapOne(
+        await supabase
+          .from('practitioner_applications')
+          .insert([{ ...row, user_id: auth.user?.id ?? null }])
+          .select()
+          .single()
+      );
     }
 
     const apps = getLocal<PractitionerApplication[]>(STORAGE_KEYS.APPLICATIONS, initialApplications);
@@ -932,8 +930,26 @@ export const dataService = {
     status: ApplicationStatus, 
     reviewerName: string, 
     decisionReason?: string, 
-    verificationSource?: string
+    verificationSource?: string,
+    internalNotes?: string
   ): Promise<PractitionerApplication> {
+    if (supabase) {
+      // Reviews go through the review-practitioner-application Edge Function,
+      // which checks the caller's admin role server-side and then calls the
+      // service-role-only RPC. The service-role key never reaches the browser.
+      const { error } = await supabase.functions.invoke('review-practitioner-application', {
+        body: {
+          application_id: appId,
+          new_status: status,
+          decision_reason: decisionReason || null,
+          verification_source: verificationSource || null,
+          internal_notes: internalNotes || null,
+        },
+      });
+      if (error) throw new Error(error.message || 'The review could not be saved.');
+      return unwrapOne(await supabase.from('practitioner_applications').select('*').eq('id', appId).single());
+    }
+
     const apps = getLocal<PractitionerApplication[]>(STORAGE_KEYS.APPLICATIONS, initialApplications);
     let updatedApp: PractitionerApplication | null = null;
     const updated = apps.map(a => {
