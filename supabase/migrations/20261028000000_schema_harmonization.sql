@@ -321,7 +321,7 @@ BEGIN
     SELECT 1 FROM pg_proc p
     JOIN pg_namespace n ON p.pronamespace = n.oid
     WHERE n.nspname = 'public' AND p.proname = 'review_practitioner_application'
-      AND p.pronargs = 5
+      AND p.pronargs IN (5, 6)  -- 6 = already harmonized (re-run)
       AND pg_get_function_result(p.oid) = 'jsonb'
   ) THEN
     v_missing := array_append(v_missing, 'function public.review_practitioner_application(uuid,text,text,text,text) -> jsonb');
