@@ -196,8 +196,10 @@ export const LoginPage: React.FC = () => {
     setGoogleLoading(true);
 
     try {
-      // Build safe redirect back to current origin + intended destination
-      const destination = `${window.location.origin}${from.startsWith('/') ? from : '/community'}`;
+      // Return to the page the user asked for; otherwise back here, where the
+      // redirect effect sends admins to /admin and members to /community.
+      const target = from.startsWith('/') && from !== '/community' ? from : '/login';
+      const destination = `${window.location.origin}${target}`;
       const result = await signInWithGoogle(destination);
       if (!result.success) {
         setError(result.error || 'Could not initiate Google sign-in. Please try again.');

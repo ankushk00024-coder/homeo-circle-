@@ -141,6 +141,17 @@ export const MemberNavbar: React.FC = () => {
           <div className="flex items-center gap-2.5 sm:gap-3">
             {currentUser ? (
               <>
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold ring-1 ring-indigo-200 hover:bg-indigo-100 transition"
+                    title="Open the admin panel"
+                  >
+                    <Shield className="w-4 h-4" />
+                    <span>Admin Panel</span>
+                  </Link>
+                )}
+
                 {/* Notification Bell with Dropdown */}
                 <div className="relative">
                   <button
