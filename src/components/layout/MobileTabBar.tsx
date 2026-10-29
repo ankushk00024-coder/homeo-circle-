@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { Home, MessageSquare, Users, GraduationCap, Calendar } from 'lucide-react';
 
 const tabs = [
-  { to: '/dashboard', label: 'Home', icon: Home },
+  { to: '/', label: 'Home', icon: Home },
   { to: '/community', label: 'Discuss', icon: MessageSquare },
   { to: '/members', label: 'Network', icon: Users },
   { to: '/students', label: 'Students', icon: GraduationCap },
@@ -21,6 +21,7 @@ export const MobileTabBar: React.FC = () => (
         <li key={to}>
           <NavLink
             to={to}
+            end={to === '/'}
             className={({ isActive }) =>
               `flex flex-col items-center gap-0.5 py-2 text-xs font-semibold transition-colors ${
                 isActive ? 'text-brand-teal' : 'text-slate-500 hover:text-brand-navy'

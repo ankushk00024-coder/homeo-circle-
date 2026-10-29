@@ -86,8 +86,8 @@ const PageFallback: React.FC = () => (
   </div>
 );
 
-// Signed-in members skip the public landing and explore pages and go
-// straight to the community; visitors see them as before.
+// Signed-in members skip the public Explore preview and go straight to the
+// community. The home page (/) stays open to everyone.
 const VisitorsOnly: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
   if (loading) return <PageFallback />;
@@ -163,7 +163,7 @@ export function App() {
         <Routes>
           {/* Public Routes */}
           <Route element={<PublicLayout />}>
-            <Route path="/" element={<VisitorsOnly><LandingPage /></VisitorsOnly>} />
+            <Route path="/" element={<LandingPage />} />
             <Route path="/explore" element={<VisitorsOnly><ExplorePage /></VisitorsOnly>} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/eligibility" element={<EligibilityPage />} />

@@ -1,7 +1,8 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { 
-  Home, 
+  Home,
+  LayoutDashboard,
   MessageSquare, 
   Users, 
   Calendar, 
@@ -17,9 +18,10 @@ export const MemberSidebar: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
   const primaryNav = [
-    { label: 'Home', path: isAuthenticated ? '/dashboard' : '/', icon: Home },
+    { label: 'Home', path: '/', icon: Home },
+    ...(isAuthenticated ? [{ label: 'My Dashboard', path: '/dashboard', icon: LayoutDashboard }] : []),
     { label: 'Discussions', path: '/community', icon: MessageSquare },
-    { label: 'Doctor Directory', path: '/members', icon: Users },
+    { label: 'Member Directory', path: '/members', icon: Users },
     { label: 'Student Corner', path: '/students', icon: GraduationCap },
     { label: 'Events & CMEs', path: '/events', icon: Calendar },
     { label: 'Opportunities', path: '/opportunities', icon: Briefcase },
@@ -36,6 +38,7 @@ export const MemberSidebar: React.FC = () => {
             <NavLink
               key={item.path}
               to={item.path}
+              end={item.path === '/'}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
                   isActive

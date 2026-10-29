@@ -7,7 +7,7 @@ import { Menu, X, ArrowRight } from 'lucide-react';
 
 export const PublicNavbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { isAuthenticated, isVerifiedMember, currentUser } = useAuth();
+  const { isAuthenticated, isVerifiedMember, currentUser, loading: authLoading } = useAuth();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
 
@@ -18,7 +18,7 @@ export const PublicNavbar: React.FC = () => {
   }, []);
 
   const navLinks = [
-    { label: 'Community', path: '/explore' },
+    { label: 'Community', path: isAuthenticated ? '/community' : '/explore' },
     { label: 'About', path: '/about' },
   ];
 
@@ -65,9 +65,11 @@ export const PublicNavbar: React.FC = () => {
           </nav>
 
             <div className="flex items-center gap-3">
-            {isAuthenticated ? (
+            {/* Nothing until the session is known, so "Sign in" never flashes for members. */}
+            {authLoading ? null : isAuthenticated ? (
               <Link
                 to="/community"
+                title="Go to the community"
                 className="flex items-center gap-2.5 pl-2 pr-4 py-1.5 rounded-full bg-white border border-[#D7E5F0] hover:border-[#0D817B] shadow-sm transition"
               >
                 <Avatar src={currentUser?.avatar_url} name={currentUser?.display_name || 'Member'} size="sm" verified={isVerifiedMember} />
@@ -122,13 +124,13 @@ export const PublicNavbar: React.FC = () => {
           </div>
 
           <div className="pt-4 border-t border-[#D7E5F0]/60 flex flex-col gap-2.5">
-            {isAuthenticated ? (
+            {authLoading ? null : isAuthenticated ? (
               <Link
                 to="/community"
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full text-center px-4 py-2.5 rounded-xl bg-[#14243F] text-white text-xs font-semibold"
               >
-                Go to Dashboard
+                Go to Community
               </Link>
             ) : (
               <>
