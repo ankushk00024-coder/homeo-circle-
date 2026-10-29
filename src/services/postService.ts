@@ -196,11 +196,10 @@ export const postService = {
       .eq('user_id', userId)
       .maybeSingle();
 
-    if (existing) {
-      await client.from('post_likes').delete().eq('id', existing.id);
-    } else {
-      await client.from('post_likes').insert([{ post_id: postId, user_id: userId }]);
-    }
+    const { error } = existing
+      ? await client.from('post_likes').delete().eq('id', existing.id)
+      : await client.from('post_likes').insert([{ post_id: postId, user_id: userId }]);
+    if (error) throw error;
 
     // Read real updated count from database
     const { count } = await client
@@ -224,13 +223,11 @@ export const postService = {
       .eq('user_id', userId)
       .maybeSingle();
 
-    if (existing) {
-      await client.from('post_bookmarks').delete().eq('id', existing.id);
-      return false;
-    } else {
-      await client.from('post_bookmarks').insert([{ post_id: postId, user_id: userId }]);
-      return true;
-    }
+    const { error } = existing
+      ? await client.from('post_bookmarks').delete().eq('id', existing.id)
+      : await client.from('post_bookmarks').insert([{ post_id: postId, user_id: userId }]);
+    if (error) throw error;
+    return !existing;
   },
 
   /**

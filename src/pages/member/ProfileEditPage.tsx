@@ -16,9 +16,11 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useToast } from '../../components/feedback/ToastProvider';
 
 export const ProfileEditPage: React.FC = () => {
   const { currentUser, updateCurrentUser } = useAuth();
+  const toast = useToast();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -80,6 +82,7 @@ export const ProfileEditPage: React.FC = () => {
   const [showPhone, setShowPhone] = useState(currentUser?.privacy_settings?.show_phone ?? false);
 
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   // Compute profile completion percentage
   const calculateCompletion = () => {
@@ -99,11 +102,11 @@ export const ProfileEditPage: React.FC = () => {
     if (!file || !currentUser?.id) return;
 
     if (!file.type.startsWith('image/')) {
-      alert('Please upload a valid image file (JPEG, PNG, WebP).');
+      toast.error('Please upload a valid image file (JPEG, PNG, WebP).');
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      alert('Image size must be less than 5MB.');
+      toast.error('Image size must be less than 5MB.');
       return;
     }
 
@@ -111,24 +114,28 @@ export const ProfileEditPage: React.FC = () => {
       setUploadingAvatar(true);
       const result = await dataService.uploadAvatar(currentUser.id, file);
       setAvatarUrl(result.publicUrl);
-      updateCurrentUser({ avatar_url: result.publicUrl });
+      await updateCurrentUser({ avatar_url: result.publicUrl });
+      toast.success('Profile photo updated.');
     } catch (err: any) {
       console.error('Failed to upload avatar:', err);
-      alert(err.message || 'Failed to upload photo. Please verify Supabase Storage configuration.');
+      toast.error(err.message || 'Failed to upload photo. Please try again.');
     } finally {
       setUploadingAvatar(false);
     }
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (saving) return;
     const interests = interestsStr.split(',').map(s => s.trim()).filter(Boolean);
     
     // Preserve admin/moderator roles; otherwise allow updating role to match chosen category
     const isPrivileged = ['admin', 'super_admin', 'moderator'].includes(currentUser?.role || '');
     const targetRole = isPrivileged ? currentUser?.role : category;
 
-    updateCurrentUser({
+    setSaving(true);
+    try {
+    await updateCurrentUser({
       account_type: category,
       role: targetRole,
       display_name: displayName.trim(),
@@ -163,6 +170,12 @@ export const ProfileEditPage: React.FC = () => {
         publications_count: parseInt(publicationsCount, 10) || 0
       } : currentUser?.researcher_details
     });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Your changes could not be saved.');
+      return;
+    } finally {
+      setSaving(false);
+    }
 
     setSaved(true);
     if (returnTo) {
@@ -397,7 +410,10 @@ export const ProfileEditPage: React.FC = () => {
                     type="button"
                     onClick={() => {
                       setAvatarUrl('');
-                      updateCurrentUser({ avatar_url: undefined });
+                      // null (not undefined) so the photo is actually cleared in the database
+                      updateCurrentUser({ avatar_url: null as unknown as string }).catch((err) =>
+                        toast.error(err instanceof Error ? err.message : 'Could not remove photo.')
+                      );
                     }}
                     className="text-[11px] text-slate-400 hover:text-red-600"
                   >
@@ -740,9 +756,10 @@ export const ProfileEditPage: React.FC = () => {
             )}
             <button
               type="submit"
-              className="px-6 py-2.5 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow transition"
+              disabled={saving}
+              className="px-6 py-2.5 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow transition active:scale-[.98] disabled:opacity-60"
             >
-              {returnTo ? 'Save & Return to Action' : 'Save Profile Changes'}
+              {saving ? 'Saving…' : returnTo ? 'Save & Return to Action' : 'Save Profile Changes'}
             </button>
           </div>
         </div>

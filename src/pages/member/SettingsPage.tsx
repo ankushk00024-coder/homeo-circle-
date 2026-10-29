@@ -1,19 +1,16 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { authService } from '../../services/authService';
-import { 
-  Shield, 
-  Bell, 
-  Key, 
-  Trash2, 
-  CheckCircle2, 
-  Lock,
-  Mail,
+import {
+  Bell,
+  Key,
+  Trash2,
+  CheckCircle2,
   Info,
-  ShieldCheck,
   UserCheck
 } from 'lucide-react';
 import { useToast } from '../../components/feedback/ToastProvider';
+import { AccountTypeSelect } from '../../components/common/AccountTypeSelect';
 
 export const SettingsPage: React.FC = () => {
   const { currentUser } = useAuth();
@@ -59,6 +56,20 @@ export const SettingsPage: React.FC = () => {
           Notification preferences, delivery channels, and credential management.
         </p>
       </div>
+
+      {/* Account type: Doctor / Student / Researcher */}
+      <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-card space-y-4">
+        <div className="border-b pb-3">
+          <h2 className="text-sm font-bold text-brand-navy flex items-center gap-2">
+            <UserCheck className="w-4 h-4 text-teal-600" />
+            Your account type
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Tell the community whether you are a doctor, student or researcher. You can change it anytime.
+          </p>
+        </div>
+        <AccountTypeSelect />
+      </section>
 
       {savedSettings && (
         <div className="p-3 bg-teal-50 border border-teal-200 text-teal-800 rounded-xl text-xs flex items-center gap-2 animate-fade-in">

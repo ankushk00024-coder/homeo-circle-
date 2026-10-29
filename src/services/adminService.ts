@@ -64,7 +64,7 @@ export const adminService = {
       wrapQuery(supabase.from('practitioner_applications').select('id', { count: 'exact', head: true }).in('status', ['declined', 'rejected'])),
       wrapQuery(supabase.from('posts').select('id', { count: 'exact', head: true })),
       wrapQuery(supabase.from('reports').select('id', { count: 'exact', head: true }).eq('status', 'open')),
-      wrapQuery(supabase.from('events').select('id', { count: 'exact', head: true }).gte('date', nowIso)),
+      wrapQuery(supabase.from('events').select('id', { count: 'exact', head: true }).gte('start_at', nowIso)),
     ]);
 
     return {
@@ -240,16 +240,27 @@ export const adminService = {
   ): Promise<void> {
     const client = getRequiredSupabase();
 
-    // 1. Update user_roles
+    // 1. Remove every other role first. The old upsert added a row without
+    //    removing the previous one (a demoted admin stayed admin) and crashed
+    //    with a duplicate-key error when the role was unchanged.
+    const { error: deleteError } = await client
+      .from('user_roles')
+      .delete()
+      .eq('user_id', userId)
+      .neq('role', newRole);
+    if (deleteError) throw deleteError;
+
     const { error: roleError } = await client
       .from('user_roles')
-      .upsert({ user_id: userId, role: newRole });
+      .upsert({ user_id: userId, role: newRole }, { onConflict: 'user_id,role', ignoreDuplicates: true });
     if (roleError) throw roleError;
 
-    // 2. Update profiles
+    // 2. Update profiles (account_type follows member roles)
+    const profileUpdate: Record<string, string> = { role: newRole, updated_at: new Date().toISOString() };
+    if (['doctor', 'student', 'researcher'].includes(newRole)) profileUpdate.account_type = newRole;
     const { error: profileError } = await client
       .from('profiles')
-      .update({ role: newRole, updated_at: new Date().toISOString() })
+      .update(profileUpdate)
       .eq('id', userId);
     if (profileError) throw profileError;
 
@@ -275,15 +286,21 @@ export const adminService = {
   ): Promise<void> {
     const client = getRequiredSupabase();
 
-    const newStatus = suspend ? 'suspended' : 'verified';
+    // Suspension only changes access; it no longer overwrites the verification
+    // badge. Reactivation restores 'verified' only if credentials were verified
+    // (previously every reactivated account was marked verified).
+    const { data: current, error: readError } = await client
+      .from('profiles')
+      .select('verification_status')
+      .eq('id', memberId)
+      .single();
+    if (readError) throw readError;
+
+    const newStatus = suspend ? 'suspended' : (current?.verification_status === 'verified' ? 'verified' : 'pending');
 
     const { error } = await client
       .from('profiles')
-      .update({
-        status: newStatus,
-        verification_status: suspend ? 'rejected' : 'verified',
-        updated_at: new Date().toISOString()
-      })
+      .update({ status: newStatus, updated_at: new Date().toISOString() })
       .eq('id', memberId);
 
     if (error) throw error;

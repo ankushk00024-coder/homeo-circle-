@@ -61,8 +61,10 @@ export const profileService = {
       let q = supabase!.from(source).select(columns);
       q = q.neq('status', 'suspended');
 
-      if (search.trim()) {
-        const term = `%${search.trim()}%`;
+      // Commas, brackets and wildcards break PostgREST or() filter syntax.
+      const cleanSearch = search.replace(/[,()%*\\:"]/g, ' ').trim();
+      if (cleanSearch) {
+        const term = `%${cleanSearch}%`;
         q = q.or(`display_name.ilike.${term},full_name.ilike.${term},specialization.ilike.${term},qualification.ilike.${term},city.ilike.${term},state.ilike.${term}`);
       }
 
@@ -75,7 +77,9 @@ export const profileService = {
       }
 
       if (roleFilter && roleFilter !== 'All') {
-        q = q.ilike('role', roleFilter.toLowerCase());
+        const role = roleFilter.toLowerCase();
+        // 'member' = signed up without choosing a type yet; list them with doctors.
+        q = role === 'doctor' ? q.in('role', ['doctor', 'member']) : q.eq('role', role);
       }
 
       return q.order('created_at', { ascending: false }).limit(100);

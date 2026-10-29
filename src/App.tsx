@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Outlet, Link, useLocation } from 'react-r
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './components/feedback/ToastProvider';
 import { MobileTabBar } from './components/layout/MobileTabBar';
+import { AccountTypePrompt } from './components/common/AccountTypePrompt';
 import { PublicNavbar } from './components/layout/PublicNavbar';
 import { MemberNavbar } from './components/layout/MemberNavbar';
 import { MemberSidebar } from './components/layout/MemberSidebar';
@@ -106,6 +107,7 @@ const MemberLayout: React.FC = () => (
       <div className="flex gap-8 items-start">
         <MemberSidebar />
         <main className="flex-1 min-w-0">
+          <AccountTypePrompt />
           <Suspense fallback={<PageFallback />}>
             <AnimatedOutlet />
           </Suspense>
@@ -165,8 +167,14 @@ export function App() {
             <Route path="/reset-password" element={<ResetPasswordPage />} />
           </Route>
 
-          {/* Public community & discovery routes (open to visitors without login) */}
-          <Route element={<MemberLayout />}>
+          {/* Community routes: any signed-in member (verification not required).
+              Visitors are sent to sign in and brought back afterwards; the
+              public /explore page is the preview for logged-out visitors. */}
+          <Route element={
+            <ProtectedRoute>
+              <MemberLayout />
+            </ProtectedRoute>
+          }>
             <Route path="/community" element={<DiscussionsPage />} />
             <Route path="/community/:postId" element={<PostDetailPage />} />
             <Route path="/members" element={<MembersPage />} />

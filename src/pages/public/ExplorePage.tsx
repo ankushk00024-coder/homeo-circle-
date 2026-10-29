@@ -85,7 +85,7 @@ const placeOf = (m: UserProfile & { location?: string }) =>
   m.location || [m.city, m.state].filter(Boolean).join(', ');
 
 export const ExplorePage: React.FC = () => {
-  const { isVerifiedMember } = useAuth();
+  const { isAuthenticated: isMember } = useAuth();
   const [members, setMembers] = useState<(UserProfile & { location?: string })[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -122,12 +122,12 @@ export const ExplorePage: React.FC = () => {
         .some((v) => String(v).toLowerCase().includes(term));
     });
     // Visitors only see profiles their owners made public; verified members see everyone.
-    const canSee = (m: UserProfile) => isVerifiedMember || m.profile_visibility === 'public';
+    const canSee = (m: UserProfile) => isMember || m.profile_visibility === 'public';
     return {
       visible: filtered.filter(canSee),
       locked: filtered.filter((m) => !canSee(m) && m.profile_visibility !== 'private'),
     };
-  }, [members, query, role, isVerifiedMember]);
+  }, [members, query, role, isMember]);
 
   return (
     <div className="bg-brand-paper overflow-x-clip">
@@ -218,7 +218,7 @@ export const ExplorePage: React.FC = () => {
           <>
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-2xl font-serif font-bold text-brand-navy">Members</h2>
-              {isVerifiedMember && (
+              {isMember && (
                 <Link to="/members" className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-teal hover:underline">
                   Open full directory <ArrowRight className="w-4 h-4" />
                 </Link>
@@ -288,7 +288,7 @@ export const ExplorePage: React.FC = () => {
                 </Reveal>
               ))}
             </div>
-            {!isVerifiedMember && locked.length > 0 && (
+            {!isMember && locked.length > 0 && (
               <p className="mt-6 text-center text-sm text-brand-muted">
                 {locked.length} more {locked.length === 1 ? 'member keeps their' : 'members keep their'} profile visible to verified members only.{' '}
                 <Link to="/apply" className="font-semibold text-brand-teal hover:underline">Join the Circle</Link> to connect.
@@ -320,7 +320,7 @@ export const ExplorePage: React.FC = () => {
                   <h3 className="relative text-xl font-serif font-bold text-brand-navy">{space.title}</h3>
                   <p className="relative text-sm text-[#425972] leading-relaxed">{space.desc}</p>
                   <span className="relative mt-auto inline-flex items-center gap-1.5 pt-2 text-sm font-semibold text-brand-teal">
-                    {isVerifiedMember ? 'Open' : 'Sign in to open'}
+                    {isMember ? 'Open' : 'Sign in to open'}
                     <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </span>
                 </Link>

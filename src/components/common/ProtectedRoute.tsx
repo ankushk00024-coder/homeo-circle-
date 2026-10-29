@@ -90,6 +90,26 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // Suspended accounts keep their login but lose community access
+  if (status === 'suspended' && !isAdmin) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-card p-8 border border-slate-200 text-center space-y-4">
+          <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto border border-amber-100">
+            <AlertTriangle className="w-7 h-7" />
+          </div>
+          <h2 className="text-xl font-bold text-brand-navy">Account suspended</h2>
+          <p className="text-sm text-slate-600 leading-relaxed">
+            Your access to the community is paused. If you think this is a mistake, contact support@homeocircle.in.
+          </p>
+          <Link to="/" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-navy text-white text-sm font-semibold hover:bg-slate-800 transition">
+            Back to homepage
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   // If route requires admin privileges
   if (requireAdmin) {
     const isAuthorized = isAdmin || backendAdminVerified === true;

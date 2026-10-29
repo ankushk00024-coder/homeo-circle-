@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { UserProfile, UserRole, ApplicationStatus } from '../types';
 import { initialMembers } from '../lib/mockData';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
@@ -119,13 +119,14 @@ async function resolveOrCreateProfile(client: any, user: any): Promise<UserProfi
     full_name: fullName,
     display_name: fullName,
     avatar_url: avatar,
-    role: (user.user_metadata?.role as any) || 'member',
-    account_type: (user.user_metadata?.account_type as any) || 'doctor',
-    status: 'verified',
+    // Never trust user_metadata for privileges: the database also forces
+    // role/status on self-created profiles (see 20261029000000_launch_fixes).
+    role: 'member',
+    status: 'pending',
     verification_status: 'pending',
-    qualification: user.user_metadata?.qualification || 'BHMS',
+    qualification: user.user_metadata?.qualification || 'Not specified',
     experience_years: 0,
-    state: user.user_metadata?.state || 'Maharashtra',
+    state: user.user_metadata?.state || 'Not specified',
     created_at: user.created_at || new Date().toISOString(),
     updated_at: new Date().toISOString()
   };
@@ -166,6 +167,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [loading, setLoading] = useState(true);
+  // While signUp() runs, ignore Supabase's automatic SIGNED_IN event so a new
+  // account is NOT logged in: the product flow is sign up → log in.
+  const signingUpRef = useRef(false);
 
   // Sync session with Supabase Auth when credentials are configured
   useEffect(() => {
@@ -203,6 +207,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // 2. Reactive subscription to Supabase auth state transitions
     const { data: { subscription } } = client.auth.onAuthStateChange(async (event, session) => {
+      if (signingUpRef.current) return;
       if (session?.user) {
         try {
           const profile = await resolveOrCreateProfile(client, session.user);
@@ -238,22 +243,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    */
   const signUp = async (params: SignUpParams): Promise<{ success: boolean; needsEmailConfirmation?: boolean; error?: string }> => {
     if (!isSupabaseConfigured || !supabase) {
-      return { 
-        success: false, 
-        error: 'Supabase backend is not configured. Define VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file to enable account registration.' 
+      return {
+        success: false,
+        error: 'Account registration needs the Supabase backend. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable it.'
       };
     }
 
+    signingUpRef.current = true;
     try {
       const { data, error } = await supabase.auth.signUp({
         email: params.email.trim(),
         password: params.password,
         options: {
+          // Confirmation emails bring the user back to the sign-in page.
+          emailRedirectTo: `${window.location.origin}/login?confirmed=1`,
           data: {
             full_name: params.fullName.trim(),
-            account_type: params.accountType || 'doctor',
-            qualification: params.qualification || 'BHMS',
-            state: params.state || 'Maharashtra',
+            ...(params.accountType ? { account_type: params.accountType } : {}),
+            qualification: params.qualification,
+            state: params.state,
             clinic_institution: params.clinicInstitution,
             specialization: params.specialization,
             registration_number: params.registrationNumber,
@@ -264,21 +272,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) return { success: false, error: error.message };
 
-      if (data.user && !data.session) {
-        // Supabase requires email verification
-        return { success: true, needsEmailConfirmation: true };
+      // With email confirmation on, Supabase reports success (and sends no
+      // email) when the address is already registered: identities is empty.
+      if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+        return { success: false, error: 'An account with this email already exists. Please sign in instead.' };
       }
 
-      if (data.user && data.session) {
-        const profile = await resolveOrCreateProfile(supabase, data.user);
-        setCurrentUser(profile);
-        localStorage.setItem('homeocircle_current_user', JSON.stringify(profile));
+      if (data.session) {
+        // Email confirmation is off, so Supabase signed the user in. End that
+        // session: the user logs in explicitly on the sign-in page next.
+        await supabase.auth.signOut();
+        setCurrentUser(null);
         return { success: true, needsEmailConfirmation: false };
       }
 
-      return { success: true };
+      return { success: true, needsEmailConfirmation: true };
     } catch (err: any) {
       return { success: false, error: err.message || 'Registration failed' };
+    } finally {
+      signingUpRef.current = false;
     }
   };
 
@@ -423,20 +435,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    */
   const updateCurrentUser = async (updates: Partial<UserProfile>): Promise<void> => {
     if (!currentUser) return;
-    const updated = { ...currentUser, ...updates, updated_at: new Date().toISOString() };
-    setCurrentUser(updated);
 
-    // Sync to Supabase if configured
     if (isSupabaseConfigured && supabase && currentUser.id) {
-      try {
-        await supabase
-          .from('profiles')
-          .update(updates)
-          .eq('id', currentUser.id);
-      } catch (err) {
-        console.error('Failed to sync profile update to Supabase:', err);
-      }
+      // Save first, then show what the database actually stored (its triggers
+      // keep role/account_type in sync and may reset the verification badge).
+      // Previously the screen updated even when the save was rejected.
+      const { id: _id, email: _email, created_at: _created, ...changes } = updates as Partial<UserProfile> & Record<string, unknown>;
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(changes)
+        .eq('id', currentUser.id)
+        .select('*')
+        .single();
+      if (error) throw new Error(error.message);
+      setCurrentUser(data as UserProfile);
+      return;
     }
+
+    // Demo mode: local only
+    setCurrentUser({ ...currentUser, ...updates, updated_at: new Date().toISOString() });
   };
 
   /**

@@ -27,9 +27,9 @@ export const authService = {
       options: {
         data: {
           full_name: params.fullName.trim(),
-          account_type: params.accountType || 'doctor',
-          qualification: params.qualification || 'BHMS',
-          state: params.state || 'Maharashtra',
+          ...(params.accountType ? { account_type: params.accountType } : {}),
+          qualification: params.qualification,
+          state: params.state,
           clinic_institution: params.clinicInstitution,
           specialization: params.specialization,
           registration_number: params.registrationNumber,
@@ -87,7 +87,7 @@ export const authService = {
   async resetPassword(email: string) {
     const client = getRequiredSupabase();
     const { data, error } = await client.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: `${window.location.origin}/login?reset=true`
+      redirectTo: `${window.location.origin}/reset-password`
     });
 
     if (error) throw error;

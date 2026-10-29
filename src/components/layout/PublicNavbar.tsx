@@ -67,7 +67,7 @@ export const PublicNavbar: React.FC = () => {
             <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <Link
-                to={isVerifiedMember ? '/dashboard' : '/application-status'}
+                to="/community"
                 className="flex items-center gap-2.5 pl-2 pr-4 py-1.5 rounded-full bg-white border border-[#D7E5F0] hover:border-[#0D817B] shadow-sm transition"
               >
                 <Avatar src={currentUser?.avatar_url} name={currentUser?.display_name || 'Member'} size="sm" verified={isVerifiedMember} />
@@ -124,7 +124,7 @@ export const PublicNavbar: React.FC = () => {
           <div className="pt-4 border-t border-[#D7E5F0]/60 flex flex-col gap-2.5">
             {isAuthenticated ? (
               <Link
-                to={isVerifiedMember ? '/dashboard' : '/application-status'}
+                to="/community"
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full text-center px-4 py-2.5 rounded-xl bg-[#14243F] text-white text-xs font-semibold"
               >

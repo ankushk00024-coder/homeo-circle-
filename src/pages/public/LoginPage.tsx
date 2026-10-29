@@ -2,18 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { BrandLogo } from '../../components/common/BrandLogo';
-import { 
-  ShieldCheck, 
-  Lock, 
-  Mail, 
-  User, 
-  Eye, 
-  EyeOff, 
-  ArrowRight, 
-  AlertCircle, 
-  CheckCircle2, 
+import {
+  ShieldCheck,
+  Lock,
+  Mail,
+  User,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  AlertCircle,
+  CheckCircle2,
   ChevronDown,
-  Zap,
   Loader2
 } from 'lucide-react';
 
@@ -49,6 +48,8 @@ export const LoginPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [resetSuccess, setResetSuccess] = useState(false);
   const [confirmationNotice, setConfirmationNotice] = useState<string | null>(null);
+  const [noticeTitle, setNoticeTitle] = useState('Account created');
+  const [signupAccountType, setSignupAccountType] = useState<'' | 'doctor' | 'student' | 'researcher'>('');
   const [showDemoAccounts, setShowDemoAccounts] = useState(false);
 
   // Determine post-login destination
@@ -92,6 +93,11 @@ export const LoginPage: React.FC = () => {
     } else if (tabParam === 'forgot') {
       setActiveTab('forgot');
     }
+    if (searchParams.get('confirmed') === '1') {
+      setActiveTab('signin');
+      setNoticeTitle('Email confirmed');
+      setConfirmationNotice('Your email is confirmed. Sign in below to enter Homeo Circle.');
+    }
 
     // Check query params and hash for OAuth error/cancellation callbacks
     const hash = window.location.hash;
@@ -122,11 +128,8 @@ export const LoginPage: React.FC = () => {
     try {
       const result = await loginWithEmail(email, password);
       if (result.success) {
-        if (email.trim().toLowerCase().includes('admin') && (!from || from === '/community')) {
-          navigate('/admin', { replace: true });
-        } else {
-          navigate(from || '/community', { replace: true });
-        }
+        // The redirect effect above sends admins to /admin and everyone else
+        // to where they were going (or /community), based on the real role.
       } else {
         setError(result.error || 'Invalid email or password. Please check your credentials.');
       }
@@ -161,18 +164,23 @@ export const LoginPage: React.FC = () => {
       const result = await signUp({
         email: email.trim(),
         password,
-        fullName: fullName.trim()
+        fullName: fullName.trim(),
+        accountType: signupAccountType || undefined
       });
 
       if (!result.success) {
         setError(result.error || 'Registration failed. Please try again.');
-      } else if (result.needsEmailConfirmation) {
-        setConfirmationNotice(
-          `Account created successfully! We have sent a confirmation link to ${email}. Please check your inbox and verify your email address to sign in.`
-        );
       } else {
-        // Authenticated session ready - redirect
-        navigate(from || '/community', { replace: true });
+        // Sign up → sign in: show the sign-in form with the email filled in.
+        setActiveTab('signin');
+        setPassword('');
+        setConfirmPassword('');
+        setNoticeTitle(result.needsEmailConfirmation ? 'Confirm your email' : 'Account created');
+        setConfirmationNotice(
+          result.needsEmailConfirmation
+            ? `We sent a confirmation link to ${email.trim()}. Open it, then sign in below with your email and password or with Google.`
+            : 'Your account is ready. Sign in below with your email and password, or continue with Google.'
+        );
       }
     } catch (err: any) {
       setError(err.message || 'Registration failed.');
@@ -308,19 +316,9 @@ export const LoginPage: React.FC = () => {
             <div className="p-4 bg-teal-50 border border-teal-200 rounded-xl text-xs text-teal-900 space-y-2 animate-fade-in">
               <div className="flex items-center gap-2 font-bold text-teal-800">
                 <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" />
-                <span>Verification Email Dispatched</span>
+                <span>{noticeTitle}</span>
               </div>
-              <p className="text-[11.5px] leading-relaxed text-teal-800/90">{confirmationNotice}</p>
-              <button
-                type="button"
-                onClick={() => {
-                  setConfirmationNotice(null);
-                  setActiveTab('signin');
-                }}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-700 hover:text-teal-900 underline pt-1"
-              >
-                Go to Sign In &rarr;
-              </button>
+              <p className="text-[13px] leading-relaxed text-teal-800/90">{confirmationNotice}</p>
             </div>
           )}
 
@@ -562,6 +560,23 @@ export const LoginPage: React.FC = () => {
                     {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
+              </div>
+
+              <div>
+                <label htmlFor="signup-account-type" className="block text-xs font-semibold text-slate-700 mb-1">
+                  I am a <span className="font-normal text-slate-400">(optional — you can change this later)</span>
+                </label>
+                <select
+                  id="signup-account-type"
+                  value={signupAccountType}
+                  onChange={(e) => setSignupAccountType(e.target.value as typeof signupAccountType)}
+                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 outline-none transition"
+                >
+                  <option value="">Choose later</option>
+                  <option value="doctor">Doctor / Practitioner</option>
+                  <option value="student">Student / Intern</option>
+                  <option value="researcher">Researcher / Educator</option>
+                </select>
               </div>
 
               <div className="text-[11px] text-slate-500 leading-snug">

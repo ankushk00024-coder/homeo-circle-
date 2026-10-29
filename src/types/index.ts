@@ -14,6 +14,7 @@ export type AccountType = 'doctor' | 'student' | 'researcher';
 export type ApplicationStatus = 
   | 'draft' 
   | 'submitted' 
+  | 'pending'  // profile awaiting verification (profiles.status)
   | 'pending_review' 
   | 'needs_information' 
   | 'verified' 

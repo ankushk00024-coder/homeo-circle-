@@ -90,7 +90,11 @@ export const MemberNavbar: React.FC = () => {
     if (role === 'student') return 'Student Member';
     if (role === 'researcher') return 'Researcher & Educator';
     if (role === 'super_admin' || role === 'admin') return 'Administrator';
-    return currentUser?.qualification || 'Verified Doctor';
+    if (role === 'member') return 'Member';
+    const qualification = currentUser?.qualification;
+    // "Verified" only when the badge is actually verified
+    const fallback = currentUser?.status === 'verified' ? 'Verified Doctor' : 'Doctor';
+    return qualification && qualification !== 'Not specified' ? qualification : fallback;
   };
 
   return (
