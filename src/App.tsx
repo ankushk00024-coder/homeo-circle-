@@ -1,6 +1,6 @@
 import React, { Suspense, lazy, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Outlet, Link, useLocation } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { BrowserRouter, Routes, Route, Outlet, Link, useLocation, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './components/feedback/ToastProvider';
 import { MobileTabBar } from './components/layout/MobileTabBar';
 import { AccountTypePrompt } from './components/common/AccountTypePrompt';
@@ -86,6 +86,15 @@ const PageFallback: React.FC = () => (
   </div>
 );
 
+// Signed-in members skip the public landing and explore pages and go
+// straight to the community; visitors see them as before.
+const VisitorsOnly: React.FC<{ children: React.ReactElement }> = ({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
+  if (loading) return <PageFallback />;
+  if (isAuthenticated) return <Navigate to="/community" replace />;
+  return children;
+};
+
 // Public Layout Wrapper
 const PublicLayout: React.FC = () => (
   <div className="min-h-screen flex flex-col bg-brand-paper">
@@ -154,8 +163,8 @@ export function App() {
         <Routes>
           {/* Public Routes */}
           <Route element={<PublicLayout />}>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/explore" element={<ExplorePage />} />
+            <Route path="/" element={<VisitorsOnly><LandingPage /></VisitorsOnly>} />
+            <Route path="/explore" element={<VisitorsOnly><ExplorePage /></VisitorsOnly>} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/eligibility" element={<EligibilityPage />} />
             <Route path="/community-rules" element={<CommunityRulesPage />} />
