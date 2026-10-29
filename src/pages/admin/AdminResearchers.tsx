@@ -28,7 +28,7 @@ export const AdminResearchers: React.FC = () => {
   const loadResearchers = async () => {
     setLoading(true);
     try {
-      const allMembers = await dataService.getMembers(searchQuery);
+      const allMembers = await dataService.getMembers(searchQuery, 'All', 'All', 'All', true);
       const researcherList = allMembers.filter(
         m => m.role === 'researcher' || m.account_type === 'researcher' || (m.interests && m.interests.some(i => i.toLowerCase().includes('research')))
       );

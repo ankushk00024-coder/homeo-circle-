@@ -40,7 +40,7 @@ export const AdminMembers: React.FC = () => {
     setLoading(true);
     setFeedback(null);
     try {
-      const data = await dataService.getMembers(searchQuery);
+      const data = await dataService.getMembers(searchQuery, 'All', 'All', 'All', true);
       setMembers(data);
     } catch (err: any) {
       console.error('Failed to load members:', err);

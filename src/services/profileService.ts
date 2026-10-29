@@ -1,7 +1,7 @@
 import { supabase, isSupabaseConfigured, getRequiredSupabase } from './supabaseClient';
 import { UserProfile } from '../types';
 
-const SAFE_PUBLIC_COLUMNS = 'id, full_name, display_name, avatar_url, avatar_path, role, status, verification_status, qualification, experience_years, specialization, state, city, clinic_institution, bio, interests, created_at, updated_at';
+const SAFE_PUBLIC_COLUMNS = 'id, full_name, display_name, avatar_url, avatar_path, role, account_type, status, verification_status, qualification, experience_years, specialization, state, city, clinic_institution, bio, interests, created_at, updated_at';
 
 export const profileService = {
   /**
@@ -51,7 +51,9 @@ export const profileService = {
     search = '', 
     stateFilter = 'All', 
     specFilter = 'All', 
-    roleFilter = 'All'
+    roleFilter = 'All',
+    /** Admin lists: also include members who have not chosen a type yet. */
+    includeUntyped = false
   ): Promise<UserProfile[]> {
     if (!isSupabaseConfigured || !supabase) {
       return [];
@@ -76,10 +78,12 @@ export const profileService = {
         q = q.ilike('specialization', `%${specFilter}%`);
       }
 
+      // Only people who chose doctor / student / researcher appear in the
+      // directory, listed under the type they chose.
       if (roleFilter && roleFilter !== 'All') {
-        const role = roleFilter.toLowerCase();
-        // 'member' = signed up without choosing a type yet; list them with doctors.
-        q = role === 'doctor' ? q.in('role', ['doctor', 'member']) : q.eq('role', role);
+        q = q.eq('account_type', roleFilter.toLowerCase());
+      } else if (!includeUntyped) {
+        q = q.in('account_type', ['doctor', 'student', 'researcher']);
       }
 
       return q.order('created_at', { ascending: false }).limit(100);

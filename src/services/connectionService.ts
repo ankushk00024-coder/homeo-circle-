@@ -19,6 +19,7 @@ const toConnection = (row: any, people: Map<string, ProfileSummary>): Connection
     recipient_avatar: avatarOf(recipient),
     recipient_role: (recipient?.role || 'member') as ConnectionRequest['recipient_role'],
     status: row.status,
+    message: row.message || undefined,
     created_at: row.created_at,
     updated_at: row.updated_at
   };
@@ -53,9 +54,10 @@ export const connectionService = {
   },
 
   /**
-   * Sends a connection request. The recipient is notified by a database trigger.
+   * Sends a connection request with an optional note (max 300 characters).
+   * The recipient is notified by a database trigger.
    */
-  async sendConnectionRequest(sender: UserProfile, recipient: UserProfile): Promise<ConnectionRequest> {
+  async sendConnectionRequest(sender: UserProfile, recipient: UserProfile, message?: string): Promise<ConnectionRequest> {
     const client = getRequiredSupabase();
 
     if (sender.id === recipient.id) {
@@ -64,13 +66,20 @@ export const connectionService = {
 
     const { data, error } = await client
       .from('connection_requests')
-      .insert([{ sender_id: sender.id, recipient_id: recipient.id, status: 'pending' }])
+      .insert([{
+        sender_id: sender.id,
+        recipient_id: recipient.id,
+        status: 'pending',
+        message: message?.trim().slice(0, 300) || null
+      }])
       .select('*')
       .single();
 
     if (error) {
       if (error.code === '23505') {
-        throw new Error('A connection request between you and this member already exists.');
+        throw new Error(error.message.includes('already sent you')
+          ? 'This member already sent you a request. Accept it in My Network.'
+          : 'A connection request between you and this member already exists.');
       }
       throw error;
     }
@@ -88,6 +97,7 @@ export const connectionService = {
       recipient_avatar: recipient.avatar_url,
       recipient_role: recipient.role,
       status: 'pending',
+      message: data.message || undefined,
       created_at: data.created_at,
       updated_at: data.updated_at
     };

@@ -326,13 +326,24 @@ export const DashboardPage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {pendingRequests.map((req) => (
-              <div key={req.id} className="bg-white p-3.5 rounded-xl border border-teal-100 shadow-xs flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
+              <div key={req.id} className="bg-white p-3.5 rounded-xl border border-teal-100 shadow-xs flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3 min-w-0">
                   <Avatar name={req.sender_name} src={req.sender_avatar} size="sm" />
-                  <div className="truncate">
-                    <h4 className="text-xs font-bold text-slate-900 truncate">{req.sender_name}</h4>
-                    <p className="text-xs text-slate-500 truncate">{req.sender_qualification} • {req.sender_location}</p>
-                    <span className="text-[11px] text-slate-400">{req.created_at}</span>
+                  <div className="min-w-0">
+                    <Link to={`/members/${req.sender_id}`} className="text-xs font-bold text-slate-900 hover:text-teal-700 truncate block">{req.sender_name}</Link>
+                    <p className="text-xs text-slate-500 truncate">
+                      {[req.sender_role === 'student' ? 'Student' : req.sender_role === 'researcher' ? 'Researcher' : req.sender_role === 'doctor' ? 'Doctor' : null, req.sender_qualification, req.sender_location]
+                        .filter((x) => x && x !== 'Not specified')
+                        .join(' • ')}
+                    </p>
+                    <span className="text-[11px] text-slate-400">
+                      {new Date(req.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </span>
+                    {req.message && (
+                      <p className="mt-1.5 text-xs text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 whitespace-pre-line break-words">
+                        “{req.message}”
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 flex-shrink-0">

@@ -17,7 +17,7 @@ const asPostgres = async () => { await db.exec(`reset role;`); await db.query(`s
 const attempt = async (sql, params = []) => { try { const r = await db.query(sql, params); return { ok: true, rows: r.rows, n: r.affectedRows }; } catch (e) { return { ok: false, err: e.message }; } };
 
 // Idempotency: re-run the last two migrations
-for (const f of ['20261028000000_schema_harmonization.sql', '20261029000000_launch_fixes.sql']) {
+for (const f of ['20261028000000_schema_harmonization.sql', '20261029000000_launch_fixes.sql', '20261030000000_connection_requests.sql']) {
   try { await db.exec(fs.readFileSync(path.join(dir, f), 'utf8')); check(`re-run ${f}`, true); } catch (e) { check(`re-run ${f}`, false, e.message); }
 }
 
@@ -123,6 +123,26 @@ check('Edge Function (service role) review → verified', es.ok, es.err);
 await asUser(ids.student);
 const app3 = await (async () => { await asPostgres(); const id = await mk(ids.other); await asUser(ids.student); return id; })();
 check('non-admin cannot review', !(await attempt(`select public.review_practitioner_application($1, 'verified')`, [app3])).ok);
+
+
+console.log('\nCONNECTION REQUESTS');
+await asUser(ids.student);
+const sent = await attempt(`insert into public.connection_requests (sender_id, recipient_id, message, status) values ($1,$2,'  Hello doctor, may I learn from you?  ','accepted') returning id, status, message`, [ids.student, ids.researcher]);
+check('student sends request with a note', sent.ok && sent.rows[0].status === 'pending' && sent.rows[0].message === 'Hello doctor, may I learn from you?', JSON.stringify(sent));
+const reqId = sent.rows?.[0]?.id;
+check('note longer than 300 characters rejected', !(await attempt(`insert into public.connection_requests (sender_id, recipient_id, message) values ($1,$2,$3)`, [ids.student, ids.doctor, 'x'.repeat(301)])).ok);
+check('sender cannot accept own request', !(await attempt(`update public.connection_requests set status='accepted' where id=$1`, [reqId])).ok || (await attempt(`select status from public.connection_requests where id=$1`, [reqId])).rows[0].status === 'pending');
+await asUser(ids.researcher);
+const notif = await attempt(`select message, link from public.app_notifications where user_id=$1 and type='connection_request'`, [ids.researcher]);
+check('recipient notified with the note', notif.rows?.[0]?.message.includes('may I learn'), JSON.stringify(notif));
+check('reverse duplicate request blocked', !(await attempt(`insert into public.connection_requests (sender_id, recipient_id) values ($1,$2)`, [ids.researcher, ids.student])).ok);
+check('recipient cannot edit the note', !(await attempt(`update public.connection_requests set message='changed' where id=$1`, [reqId])).ok);
+const acc = await attempt(`update public.connection_requests set status='accepted' where id=$1 returning status`, [reqId]);
+check('recipient accepts', acc.ok && acc.rows[0]?.status === 'accepted', JSON.stringify(acc));
+check('answered request cannot change again', !(await attempt(`update public.connection_requests set status='declined' where id=$1`, [reqId])).ok);
+await asUser(ids.student);
+check('sender notified of acceptance', (await attempt(`select id from public.app_notifications where user_id=$1 and type='connection_accepted'`, [ids.student])).rows?.length === 1);
+check('sender can remove the connection', (await attempt(`delete from public.connection_requests where id=$1`, [reqId])).ok);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

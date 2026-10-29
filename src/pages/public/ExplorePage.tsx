@@ -97,7 +97,7 @@ export const ExplorePage: React.FC = () => {
     dataService
       .getMembers()
       .then((list) => {
-        if (active) setMembers(list.filter((m) => !['admin', 'super_admin', 'moderator', 'applicant'].includes(m.role)));
+        if (active) setMembers(list);
       })
       .catch((err: unknown) => {
         if (active) setError(err instanceof Error ? err.message : 'Could not load members.');
@@ -112,7 +112,7 @@ export const ExplorePage: React.FC = () => {
 
   const { visible, locked } = useMemo(() => {
     const matchesRole = (m: UserProfile) =>
-      role === 'all' || m.role === role || (role === 'doctor' && m.role === 'member');
+      role === 'all' || (m.account_type || m.role) === role;
     const term = query.trim().toLowerCase();
     const filtered = members.filter((m) => {
       if (!matchesRole(m)) return false;
@@ -243,8 +243,8 @@ export const ExplorePage: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ring-1 ${roleBadge(m.role)}`}>
-                        {roleLabel(m.role)}
+                      <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ring-1 ${roleBadge(m.account_type || m.role)}`}>
+                        {roleLabel(m.account_type || m.role)}
                       </span>
                       {m.specialization && (
                         <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-brand-ice text-brand-navy ring-1 ring-brand-border">
@@ -277,7 +277,7 @@ export const ExplorePage: React.FC = () => {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-brand-navy">
-                        Verified {roleLabel(m.role).toLowerCase()}
+                        Verified {roleLabel(m.account_type || m.role).toLowerCase()}
                         {m.state ? ` · ${m.state}` : ''}
                       </span>
                       <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-teal">

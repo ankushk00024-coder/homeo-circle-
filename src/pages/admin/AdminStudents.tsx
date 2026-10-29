@@ -28,7 +28,7 @@ export const AdminStudents: React.FC = () => {
   const loadStudents = async () => {
     setLoading(true);
     try {
-      const allMembers = await dataService.getMembers(searchQuery);
+      const allMembers = await dataService.getMembers(searchQuery, 'All', 'All', 'All', true);
       // Filter for student accounts or student roles
       const studentList = allMembers.filter(
         m => m.role === 'student' || m.account_type === 'student' || m.qualification?.toLowerCase().includes('bhms')

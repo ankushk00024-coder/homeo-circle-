@@ -160,6 +160,8 @@ export interface ConnectionRequest {
   recipient_avatar?: string;
   recipient_role: UserRole;
   status: ConnectionStatus;
+  /** Optional note from the sender (max 300 characters). */
+  message?: string;
   created_at: string;
   updated_at: string;
 }

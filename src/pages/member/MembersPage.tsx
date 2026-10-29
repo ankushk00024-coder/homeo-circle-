@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../lib/supabase';
 import { UserProfile, ConnectionRequest } from '../../types';
 import { Avatar } from '../../components/common/Avatar';
+import { ConnectDialog } from '../../components/common/ConnectDialog';
 import { 
   Search, 
   Filter, 
@@ -23,8 +24,26 @@ import {
   ExternalLink,
   MessageCircle,
   UserCheck,
-  ArrowRight
+  ArrowRight,
+  History
 } from 'lucide-react';
+
+const typeOf = (m: UserProfile) => m.account_type || m.role;
+const typeLabel = (t?: string) => (t === 'student' ? 'Student' : t === 'researcher' ? 'Researcher' : 'Doctor');
+const formatDate = (iso?: string) =>
+  iso ? new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+
+/** The note a member attached to a connection request. */
+const RequestNote: React.FC<{ text?: string; label?: string }> = ({ text, label }) =>
+  text ? (
+    <div className="mt-2 flex gap-2 text-xs text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 max-w-xl">
+      <MessageCircle className="w-3.5 h-3.5 text-teal-600 flex-shrink-0 mt-0.5" />
+      <p className="whitespace-pre-line break-words">
+        {label && <span className="font-semibold text-slate-500">{label} </span>}
+        {text}
+      </p>
+    </div>
+  ) : null;
 
 export const MembersPage: React.FC = () => {
   const { currentUser } = useAuth();
@@ -43,6 +62,7 @@ export const MembersPage: React.FC = () => {
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
   const [loading, setLoading] = useState(true);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [connectTarget, setConnectTarget] = useState<UserProfile | null>(null);
 
   const statesList = [
     'All', 'Maharashtra', 'Karnataka', 'Delhi', 'Uttar Pradesh', 'Gujarat', 'West Bengal', 'Kerala', 'Telangana'
@@ -93,19 +113,22 @@ export const MembersPage: React.FC = () => {
     return 'none';
   };
 
-  const handleConnect = async (targetMember: UserProfile) => {
+  const handleConnect = (targetMember: UserProfile) => {
     if (!currentUser) {
       navigate('/login', { state: { from: location } });
       return;
     }
-    try {
-      await dataService.sendConnectionRequest(currentUser, targetMember);
-      setActionMessage(`Connection request sent to ${targetMember.display_name}. In-app notification delivered! (Note: Email alerts require SMTP config).`);
-      setTimeout(() => setActionMessage(null), 5000);
-      await loadData();
-    } catch (err: any) {
-      alert(err.message || 'Failed to send connection request.');
-    }
+    setConnectTarget(targetMember);
+  };
+
+  const sendRequest = async (note: string) => {
+    if (!currentUser || !connectTarget) return;
+    await dataService.sendConnectionRequest(currentUser, connectTarget, note);
+    const name = connectTarget.display_name || connectTarget.full_name;
+    setConnectTarget(null);
+    setActionMessage(`Request sent to ${name}. They'll see it on their dashboard and in My Network.`);
+    setTimeout(() => setActionMessage(null), 5000);
+    await loadData();
   };
 
   const handleRespond = async (requestId: string, status: 'accepted' | 'declined') => {
@@ -131,6 +154,9 @@ export const MembersPage: React.FC = () => {
   const acceptedConnections = connectionRequests.filter(c => 
     (c.sender_id === currentUser?.id || c.recipient_id === currentUser?.id) && c.status === 'accepted'
   );
+  const history = [...connectionRequests]
+    .filter(c => c.sender_id === currentUser?.id || c.recipient_id === currentUser?.id)
+    .sort((a, b) => (b.updated_at || b.created_at).localeCompare(a.updated_at || a.created_at));
 
   return (
     <div className="space-y-6">
@@ -349,10 +375,10 @@ export const MembersPage: React.FC = () => {
                   c.recipient_id === currentUser?.id && c.sender_id === member.id && c.status === 'pending'
                 );
 
+                const memberType = typeOf(member);
                 const getRoleBadgeStyle = () => {
-                  if (member.role === 'student') return 'bg-emerald-50 text-emerald-800 border-emerald-200';
-                  if (member.role === 'researcher') return 'bg-sky-50 text-sky-800 border-sky-200';
-                  if (member.role === 'super_admin' || member.role === 'admin') return 'bg-indigo-50 text-indigo-800 border-indigo-200';
+                  if (memberType === 'student') return 'bg-emerald-50 text-emerald-800 border-emerald-200';
+                  if (memberType === 'researcher') return 'bg-sky-50 text-sky-800 border-sky-200';
                   return 'bg-teal-50 text-teal-800 border-teal-200';
                 };
 
@@ -374,7 +400,7 @@ export const MembersPage: React.FC = () => {
 
                         {/* Role pill badge */}
                         <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${getRoleBadgeStyle()}`}>
-                          {member.role === 'student' ? 'Student' : member.role === 'researcher' ? 'Researcher' : 'Doctor'}
+                          {typeLabel(memberType)}
                         </span>
                       </div>
 
@@ -386,7 +412,7 @@ export const MembersPage: React.FC = () => {
                           {member.full_name}
                         </Link>
                         <p className="text-[11px] text-[#5A6E85] font-medium mt-0.5">
-                          {member.role === 'student' 
+                          {memberType === 'student' 
                             ? member.qualification 
                             : `${member.qualification}${member.experience_years ? ` • ${member.experience_years} yrs exp` : ''}`}
                         </p>
@@ -401,13 +427,13 @@ export const MembersPage: React.FC = () => {
                         </div>
 
                         <div className="flex items-center justify-center sm:justify-start gap-1.5">
-                          {member.role === 'student' ? (
+                          {memberType === 'student' ? (
                             <GraduationCap className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
                           ) : (
                             <Briefcase className="w-3.5 h-3.5 text-brand-teal flex-shrink-0" />
                           )}
                           <span className="text-[11px] font-medium text-brand-navy bg-[#EEF6FC] px-2 py-0.5 rounded truncate max-w-[200px]">
-                            {member.role === 'student'
+                            {memberType === 'student'
                               ? member.institution || 'Medical College'
                               : member.specialization || 'Clinical Practice'}
                           </span>
@@ -514,17 +540,19 @@ export const MembersPage: React.FC = () => {
             ) : (
               <div className="divide-y divide-slate-100">
                 {receivedRequests.map((req) => (
-                  <div key={req.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
+                  <div key={req.id} className="py-3.5 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                    <div className="flex items-start gap-3">
                       <Avatar name={req.sender_name} src={req.sender_avatar} size="md" />
                       <div>
                         <Link to={`/members/${req.sender_id}`} className="text-xs font-bold text-brand-navy hover:text-teal-700">
                           {req.sender_name}
                         </Link>
                         <p className="text-[11px] text-slate-500">
-                          {req.sender_qualification || 'Member'} • Role: <span className="capitalize">{req.sender_role}</span>
+                          <span className="capitalize">{typeLabel(req.sender_role)}</span>
+                          {req.sender_qualification ? ` • ${req.sender_qualification}` : ''}
                         </p>
-                        <span className="text-[10px] text-slate-400">Received request</span>
+                        <span className="text-[10px] text-slate-400">Sent you a request on {formatDate(req.created_at)}</span>
+                        <RequestNote text={req.message} />
                       </div>
                     </div>
 
@@ -568,16 +596,17 @@ export const MembersPage: React.FC = () => {
             ) : (
               <div className="divide-y divide-slate-100">
                 {sentRequests.map((req) => (
-                  <div key={req.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
+                  <div key={req.id} className="py-3.5 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                    <div className="flex items-start gap-3">
                       <Avatar name={req.recipient_name} src={req.recipient_avatar} size="md" />
                       <div>
                         <span className="text-xs font-bold text-brand-navy block">
                           {req.recipient_name}
                         </span>
                         <span className="text-[11px] text-slate-500">
-                          Waiting for peer response
+                          Sent {formatDate(req.created_at)} • waiting for a reply
                         </span>
+                        <RequestNote text={req.message} label="Your note:" />
                       </div>
                     </div>
 
@@ -628,7 +657,7 @@ export const MembersPage: React.FC = () => {
                             {otherName}
                           </Link>
                           <span className="text-[10px] text-teal-700 bg-teal-50 px-2 py-0.5 rounded font-medium border border-teal-200 inline-block mt-0.5">
-                            Connected
+                            Connected since {formatDate(conn.updated_at || conn.created_at)}
                           </span>
                         </div>
                       </div>
@@ -646,10 +675,66 @@ export const MembersPage: React.FC = () => {
             )}
           </div>
 
+
+          {/* Section: Connection history */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-card space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+              <History className="w-4 h-4 text-slate-500" />
+              <h2 className="text-sm font-bold text-brand-navy">Connection History</h2>
+            </div>
+            {history.length === 0 ? (
+              <p className="text-xs text-slate-400 py-3 text-center">No connection activity yet.</p>
+            ) : (
+              <ol className="relative border-l border-slate-200 ml-2 space-y-5">
+                {history.map((c) => {
+                  const iSent = c.sender_id === currentUser?.id;
+                  const otherName = iSent ? c.recipient_name : c.sender_name;
+                  const otherId = iSent ? c.recipient_id : c.sender_id;
+                  const statusText =
+                    c.status === 'accepted' ? 'Connected' : c.status === 'declined' ? 'Declined' : 'Pending';
+                  const statusStyle =
+                    c.status === 'accepted'
+                      ? 'bg-teal-50 text-teal-800 border-teal-200'
+                      : c.status === 'declined'
+                        ? 'bg-slate-100 text-slate-600 border-slate-200'
+                        : 'bg-amber-50 text-amber-800 border-amber-200';
+                  return (
+                    <li key={c.id} className="ml-4">
+                      <span className={`absolute -left-1.5 mt-1.5 w-3 h-3 rounded-full border-2 border-white ${c.status === 'accepted' ? 'bg-teal-500' : c.status === 'declined' ? 'bg-slate-400' : 'bg-amber-400'}`} />
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-xs text-slate-700">
+                          {iSent ? 'You sent a request to ' : ''}
+                          <Link to={`/members/${otherId}`} className="font-bold text-brand-navy hover:text-teal-700">{otherName}</Link>
+                          {iSent ? '' : ' sent you a request'}
+                        </p>
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${statusStyle}`}>{statusText}</span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Requested {formatDate(c.created_at)}
+                        {c.status !== 'pending' && ` • ${statusText.toLowerCase()} ${formatDate(c.updated_at)}`}
+                      </p>
+                      <RequestNote text={c.message} />
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
+          </div>
         </div>
         )
       )}
 
+      <ConnectDialog
+        target={connectTarget && {
+          name: connectTarget.display_name || connectTarget.full_name,
+          avatar: connectTarget.avatar_url,
+          subtitle: [typeLabel(typeOf(connectTarget)), connectTarget.qualification, connectTarget.city || connectTarget.state]
+            .filter((x) => x && x !== 'Not specified')
+            .join(' · ')
+        }}
+        onClose={() => setConnectTarget(null)}
+        onSend={sendRequest}
+      />
     </div>
   );
 };

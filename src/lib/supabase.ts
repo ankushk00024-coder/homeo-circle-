@@ -181,9 +181,10 @@ export const dataService = {
     search = '', 
     stateFilter = 'All', 
     specFilter = 'All', 
-    roleFilter = 'All'
+    roleFilter = 'All',
+    includeUntyped = false
   ): Promise<UserProfile[]> {
-    return profileService.getMembers(search, stateFilter, specFilter, roleFilter);
+    return profileService.getMembers(search, stateFilter, specFilter, roleFilter, includeUntyped);
   },
 
   async getMemberById(id: string): Promise<UserProfile | null> {
@@ -203,8 +204,8 @@ export const dataService = {
     return connectionService.getConnectionRequests(userId);
   },
 
-  async sendConnectionRequest(sender: UserProfile, recipient: UserProfile): Promise<ConnectionRequest> {
-    return connectionService.sendConnectionRequest(sender, recipient);
+  async sendConnectionRequest(sender: UserProfile, recipient: UserProfile, message?: string): Promise<ConnectionRequest> {
+    return connectionService.sendConnectionRequest(sender, recipient, message);
   },
 
   async respondConnectionRequest(

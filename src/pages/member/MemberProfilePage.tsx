@@ -4,6 +4,7 @@ import { dataService } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { UserProfile, Post, ConnectionRequest } from '../../types';
 import { Avatar } from '../../components/common/Avatar';
+import { ConnectDialog } from '../../components/common/ConnectDialog';
 import { 
   ArrowLeft, 
   MapPin, 
@@ -44,6 +45,7 @@ export const MemberProfilePage: React.FC = () => {
   const [mentorshipGoals, setMentorshipGoals] = useState('Acute & Chronic case repertorization and clinical posology guidance.');
   const [mentorshipSubmitted, setMentorshipSubmitted] = useState(false);
   const [actionAlert, setActionAlert] = useState<string | null>(null);
+  const [connectTarget, setConnectTarget] = useState<UserProfile | null>(null);
 
   const loadProfile = async () => {
     if (!id) return;
@@ -89,14 +91,16 @@ export const MemberProfilePage: React.FC = () => {
       return;
     }
     if (!member) return;
-    try {
-      await dataService.sendConnectionRequest(currentUser, member);
-      setActionAlert(`Connection request sent to ${member.display_name}! In-app notification delivered.`);
-      setTimeout(() => setActionAlert(null), 4000);
-      await loadProfile();
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to send connection request.');
-    }
+    setConnectTarget(member);
+  };
+
+  const sendRequest = async (note: string) => {
+    if (!currentUser || !connectTarget) return;
+    await dataService.sendConnectionRequest(currentUser, connectTarget, note);
+    setConnectTarget(null);
+    setActionAlert(`Request sent to ${connectTarget.display_name || connectTarget.full_name}. They'll see it on their dashboard.`);
+    setTimeout(() => setActionAlert(null), 4000);
+    await loadProfile();
   };
 
   const handleRespond = async (status: 'accepted' | 'declined') => {
@@ -553,6 +557,15 @@ export const MemberProfilePage: React.FC = () => {
         </div>
       )}
 
+      <ConnectDialog
+        target={connectTarget && {
+          name: connectTarget.display_name || connectTarget.full_name,
+          avatar: connectTarget.avatar_url,
+          subtitle: [connectTarget.qualification, connectTarget.city || connectTarget.state].filter((x) => x && x !== 'Not specified').join(' · ')
+        }}
+        onClose={() => setConnectTarget(null)}
+        onSend={sendRequest}
+      />
     </div>
   );
 };

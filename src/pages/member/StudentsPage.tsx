@@ -11,6 +11,7 @@ import {
   ConnectionRequest
 } from '../../types';
 import { Avatar } from '../../components/common/Avatar';
+import { ConnectDialog } from '../../components/common/ConnectDialog';
 import { 
   GraduationCap, 
   HeartHandshake, 
@@ -63,6 +64,7 @@ export const StudentsPage: React.FC = () => {
   const [onlyAcceptingMentorship, setOnlyAcceptingMentorship] = useState(false);
   const [visibleCount, setVisibleCount] = useState(6);
   const [actionFeedback, setActionFeedback] = useState<string | null>(null);
+  const [connectTarget, setConnectTarget] = useState<UserProfile | null>(null);
 
   // Mentor request modal state
   const [selectedMentor, setSelectedMentor] = useState<UserProfile | null>(null);
@@ -109,10 +111,9 @@ export const StudentsPage: React.FC = () => {
       // Must be a doctor, researcher, educator, or senior practitioner member.
       // Must not be a student, unverified public visitor, or suspended account.
       const eligible = allMembers.filter(m => {
-        const isNotStudent = m.role !== 'student' && m.role !== 'applicant' && m.role !== 'public';
-        const isEligibleRole = m.role === 'doctor' || m.role === 'researcher' || m.role === 'member' || m.role === 'admin' || m.role === 'super_admin';
-        const isNotSuspended = m.status !== 'suspended';
-        return isNotStudent && isEligibleRole && isNotSuspended;
+        // The directory only lists people who chose a type; mentors are doctors and researchers.
+        const type = m.account_type || m.role;
+        return (type === 'doctor' || type === 'researcher') && m.status !== 'suspended';
       });
 
       setAllEligibleMentors(eligible);
@@ -195,20 +196,21 @@ export const StudentsPage: React.FC = () => {
     return 'none';
   };
 
-  const handleConnect = async (targetMember: UserProfile) => {
+  const handleConnect = (targetMember: UserProfile) => {
     if (!currentUser) {
       navigate('/login', { state: { from: location } });
       return;
     }
-    try {
-      await dataService.sendConnectionRequest(currentUser, targetMember);
-      setActionFeedback(`Connection request sent to ${targetMember.display_name || targetMember.full_name}. Real-time in-app notification delivered!`);
-      setTimeout(() => setActionFeedback(null), 5000);
-      const updatedConns = await dataService.getConnectionRequests();
-      setConnectionRequests(updatedConns);
-    } catch (err: any) {
-      alert(err.message || 'Failed to send connection request.');
-    }
+    setConnectTarget(targetMember);
+  };
+
+  const sendRequest = async (note: string) => {
+    if (!currentUser || !connectTarget) return;
+    await dataService.sendConnectionRequest(currentUser, connectTarget, note);
+    setConnectTarget(null);
+    setActionFeedback(`Request sent to ${connectTarget.display_name || connectTarget.full_name}. They'll see it on their dashboard.`);
+    setTimeout(() => setActionFeedback(null), 5000);
+    setConnectionRequests(await dataService.getConnectionRequests());
   };
 
   const handleCancelConnection = async (targetId: string) => {
@@ -1058,6 +1060,15 @@ export const StudentsPage: React.FC = () => {
         </div>
       )}
 
+      <ConnectDialog
+        target={connectTarget && {
+          name: connectTarget.display_name || connectTarget.full_name,
+          avatar: connectTarget.avatar_url,
+          subtitle: [connectTarget.qualification, connectTarget.city || connectTarget.state].filter((x) => x && x !== 'Not specified').join(' · ')
+        }}
+        onClose={() => setConnectTarget(null)}
+        onSend={sendRequest}
+      />
     </div>
   );
 };
