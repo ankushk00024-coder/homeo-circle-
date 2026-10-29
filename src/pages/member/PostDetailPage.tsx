@@ -17,7 +17,6 @@ import {
   ExternalLink,
   CheckCircle2,
   X,
-  Edit2,
   Trash2,
   CornerDownRight
 } from 'lucide-react';
@@ -36,11 +35,6 @@ export const PostDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-
-  // Edit post state
-  const [editingPost, setEditingPost] = useState(false);
-  const [editTitle, setEditTitle] = useState('');
-  const [editBody, setEditBody] = useState('');
 
   // Report modal state
   const [reportModalOpen, setReportModalOpen] = useState(false);
@@ -66,8 +60,6 @@ export const PostDetailPage: React.FC = () => {
       setPost(found);
       setComments(foundComments);
       if (found) {
-        setEditTitle(found.title);
-        setEditBody(found.body);
         setIsSaved(found.is_saved ?? bookmarks.includes(found.id));
       }
     } catch (err) {
@@ -138,17 +130,6 @@ export const PostDetailPage: React.FC = () => {
     if (post) setPost({ ...post, comments_count: Math.max(0, post.comments_count - 1) });
   };
 
-  const handleUpdatePost = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!post) return;
-    const updated = await dataService.updatePost(post.id, {
-      title: editTitle.trim(),
-      body: editBody.trim()
-    });
-    setPost(updated);
-    setEditingPost(false);
-  };
-
   const handleDeletePost = async () => {
     if (!post || !window.confirm('Are you sure you want to delete this discussion post?')) return;
     await dataService.deletePost(post.id);
@@ -215,14 +196,6 @@ export const PostDetailPage: React.FC = () => {
         {isPostAuthor && (
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setEditingPost(!editingPost)}
-              className="text-xs font-semibold text-teal-700 hover:text-teal-800 flex items-center gap-1"
-            >
-              <Edit2 className="w-3.5 h-3.5" />
-              <span>{editingPost ? 'Cancel Edit' : 'Edit Post'}</span>
-            </button>
-            <span className="text-slate-300">|</span>
-            <button
               onClick={handleDeletePost}
               className="text-xs font-semibold text-rose-600 hover:text-rose-700 flex items-center gap-1"
             >
@@ -274,46 +247,8 @@ export const PostDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Title & Body / Inline Edit Mode */}
-        {editingPost ? (
-          <form onSubmit={handleUpdatePost} className="space-y-4">
-            <div>
-              <label className="text-xs font-semibold text-slate-700 block mb-1">Title</label>
-              <input
-                type="text"
-                required
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
-                className="w-full p-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-slate-700 block mb-1">Discussion Body</label>
-              <textarea
-                rows={6}
-                required
-                value={editBody}
-                onChange={(e) => setEditBody(e.target.value)}
-                className="w-full p-3 text-xs sm:text-sm border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 leading-relaxed"
-              />
-            </div>
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setEditingPost(false)}
-                className="px-4 py-2 border rounded-xl text-xs font-semibold"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-5 py-2 bg-brand-teal text-white rounded-xl text-xs font-semibold"
-              >
-                Save Changes
-              </button>
-            </div>
-          </form>
-        ) : (
+        {/* Title & Body (posts cannot be edited) */}
+        {(
           <div className="space-y-4">
             <h1 className="text-xl sm:text-2xl font-serif font-bold text-brand-navy leading-snug">
               {post.title}

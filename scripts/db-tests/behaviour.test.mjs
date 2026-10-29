@@ -17,7 +17,7 @@ const asPostgres = async () => { await db.exec(`reset role;`); await db.query(`s
 const attempt = async (sql, params = []) => { try { const r = await db.query(sql, params); return { ok: true, rows: r.rows, n: r.affectedRows }; } catch (e) { return { ok: false, err: e.message }; } };
 
 // Idempotency: re-run the last two migrations
-for (const f of ['20261028000000_schema_harmonization.sql', '20261029000000_launch_fixes.sql', '20261030000000_connection_requests.sql']) {
+for (const f of ['20261028000000_schema_harmonization.sql', '20261029000000_launch_fixes.sql', '20261030000000_connection_requests.sql', '20261031000000_verify_sets_account_type.sql']) {
   try { await db.exec(fs.readFileSync(path.join(dir, f), 'utf8')); check(`re-run ${f}`, true); } catch (e) { check(`re-run ${f}`, false, e.message); }
 }
 
@@ -39,8 +39,8 @@ for (const [k, meta] of Object.entries({
 }
 await asPostgres();
 const prof = async (id) => (await db.query(`select role, account_type, status, verification_status, display_name, avatar_url, state from public.profiles where id=$1`, [id])).rows[0];
-check('doctor profile = doctor/pending', JSON.stringify(await prof(ids.doctor)).includes('"role":"doctor"') && (await prof(ids.doctor)).status === 'pending');
-check('student auto-verified', (await prof(ids.student)).status === 'verified');
+check('type in sign-up metadata ignored (set by verification)', (await prof(ids.doctor)).role === 'member' && (await prof(ids.doctor)).account_type === null);
+check('student sign-up not auto-verified', (await prof(ids.student)).status === 'pending');
 check('no type → role member', (await prof(ids.notype)).role === 'member');
 const g = await prof(ids.google);
 check('google name + avatar captured', g.display_name === 'Goo Gle' && g.avatar_url?.includes('googleusercontent'), JSON.stringify(g));
@@ -69,15 +69,10 @@ check('can register for event', (await attempt(`insert into public.event_registr
 check('sees members in directory', (await attempt(`select id from public.profile_public_view`)).rows?.length >= 2);
 check('cannot read another profile row directly', (await attempt(`select id from public.profiles where id=$1`, [ids.other])).rows?.length === 0);
 
-console.log('\nACCOUNT TYPE DROPDOWN');
-const sw = await attempt(`update public.profiles set account_type='student' where id=$1 returning role, account_type, status`, [ids.doctor]);
-check('doctor → student allowed', sw.ok && sw.rows[0].role === 'student', JSON.stringify(sw));
-await asPostgres();
-const r2 = (await db.query(`select role from public.user_roles where user_id=$1 order by role`, [ids.doctor])).rows.map(r => r.role);
-check('user_roles synced to student only', JSON.stringify(r2) === '["student"]', JSON.stringify(r2));
-await asUser(ids.doctor);
-check('→ researcher allowed', (await attempt(`update public.profiles set account_type='researcher' where id=$1`, [ids.doctor])).ok);
-check('researcher reset to pending badge', (await attempt(`select status from public.profiles where id=$1`, [ids.doctor])).rows[0].status === 'pending');
+console.log('\nACCOUNT TYPE (set only by verification)');
+check('member cannot set own account type', !(await attempt(`update public.profiles set account_type='student' where id=$1`, [ids.doctor])).ok);
+check('member cannot set own role to doctor', !(await attempt(`update public.profiles set role='doctor' where id=$1`, [ids.doctor])).ok);
+check('member can still edit own bio', (await attempt(`update public.profiles set bio='Hello' where id=$1`, [ids.doctor])).ok);
 check('self-promote to admin blocked', !(await attempt(`update public.profiles set role='admin' where id=$1`, [ids.doctor])).ok);
 check('self-verify blocked', !(await attempt(`update public.profiles set status='verified' where id=$1`, [ids.doctor])).ok);
 check('cannot insert admin into user_roles', !(await attempt(`insert into public.user_roles (user_id, role) values ($1,'admin')`, [ids.doctor])).ok);
@@ -143,6 +138,39 @@ check('answered request cannot change again', !(await attempt(`update public.con
 await asUser(ids.student);
 check('sender notified of acceptance', (await attempt(`select id from public.app_notifications where user_id=$1 and type='connection_accepted'`, [ids.student])).rows?.length === 1);
 check('sender can remove the connection', (await attempt(`delete from public.connection_requests where id=$1`, [reqId])).ok);
+
+
+console.log('\nVERIFICATION SETS ACCOUNT TYPE');
+await asPostgres();
+const newbie = (await db.query(`insert into auth.users (email, raw_user_meta_data) values ('newbie@t.in','{"full_name":"New Bie"}') returning id`)).rows[0].id;
+check('new sign-up has no type', (await prof(newbie)).account_type === null && (await prof(newbie)).role === 'member');
+await asUser(newbie);
+const stuApp = await attempt(`insert into public.practitioner_applications (user_id, full_name, email, phone, qualification, registration_number, registration_authority, state, city, role_applied, institution, course_year, clinic_institution) values ($1,'New Bie','newbie@t.in','1','3rd Year BHMS','','','Kerala','Kochi','student','Govt Homoeo College','3rd Year BHMS','Govt Homoeo College') returning id`, [newbie]);
+check('member submits student form', stuApp.ok, stuApp.err);
+check('type not set before verification', (await prof(newbie)).account_type === null);
+await asUser(adminId);
+check('admin verifies', (await attempt(`select public.review_practitioner_application($1, 'verified')`, [stuApp.rows?.[0]?.id])).ok);
+await asPostgres();
+const nb = (await db.query(`select role, account_type, status, city, clinic_institution from public.profiles where id=$1`, [newbie])).rows[0];
+check('verified → student type, role and details', nb.account_type === 'student' && nb.role === 'student' && nb.status === 'verified' && nb.city === 'Kochi' && nb.clinic_institution === 'Govt Homoeo College', JSON.stringify(nb));
+check('user_roles synced to student', JSON.stringify((await db.query(`select array_agg(role) r from public.user_roles where user_id=$1`, [newbie])).rows[0].r) === '["student"]');
+const staff = (await db.query(`insert into auth.users (email) values ('staff@t.in') returning id`)).rows[0].id;
+await db.query(`update public.profiles set role='admin' where id=$1`, [staff]);
+const staffApp = (await db.query(`insert into public.practitioner_applications (user_id, full_name, email, phone, qualification, registration_number, registration_authority, state, role_applied) values ($1,'S','staff@t.in','1','BHMS','R9','Council','Delhi','doctor') returning id`, [staff])).rows[0].id;
+await asUser(adminId);
+await attempt(`select public.review_practitioner_application($1, 'verified')`, [staffApp]);
+await asPostgres();
+const st = await prof(staff);
+check('admin who applies keeps admin role, gets doctor type', st.role === 'admin' && st.account_type === 'doctor', JSON.stringify(st));
+
+
+console.log('\nPOSTS');
+await asPostgres();
+const myPost = (await db.query(`insert into public.posts (author_id, author_name, title, body, category_id, status) values ($1,'Stu','T','B','general','published') returning id`, [ids.student])).rows[0].id;
+await asUser(ids.student);
+check('author cannot edit post', !(await attempt(`update public.posts set body='changed' where id=$1`, [myPost])).ok);
+check('likes still update the counter', (await attempt(`insert into public.post_likes (post_id, user_id) values ($1,$2)`, [myPost, ids.student])).ok);
+check('author can delete post', (await attempt(`delete from public.posts where id=$1`, [myPost])).ok);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

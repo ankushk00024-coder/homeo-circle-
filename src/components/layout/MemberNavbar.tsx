@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { BrandLogo } from '../common/BrandLogo';
 import { Avatar } from '../common/Avatar';
 import { useAuth } from '../../context/AuthContext';
@@ -29,7 +29,6 @@ export const MemberNavbar: React.FC = () => {
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const location = useLocation();
   const navigate = useNavigate();
 
   const loadNotifications = async () => {
@@ -75,17 +74,6 @@ export const MemberNavbar: React.FC = () => {
     }
   };
 
-  const navLinks = [
-    { label: 'Community', path: '/community' },
-    { label: 'Directory', path: '/members' },
-    { label: 'Student Corner', path: '/students' },
-    { label: 'Events', path: '/events' },
-    { label: 'Opportunities', path: '/opportunities' },
-    { label: 'Research', path: '/knowledge' },
-  ];
-
-  const isActive = (path: string) => location.pathname.startsWith(path);
-
   const getRoleBadge = () => {
     if (role === 'student') return 'Student Member';
     if (role === 'researcher') return 'Researcher & Educator';
@@ -102,29 +90,14 @@ export const MemberNavbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           
-          {/* Left: Brand Logo & Desktop Navigation */}
+          {/* Left: Brand Logo (page navigation lives in the sidebar) */}
           <div className="flex items-center gap-6 xl:gap-8 flex-shrink-0">
             <BrandLogo size="md" />
 
-            <nav className="hidden lg:flex items-center gap-5 xl:gap-6">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`text-sm font-medium transition ${
-                    isActive(link.path)
-                      ? 'text-brand-teal font-semibold'
-                      : 'text-brand-muted hover:text-brand-navy'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
           </div>
 
           {/* Center: Search input */}
-          <div className="hidden sm:flex flex-1 max-w-xs md:max-w-sm lg:max-w-md mx-2">
+          <div className="hidden sm:flex flex-1 max-w-md lg:max-w-xl mx-2">
             <form onSubmit={handleSearch} className="w-full relative">
               <input
                 type="text"

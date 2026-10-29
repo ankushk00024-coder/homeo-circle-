@@ -49,7 +49,6 @@ export const LoginPage: React.FC = () => {
   const [resetSuccess, setResetSuccess] = useState(false);
   const [confirmationNotice, setConfirmationNotice] = useState<string | null>(null);
   const [noticeTitle, setNoticeTitle] = useState('Account created');
-  const [signupAccountType, setSignupAccountType] = useState<'' | 'doctor' | 'student' | 'researcher'>('');
   const [showDemoAccounts, setShowDemoAccounts] = useState(false);
 
   // Determine post-login destination
@@ -164,8 +163,7 @@ export const LoginPage: React.FC = () => {
       const result = await signUp({
         email: email.trim(),
         password,
-        fullName: fullName.trim(),
-        accountType: signupAccountType || undefined
+        fullName: fullName.trim()
       });
 
       if (!result.success) {
@@ -562,23 +560,6 @@ export const LoginPage: React.FC = () => {
                     {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-              </div>
-
-              <div>
-                <label htmlFor="signup-account-type" className="block text-xs font-semibold text-slate-700 mb-1">
-                  I am a <span className="font-normal text-slate-400">(optional — you can change this later)</span>
-                </label>
-                <select
-                  id="signup-account-type"
-                  value={signupAccountType}
-                  onChange={(e) => setSignupAccountType(e.target.value as typeof signupAccountType)}
-                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 outline-none transition"
-                >
-                  <option value="">Choose later</option>
-                  <option value="doctor">Doctor / Practitioner</option>
-                  <option value="student">Student / Intern</option>
-                  <option value="researcher">Researcher / Educator</option>
-                </select>
               </div>
 
               <div className="text-[11px] text-slate-500 leading-snug">

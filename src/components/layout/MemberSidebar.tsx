@@ -10,6 +10,7 @@ import {
   Settings, 
   ShieldCheck,
   GraduationCap,
+  BookOpen,
   ArrowRight
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -25,6 +26,7 @@ export const MemberSidebar: React.FC = () => {
     { label: 'Student Corner', path: '/students', icon: GraduationCap },
     { label: 'Events & CMEs', path: '/events', icon: Calendar },
     { label: 'Opportunities', path: '/opportunities', icon: Briefcase },
+    { label: 'Research', path: '/knowledge', icon: BookOpen },
     ...(isAuthenticated ? [{ label: 'Account Settings', path: '/settings', icon: Settings }] : []),
   ];
 

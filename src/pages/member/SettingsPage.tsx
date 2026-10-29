@@ -65,7 +65,7 @@ export const SettingsPage: React.FC = () => {
             Your account type
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Tell the community whether you are a doctor, student or researcher. You can change it anytime.
+            Tell the community whether you are a doctor, student or researcher. Choosing a type opens a short verification form.
           </p>
         </div>
         <AccountTypeSelect />

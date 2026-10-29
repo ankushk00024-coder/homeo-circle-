@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { Sparkles, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { AccountTypeSelect, accountTypeOf } from './AccountTypeSelect';
+import { AccountTypeSelect, ApplicationUnderReview, accountTypeOf, useOpenApplication } from './AccountTypeSelect';
 
 /**
- * Shown at the top of member pages until the member picks Doctor / Student /
- * Researcher. Dismissible for the session; the choice also lives in Settings.
+ * Shown at the top of member pages until the member's type is verified.
+ * Picking Doctor / Student / Researcher opens the verification form; while
+ * the application is reviewed the banner shows its status instead.
+ * Dismissible for the session; the same choice lives in Settings.
  */
 export const AccountTypePrompt: React.FC = () => {
   const { currentUser, isAdmin } = useAuth();
+  const { app: openApp, loading } = useOpenApplication();
   const [hidden, setHidden] = useState(() => {
     try {
       return sessionStorage.getItem('hc_account_type_prompt_hidden') === '1';
@@ -17,7 +20,7 @@ export const AccountTypePrompt: React.FC = () => {
     }
   });
 
-  if (!currentUser || isAdmin || hidden) return null;
+  if (!currentUser || isAdmin || hidden || loading) return null;
   if (accountTypeOf(currentUser.role, currentUser.account_type) !== null) return null;
 
   const dismiss = () => {
@@ -45,13 +48,25 @@ export const AccountTypePrompt: React.FC = () => {
             <Sparkles className="w-5 h-5" />
           </span>
           <div>
-            <p className="font-semibold text-brand-navy">Welcome to Homeo Circle! What describes you best?</p>
-            <p className="text-sm text-slate-600">
-              Choose doctor, student or researcher to personalise your experience. You can change it anytime in Settings.
-            </p>
+            {openApp ? (
+              <>
+                <p className="font-semibold text-brand-navy">Thanks! Your application is with our verification team.</p>
+                <p className="text-sm text-slate-600">
+                  You can use the whole community meanwhile. Your profile appears in the directory once it's approved.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="font-semibold text-brand-navy">Welcome to Homeo Circle! What describes you best?</p>
+                <p className="text-sm text-slate-600">
+                  Choose doctor, student or researcher, then fill a short form for verification. Once approved, your
+                  profile appears in the member directory.
+                </p>
+              </>
+            )}
           </div>
         </div>
-        <AccountTypeSelect variant="compact" />
+        {openApp ? <ApplicationUnderReview app={openApp} /> : <AccountTypeSelect variant="compact" />}
       </div>
     </div>
   );

@@ -121,9 +121,10 @@ export const postService = {
       author_id: author.id,
       author_name: author.display_name || author.full_name,
       author_avatar: author.avatar_url || author.avatar_path || null,
-      author_qualification: author.qualification || 'BHMS',
+      author_qualification: author.qualification && author.qualification !== 'Not specified' ? author.qualification : null,
       author_experience: author.experience_years ? `${author.experience_years} years experience` : null,
-      author_role: author.role || 'doctor',
+      // Verified type (doctor / student / researcher), else the plain role.
+      author_role: author.account_type || author.role || 'member',
       title: postData.title?.trim() || '',
       body: postData.body?.trim() || '',
       category_id: catId,

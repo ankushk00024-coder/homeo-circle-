@@ -69,12 +69,13 @@ export const ApplyPage: React.FC = () => {
     }
   }, [searchParams]);
 
-  // If already authenticated and verified, redirect to dashboard rather than forcing re-application
+  // Verified members who open the form without choosing a type go to their
+  // dashboard; with ?role= they are applying for a (new) account type.
   useEffect(() => {
-    if (currentUser && isVerifiedMember) {
+    if (currentUser && isVerifiedMember && !searchParams.get('role')) {
       navigate('/dashboard', { replace: true });
     }
-  }, [currentUser, isVerifiedMember]);
+  }, [currentUser, isVerifiedMember, searchParams]);
 
   // Common Fields
   const [fullName, setFullName] = useState(currentUser?.full_name || '');

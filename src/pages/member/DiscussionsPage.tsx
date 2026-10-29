@@ -15,7 +15,6 @@ import {
   X, 
   Lock,
   MoreHorizontal,
-  Edit2,
   Trash2,
   CheckCircle2,
   Flag,
@@ -40,7 +39,6 @@ export const DiscussionsPage: React.FC = () => {
   const [savedPostIds, setSavedPostIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [composerOpen, setComposerOpen] = useState(false);
-  const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [copiedPostId, setCopiedPostId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'latest' | 'discussed' | 'liked'>('latest');
@@ -141,23 +139,10 @@ export const DiscussionsPage: React.FC = () => {
       navigate('/login', { state: { from: location } });
       return;
     }
-    setEditingPost(null);
     setPostTitle('');
     setPostBody('');
     setPostSource('');
     setPostCategory('clinical-cases');
-    setPostError(null);
-    setComposerOpen(true);
-  };
-
-  const openEditComposer = (e: React.MouseEvent, post: Post) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setEditingPost(post);
-    setPostTitle(post.title);
-    setPostBody(post.body);
-    setPostSource(post.source_url || '');
-    setPostCategory(post.category_id || 'clinical-cases');
     setPostError(null);
     setComposerOpen(true);
   };
@@ -187,23 +172,17 @@ export const DiscussionsPage: React.FC = () => {
     try {
       const selectedMeta = categoryMetadata[postCategory] || categoryMetadata['clinical-cases'];
 
-      if (editingPost) {
-        await dataService.updatePost(editingPost.id, {
-          title: postTitle.trim(),
-          body: postBody.trim(),
-          category_id: postCategory,
-          category_name: selectedMeta.name,
-          category_badge_color: selectedMeta.color,
-          source_url: postSource.trim() || undefined
-        });
-      } else {
+      {
+        const authorType = currentUser?.account_type || currentUser?.role;
         await dataService.createPost({
           author_id: currentUser?.id,
           author_name: currentUser?.display_name || currentUser?.full_name || 'Practitioner',
           author_avatar: currentUser?.avatar_url || currentUser?.avatar_path,
-          author_qualification: currentUser?.qualification || 'BHMS',
-          author_experience: currentUser?.role === 'student' ? currentUser.course_year : `${currentUser?.experience_years || 5} yrs exp`,
-          author_role: currentUser?.role || 'doctor',
+          author_qualification: currentUser?.qualification && currentUser.qualification !== 'Not specified' ? currentUser.qualification : undefined,
+          author_experience: authorType === 'student'
+            ? currentUser?.course_year
+            : currentUser?.experience_years ? `${currentUser.experience_years} yrs exp` : undefined,
+          author_role: authorType || 'member',
           title: postTitle.trim(),
           body: postBody.trim(),
           category_id: postCategory,
@@ -214,8 +193,7 @@ export const DiscussionsPage: React.FC = () => {
       }
 
       setComposerOpen(false);
-      setEditingPost(null);
-      await loadPosts();
+        await loadPosts();
     } catch (err: any) {
       setPostError(err.message || 'Failed to save post.');
     } finally {
@@ -416,16 +394,9 @@ export const DiscussionsPage: React.FC = () => {
                         {post.category_name}
                       </span>
 
-                      {/* Author Edit/Delete Menu */}
+                      {/* Authors can delete their discussion; posts cannot be edited. */}
                       {isAuthor && (
                         <div className="flex items-center gap-1 pl-1">
-                          <button
-                            onClick={(e) => openEditComposer(e, post)}
-                            className="p-1 text-slate-400 hover:text-brand-teal rounded hover:bg-slate-100"
-                            title="Edit Discussion"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
                           <button
                             onClick={(e) => handleDeletePost(e, post.id)}
                             className="p-1 text-slate-400 hover:text-rose-600 rounded hover:bg-slate-100"
@@ -603,7 +574,7 @@ export const DiscussionsPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <MessageSquare className="w-5 h-5 text-teal-700" />
                 <h3 className="text-base font-bold text-brand-navy">
-                  {editingPost ? 'Edit Discussion' : 'Start a Clinical / Peer Discussion'}
+                  Start a Clinical / Peer Discussion
                 </h3>
               </div>
               <button onClick={() => setComposerOpen(false)} className="text-slate-400 hover:text-slate-600">
@@ -699,7 +670,7 @@ export const DiscussionsPage: React.FC = () => {
                   disabled={posting}
                   className="px-5 py-2 bg-brand-teal hover:bg-teal-700 text-white rounded-xl text-xs font-semibold shadow transition disabled:opacity-50"
                 >
-                  {posting ? 'Publishing...' : editingPost ? 'Update Discussion' : 'Publish Discussion'}
+                  {posting ? 'Publishing...' : 'Publish Discussion'}
                 </button>
               </div>
             </form>
