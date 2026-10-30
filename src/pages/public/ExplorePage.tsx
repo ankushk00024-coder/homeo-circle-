@@ -135,8 +135,6 @@ export const ExplorePage: React.FC = () => {
       <section className="relative overflow-hidden bg-gradient-to-b from-[#EAF4FA] via-[#E8F5F7] to-brand-paper">
         <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
           <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[50rem] h-[30rem] rounded-full bg-[#CFF1EC]/70 blur-3xl" />
-          <img src="/images/hero_botanical.webp" alt="" className="absolute -right-20 top-6 w-[280px] opacity-60 animate-float [animation-duration:12s]" />
-          <img src="/images/hero_botanical.webp" alt="" className="absolute -left-24 bottom-0 w-[240px] -scale-x-100 opacity-40 blur-[2px]" />
         </div>
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-12 text-center">

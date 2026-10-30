@@ -1,62 +1,23 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Reveal } from '../../components/motion/Reveal';
-import { CountUp } from '../../components/motion/CountUp';
 import { CommunityHero } from '../../components/landing/CommunityHero';
 import {
-  Users,
-  BookOpen,
-  Briefcase,
-  Sparkles,
   ArrowRight,
   ShieldCheck,
-  MessageSquare,
-  Calendar,
   GraduationCap,
   Microscope,
   Stethoscope,
-  HeartHandshake,
   FileCheck2,
   BadgeCheck,
-  CheckCircle2,
 } from 'lucide-react';
-
-const metrics = [
-  { value: '10K+', label: 'Practitioners we aim to connect', icon: Users },
-  { value: '500+', label: 'Clinical case discussions', icon: MessageSquare },
-  { value: '200+', label: 'Webinars, CMEs & workshops', icon: Calendar },
-  { value: '1K+', label: 'Internships & opportunities', icon: Briefcase },
-];
-
-const whyBenefits = [
-  {
-    icon: Users,
-    title: 'Trusted Community',
-    desc: 'Verified doctors, researchers, and enrolled students with clear role distinctions.',
-  },
-  {
-    icon: BookOpen,
-    title: 'Evidence & Knowledge',
-    desc: 'Discuss clinical cases with DISHA privacy compliance, study limitations, and DOI references.',
-  },
-  {
-    icon: HeartHandshake,
-    title: 'Active Mentorship',
-    desc: 'Dedicated Student Corner pairing emerging BHMS graduates with experienced mentors.',
-  },
-  {
-    icon: Sparkles,
-    title: 'Professional Growth',
-    desc: 'Access accredited CMEs, research fellowships, clinical openings, and collaborative studies.',
-  },
-];
 
 const communityFeatures = [
   {
     img: '/images/doctors_discussion.webp',
     imgSmall: '/images/doctors_discussion-640.webp',
     title: 'Community Discussions',
-    desc: 'Ask questions, share case observations, and deliberate repertorial rubrics with fellow doctors.',
+    desc: 'Ask questions and share cases with fellow homeopaths.',
     link: '/community',
     linkLabel: 'Join the discussion',
     badge: 'All Members',
@@ -64,7 +25,7 @@ const communityFeatures = [
   {
     img: '/images/student-corner.svg',
     title: 'Dedicated Student Corner',
-    desc: 'Study guides, repertory aids, internships, and clinical mentorship requests.',
+    desc: 'Study help, internships and mentors.',
     link: '/students',
     linkLabel: 'Explore Student Corner',
     badge: 'Students & Mentors',
@@ -73,7 +34,7 @@ const communityFeatures = [
     img: '/images/research_books.webp',
     imgSmall: '/images/research_books-640.webp',
     title: 'Research & Knowledge Library',
-    desc: 'Clinical trials, meta-analyses, and systematic reviews with transparent limitations.',
+    desc: 'Papers, trials and reviews in one place.',
     link: '/knowledge',
     linkLabel: 'Discover research',
     badge: 'Evidence Base',
@@ -81,7 +42,7 @@ const communityFeatures = [
   {
     img: '/images/events-cme.svg',
     title: 'Events, CMEs & Webinars',
-    desc: 'State chapter conferences, study circles, and accredited continuing medical education.',
+    desc: 'Conferences, study circles and CMEs.',
     link: '/events',
     linkLabel: 'View upcoming events',
     badge: 'Continuous Learning',
@@ -89,62 +50,26 @@ const communityFeatures = [
 ];
 
 const whoCanJoin = [
-  {
-    role: 'Doctors & Practitioners',
-    desc: 'BHMS, MD (Hom), DHMS practitioners registered with the National Commission for Homoeopathy or State Councils.',
-    cta: 'Join as Doctor',
-    badge: 'Statutory Verification',
-    features: [
-      'Clinical case deliberations & repertory rubrics',
-      'State chapter networks & CME participation',
-      'Referral directory & peer consultations',
-    ],
-    icon: Stethoscope,
-    applyRole: 'doctor',
-  },
-  {
-    role: 'Students & Interns',
-    desc: 'Undergraduate BHMS students and clinical interns seeking peer learning, study resources, and clinician mentorship.',
-    cta: 'Join as Student',
-    badge: 'Educational Access',
-    features: [
-      'Organon study guides & repertory masterclasses',
-      'Clinical mentorship from verified doctors',
-      'Internship postings & hospital rotations',
-    ],
-    icon: GraduationCap,
-    applyRole: 'student',
-  },
-  {
-    role: 'Researchers & Educators',
-    desc: 'Academic faculty, clinical investigators, and research scholars advancing evidence-based homoeopathic science.',
-    cta: 'Join as Researcher',
-    badge: 'Academic Verification',
-    features: [
-      'Peer-reviewed clinical evidence library',
-      'Multi-centric clinical research collaborations',
-      'DISHA compliant observation documentation',
-    ],
-    icon: Microscope,
-    applyRole: 'researcher',
-  },
+  { role: 'Doctors', desc: 'BHMS, MD (Hom) and DHMS practitioners.', cta: 'Join as Doctor', icon: Stethoscope, applyRole: 'doctor' },
+  { role: 'Students', desc: 'BHMS students and interns.', cta: 'Join as Student', icon: GraduationCap, applyRole: 'student' },
+  { role: 'Researchers', desc: 'Faculty and research scholars.', cta: 'Join as Researcher', icon: Microscope, applyRole: 'researcher' },
 ];
 
 const steps = [
   {
     icon: FileCheck2,
     title: 'Apply',
-    desc: 'Share your qualification and council registration number. It takes about five minutes.',
+    desc: 'Fill a short form. Doctors upload their degree; students add their college.',
   },
   {
     icon: ShieldCheck,
     title: 'Get verified',
-    desc: 'Our verification officers check your details against the NCH and State Council registers.',
+    desc: 'Our team reviews your details and approves your profile.',
   },
   {
     icon: BadgeCheck,
     title: 'Join the circle',
-    desc: 'Discuss cases, find mentors, attend CMEs and discover opportunities with verified peers.',
+    desc: 'Post, connect with members and join events.',
   },
 ];
 
@@ -169,30 +94,6 @@ export const LandingPage: React.FC = () => {
 
       {/* ───────────── HERO ───────────── */}
       <CommunityHero />
-
-      {/* ───────────── STATS ───────────── */}
-      <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
-        <Reveal>
-          <div className="bg-white rounded-3xl shadow-card ring-1 ring-brand-border py-6 px-4 sm:px-6">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-6 lg:divide-x divide-brand-border/70">
-              {metrics.map((m) => (
-                <div key={m.label} className="group flex items-center gap-4 px-3 sm:px-6">
-                  <div className="w-12 h-12 rounded-2xl bg-brand-ice ring-1 ring-brand-border flex items-center justify-center flex-shrink-0 transition duration-300 group-hover:bg-brand-teal group-hover:ring-brand-teal">
-                    <m.icon className="w-5 h-5 text-brand-teal transition-colors group-hover:text-white" />
-                  </div>
-                  <div>
-                    <div className="text-3xl font-bold font-serif text-brand-navy tabular-nums">
-                      <CountUp value={m.value} />
-                    </div>
-                    <div className="text-xs text-[#425972] font-medium leading-snug">{m.label}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Reveal>
-        <p className="text-center text-xs text-brand-muted mt-3">Figures are community goals for our first years.</p>
-      </section>
 
       {/* ───────────── VISION & MISSION ───────────── */}
       <section className="py-24">
@@ -234,30 +135,15 @@ export const LandingPage: React.FC = () => {
                     healthier India.
                   </>
                 }
-                desc="Homeo Circle bridges traditional clinical wisdom and modern medical science. We unite practitioners across India to share peer-reviewed research, discuss complex cases, and mentor the next generation of homoeopaths."
+                desc="One place for India's homeopaths to learn, share and grow together."
               />
               <Reveal delay={100}>
                 <Link to="/about" className="btn-secondary group">
-                  Read our mission & governance rules
+                  About Homeo Circle
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Reveal>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {whyBenefits.map((b, i) => (
-                  <Reveal key={b.title} delay={i * 90}>
-                    <div className="card-lift group p-5 flex items-start gap-4 h-full">
-                      <div className="w-10 h-10 rounded-xl bg-brand-ice ring-1 ring-brand-border flex items-center justify-center flex-shrink-0 transition duration-300 group-hover:bg-brand-teal group-hover:rotate-6">
-                        <b.icon className="w-[18px] h-[18px] text-brand-teal transition-colors group-hover:text-white" />
-                      </div>
-                      <div>
-                        <p className="text-[15px] font-bold text-brand-navy">{b.title}</p>
-                        <p className="text-sm text-[#425972] leading-snug mt-1">{b.desc}</p>
-                      </div>
-                    </div>
-                  </Reveal>
-                ))}
-              </div>
             </div>
           </div>
         </div>
@@ -270,8 +156,7 @@ export const LandingPage: React.FC = () => {
           <SectionHeading
             center
             eyebrow="How it works"
-            title="Three steps to a verified network"
-            desc="Every member is checked before they join, so the people you discuss cases with are who they say they are."
+            title="Three simple steps"
           />
           <div className="relative grid md:grid-cols-3 gap-6 mt-14">
             <div aria-hidden="true" className="hidden md:block absolute top-9 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-brand-teal/0 via-brand-teal/40 to-brand-teal/0" />
@@ -292,50 +177,29 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* ───────────── WHO CAN JOIN ───────────── */}
-      <section className="py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeading
-            center
-            eyebrow="Community membership"
-            title="A unified space for homoeopathy in India"
-            desc="One account system, with a role-specific experience for each stage of your career."
-          />
+      <section className="py-16">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeading center eyebrow="Who can join" title="Pick your path" />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
             {whoCanJoin.map((item, idx) => (
-              <Reveal key={item.role} delay={idx * 120}>
-                <div className="card-lift group relative overflow-hidden p-7 flex flex-col justify-between gap-6 h-full">
-                  <div aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-teal via-[#139B94] to-brand-indigo scale-x-0 origin-left transition-transform duration-500 group-hover:scale-x-100" />
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="w-12 h-12 rounded-2xl bg-teal-50 ring-1 ring-teal-100 flex items-center justify-center transition duration-300 group-hover:scale-110 group-hover:-rotate-6">
-                        <item.icon className="w-6 h-6 text-brand-teal" />
-                      </div>
-                      <span className="text-xs font-mono text-slate-400">0{idx + 1}</span>
-                    </div>
-                    <span className="inline-block text-xs font-bold uppercase tracking-wider text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-full ring-1 ring-teal-200">
-                      {item.badge}
-                    </span>
-                    <h3 className="text-xl font-serif font-bold text-brand-navy">{item.role}</h3>
-                    <p className="text-sm text-[#425972] leading-relaxed">{item.desc}</p>
-                    <ul className="pt-3 border-t border-[#E1EDF5] space-y-2">
-                      {item.features.map((feat) => (
-                        <li key={feat} className="flex items-start gap-2 text-sm text-[#2A3E54]">
-                          <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
-                          <span>{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
+              <Reveal key={item.role} delay={idx * 100}>
+                <Link
+                  to={`/apply?role=${item.applyRole}`}
+                  className="card-lift group flex items-center gap-4 p-5 h-full"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-teal-50 ring-1 ring-teal-100 flex items-center justify-center flex-shrink-0 transition duration-300 group-hover:scale-110 group-hover:-rotate-6 group-hover:bg-brand-teal">
+                    <item.icon className="w-5 h-5 text-brand-teal transition-colors group-hover:text-white" />
                   </div>
-
-                  <Link
-                    to={`/apply?role=${item.applyRole}`}
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-brand-ice ring-1 ring-brand-border text-sm font-semibold text-brand-navy transition duration-300 group-hover:bg-brand-teal group-hover:text-white group-hover:ring-brand-teal active:scale-[.98]"
-                  >
-                    <span>{item.cta}</span>
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-base font-bold text-brand-navy">{item.role}</h3>
+                    <p className="text-xs text-[#425972]">{item.desc}</p>
+                    <span className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-brand-teal">
+                      {item.cta}
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                    </span>
+                  </div>
+                </Link>
               </Reveal>
             ))}
           </div>
@@ -347,8 +211,7 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             eyebrow="Explore the community"
-            title={<>Meaningful connections,<br />real opportunities.</>}
-            desc="A focused professional network built to support your clinical practice, academic research and career."
+            title={<>Everything in one place.</>}
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2 gap-5 mt-12">
@@ -424,21 +287,11 @@ export const LandingPage: React.FC = () => {
             Be part of the national <span className="italic text-gradient">homoeopathic</span> community
           </h2>
 
-          <p className="text-base sm:text-lg text-slate-300 max-w-xl mx-auto leading-relaxed">
-            Whether you are a practising clinician, an academic researcher or a student, Homeo Circle gives you the
-            peer network and educational support you need.
-          </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Link to="/apply" className="btn-primary group">
-              Apply to join Homeo Circle
+              Join the Circle
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-            <Link
-              to="/about"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl text-sm font-semibold text-white ring-1 ring-white/25 hover:bg-white/10 transition active:scale-[.98]"
-            >
-              Learn about governance
             </Link>
           </div>
         </Reveal>

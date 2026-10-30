@@ -173,7 +173,7 @@ export const ApplicationStatusPage: React.FC = () => {
             <div>
               <h3 className="text-sm font-bold text-amber-900">Application Under Manual Review</h3>
               <p className="text-xs text-amber-700 leading-relaxed">
-                Your application is in the verification queue. A member of our verification committee is cross-checking your registration identifier against the specified State Homoeopathic Council gazette. Typical turnaround is 24–48 hours.
+                Your application is with our verification team. We usually review it within 24–48 hours.
               </p>
             </div>
           </div>
@@ -197,7 +197,7 @@ export const ApplicationStatusPage: React.FC = () => {
             <div>
               <h3 className="text-sm font-bold text-rose-900">Application Not Approved</h3>
               <p className="text-xs text-rose-700 leading-relaxed">
-                {application?.decision_reason || 'Registration details could not be validated against the specified state register or the practitioner holds an unverified qualification.'}
+                {application?.decision_reason || 'We could not verify the details you sent. Please check them and apply again.'}
               </p>
             </div>
           </div>
@@ -210,16 +210,16 @@ export const ApplicationStatusPage: React.FC = () => {
             <span className="font-semibold text-brand-navy">{application?.full_name || (location.state as any)?.fullName || currentUser?.full_name || 'Practitioner Applicant'}</span>
           </div>
           <div>
-            <span className="text-slate-400 block font-medium">Medical Qualification</span>
+            <span className="text-slate-400 block font-medium">Qualification</span>
             <span className="font-semibold text-brand-navy">{application?.qualification || (location.state as any)?.qualification || 'Degree / Diploma'}</span>
           </div>
           <div>
-            <span className="text-slate-400 block font-medium">Registration Number</span>
-            <span className="font-mono font-bold text-teal-800">{application?.registration_number || (location.state as any)?.regNumber || 'Pending Statutory Check'}</span>
+            <span className="text-slate-400 block font-medium">Applied as</span>
+            <span className="font-semibold text-brand-navy capitalize">{application?.role_applied || (location.state as any)?.roleApplied || 'Member'}</span>
           </div>
           <div>
-            <span className="text-slate-400 block font-medium">Registration Authority</span>
-            <span className="font-semibold text-brand-navy">{application?.registration_authority || (location.state as any)?.authority || 'State Homoeopathic Council'}</span>
+            <span className="text-slate-400 block font-medium">College / Institution</span>
+            <span className="font-semibold text-brand-navy">{application?.clinic_institution || application?.institution || '—'}</span>
           </div>
           <div>
             <span className="text-slate-400 block font-medium">Application ID</span>
@@ -260,9 +260,9 @@ export const ApplicationStatusPage: React.FC = () => {
               }`}>
                 {currentStatus === 'verified' ? '✓' : currentStatus === 'declined' ? '×' : '•'}
               </span>
-              <p className="text-xs font-bold text-brand-navy">Official Register Cross-Check</p>
+              <p className="text-xs font-bold text-brand-navy">Review by our team</p>
               <p className="text-xs text-slate-500">
-                Reviewing official gazettes and statutory council databases ({application?.registration_authority || 'State Board'}).
+                We check your details and documents.
               </p>
             </div>
 

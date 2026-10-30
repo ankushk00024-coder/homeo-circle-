@@ -39,7 +39,6 @@ export const AdminApplications: React.FC = () => {
   const [decisionReason, setDecisionReason] = useState('Registration number and degree verified against official council gazette.');
   const [internalNotes, setInternalNotes] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [copiedReg, setCopiedReg] = useState(false);
 
   // Confirmation modal state
   const [confirmModal, setConfirmModal] = useState<{
@@ -157,12 +156,6 @@ export const AdminApplications: React.FC = () => {
     } finally {
       setIsProcessing(false);
     }
-  };
-
-  const copyRegistrationNumber = (num: string) => {
-    navigator.clipboard.writeText(num);
-    setCopiedReg(true);
-    setTimeout(() => setCopiedReg(false), 2000);
   };
 
   const filteredApps = applications.filter(app => {
@@ -306,9 +299,9 @@ export const AdminApplications: React.FC = () => {
                 <tr>
                   <th className="py-3 px-4">Applicant</th>
                   <th className="py-3 px-4">Role Applied</th>
-                  <th className="py-3 px-4">Degree & Experience</th>
-                  <th className="py-3 px-4">Registration ID</th>
-                  <th className="py-3 px-4">Statutory Authority</th>
+                  <th className="py-3 px-4">Degree / Qualification</th>
+                  <th className="py-3 px-4">College / Clinic</th>
+                  <th className="py-3 px-4">Location</th>
                   <th className="py-3 px-4">Submitted</th>
                   <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4 text-right">Action</th>
@@ -325,15 +318,18 @@ export const AdminApplications: React.FC = () => {
                       <span className="capitalize font-medium text-slate-700">{app.role_applied || 'Doctor'}</span>
                     </td>
                     <td className="py-3.5 px-4 text-slate-700">
-                      <div>{app.qualification || 'BHMS'}</div>
-                      <div className="text-[11px] text-slate-400">{app.experience_years} years practice</div>
+                      <div>{app.qualification || '—'}</div>
+                      {app.role_applied === 'doctor' && (
+                        <div className={`text-[11px] ${app.document_url ? 'text-teal-700' : 'text-amber-700'}`}>
+                          {app.document_url ? 'Degree uploaded' : 'No degree uploaded'}
+                        </div>
+                      )}
                     </td>
-                    <td className="py-3.5 px-4 font-mono font-bold text-teal-900">
-                      {app.registration_number || 'N/A'}
+                    <td className="py-3.5 px-4 text-slate-700">
+                      {app.clinic_institution || app.institution || '—'}
                     </td>
                     <td className="py-3.5 px-4 text-slate-600">
-                      <div>{app.registration_authority || 'State Homoeopathic Council'}</div>
-                      <div className="text-[11px] text-slate-400">{app.state}</div>
+                      {[app.city, app.state].filter(Boolean).join(', ') || '—'}
                     </td>
                     <td className="py-3.5 px-4 text-slate-500 whitespace-nowrap">
                       {app.submitted_at ? new Date(app.submitted_at).toLocaleDateString() : 'Recent'}
@@ -425,7 +421,10 @@ export const AdminApplications: React.FC = () => {
               </div>
               <div>
                 <span className="text-slate-400 text-[10px] block font-semibold uppercase">Degree / Qualification</span>
-                <span className="font-bold text-slate-800">{selectedApp.qualification} ({selectedApp.experience_years} yrs exp)</span>
+                <span className="font-bold text-slate-800">
+                  {selectedApp.qualification}
+                  {selectedApp.role_applied === 'doctor' && selectedApp.experience_years ? ` (${selectedApp.experience_years} yrs exp)` : ''}
+                </span>
               </div>
               <div>
                 <span className="text-slate-400 text-[10px] block font-semibold uppercase">Role Applied</span>
@@ -440,34 +439,22 @@ export const AdminApplications: React.FC = () => {
                 <span className="text-slate-700">{selectedApp.phone || 'Not provided'}</span>
               </div>
               <div>
-                <span className="text-slate-400 text-[10px] block font-semibold uppercase">Clinic / Hospital</span>
-                <span className="text-slate-700">{selectedApp.clinic_institution || 'Independent Clinic'}</span>
-              </div>
-            </div>
-
-            {/* Registration Key Inspection Box */}
-            <div className="p-4 bg-teal-50/60 rounded-xl border border-teal-200 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-teal-900 uppercase tracking-wide">
-                  Official Statutory Identifier
+                <span className="text-slate-400 text-[10px] block font-semibold uppercase">
+                  {selectedApp.role_applied === 'student' ? 'College' : selectedApp.role_applied === 'researcher' ? 'Institution' : 'Clinic / Hospital'}
                 </span>
-                <button
-                  onClick={() => copyRegistrationNumber(selectedApp.registration_number || '')}
-                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-teal-800 hover:text-teal-950"
-                >
-                  {copiedReg ? <Check className="w-3.5 h-3.5 text-teal-600" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedReg ? 'Copied' : 'Copy Reg ID'}</span>
-                </button>
+                <span className="text-slate-700">{selectedApp.clinic_institution || selectedApp.institution || '—'}</span>
               </div>
-
-              <div className="text-xl font-mono font-bold text-teal-950">
-                {selectedApp.registration_number || 'REGISTRATION PENDING'}
+              <div>
+                <span className="text-slate-400 text-[10px] block font-semibold uppercase">Lives in</span>
+                <span className="text-slate-700">{[selectedApp.city, selectedApp.state].filter(Boolean).join(', ') || '—'}</span>
               </div>
-
-              <p className="text-xs text-teal-800">
-                Registering Council: <strong>{selectedApp.registration_authority || 'State Homoeopathic Council'}</strong> ({selectedApp.state})
-              </p>
             </div>
+
+            {selectedApp.role_applied === 'doctor' && !selectedApp.document_url && (
+              <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800">
+                No degree certificate was uploaded with this application.
+              </div>
+            )}
 
             {/* Supporting Verification Document (Signed URL access) */}
             {selectedApp.document_url && (
@@ -477,7 +464,7 @@ export const AdminApplications: React.FC = () => {
                     <FileText className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
-                    <span className="font-semibold text-brand-navy block">Registration Certificate / Degree</span>
+                    <span className="font-semibold text-brand-navy block">Degree certificate</span>
                     <span className="text-[10px] text-slate-500 font-mono truncate max-w-sm block">
                       {selectedApp.document_url}
                     </span>
@@ -496,7 +483,7 @@ export const AdminApplications: React.FC = () => {
                   className="px-3.5 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-lg font-semibold border border-teal-200 flex items-center gap-1.5 transition text-xs flex-shrink-0"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
-                  <span>Inspect Document (Secure URL)</span>
+                  <span>View degree</span>
                 </button>
               </div>
             )}

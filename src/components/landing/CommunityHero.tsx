@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { AnimatedWords } from '../motion/AnimatedWords';
+import { RotatingTagline } from './RotatingTagline';
 
 type PhotoSpec = {
   src: string;
@@ -21,8 +22,8 @@ const photos: PhotoSpec[] = [
     tilt: -8,
     position: 'lg:left-[3.3%] lg:top-[16%] lg:w-[20%]',
     delay: 250,
-    width: 604,
-    height: 429,
+    width: 1208,
+    height: 858,
   },
   {
     src: '/images/community-students.webp',
@@ -30,8 +31,8 @@ const photos: PhotoSpec[] = [
     tilt: 8,
     position: 'lg:left-[7.4%] lg:top-[47%] lg:w-[18%]',
     delay: 400,
-    width: 533,
-    height: 422,
+    width: 1066,
+    height: 844,
   },
   {
     src: '/images/community-meetup.webp',
@@ -39,8 +40,8 @@ const photos: PhotoSpec[] = [
     tilt: 7.5,
     position: 'lg:right-[2.9%] lg:top-[14%] lg:w-[17.7%]',
     delay: 320,
-    width: 518,
-    height: 439,
+    width: 1036,
+    height: 878,
   },
   {
     src: '/images/community-circle.webp',
@@ -48,8 +49,8 @@ const photos: PhotoSpec[] = [
     tilt: -6.5,
     position: 'lg:right-[4.7%] lg:top-[53%] lg:w-[18.7%]',
     delay: 480,
-    width: 570,
-    height: 401,
+    width: 1140,
+    height: 802,
   },
 ];
 
@@ -89,14 +90,6 @@ export const CommunityHero: React.FC = () => {
         <div className="absolute left-0 top-1/4 w-40 h-1/2 bg-grid opacity-50" />
       </div>
 
-      {/* ── Watercolour leaves framing the edges ────────────────────────── */}
-      <div aria-hidden="true" className="absolute inset-0 pointer-events-none select-none">
-        <img src="/images/hero_botanical.webp" alt="" className="hidden sm:block absolute -left-24 top-[6%] w-[320px] -scale-x-100 rotate-[200deg] opacity-80 animate-float [animation-duration:11s]" />
-        <img src="/images/hero_botanical.webp" alt="" className="absolute -left-28 -bottom-24 w-[360px] rotate-[20deg] opacity-40 blur-[3px]" />
-        <img src="/images/hero_botanical.webp" alt="" className="hidden lg:block absolute -right-24 top-[36%] w-[300px] opacity-80 animate-float [animation-delay:-4s] [animation-duration:12s]" />
-        <img src="/images/hero_botanical.webp" alt="" className="absolute -right-24 -bottom-28 w-[380px] -scale-x-100 opacity-35 blur-[3px]" />
-      </div>
-
       <div className="relative mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-0 lg:min-h-[clamp(760px,57vw,930px)] pt-12 pb-16 lg:py-0">
 
         {/* ── Centre copy ──────────────────────────────────────────────── */}
@@ -119,13 +112,7 @@ export const CommunityHero: React.FC = () => {
             </span>
           </h1>
 
-          <p className="mt-8 text-[clamp(1.1rem,1.7vw,1.65rem)] text-[#3E4C5E] leading-snug animate-fade-up [animation-delay:900ms]">
-            Behind every good homeopath are a hundred others
-            <br className="hidden sm:block" /> who helped.
-          </p>
-          <p className="mt-1 font-serif font-bold text-brand-navy text-[clamp(1.35rem,2vw,1.95rem)] animate-fade-up [animation-delay:1050ms]">
-            Be one of the hundred.
-          </p>
+          <RotatingTagline />
 
           <div className="mt-9 flex flex-wrap items-center justify-center gap-4 animate-fade-up [animation-delay:1200ms]">
             <Link
