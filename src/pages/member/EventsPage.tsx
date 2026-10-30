@@ -29,7 +29,7 @@ export const EventsPage: React.FC = () => {
   const [activeEventModal, setActiveEventModal] = useState<Event | null>(null);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'info'; text: string } | null>(null);
 
-  const filterTabs = ['All', 'My Registered Events', 'Webinars', 'Conferences', 'Workshops', 'State Chapters'];
+  const filterTabs = ['All', 'My Registered Events'];
 
   const loadEventsAndRegistrations = async () => {
     setLoading(true);
@@ -186,11 +186,8 @@ export const EventsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-serif font-bold text-brand-navy">
-            Webinars & Clinical Events
+            Events & CMEs
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Peer study circles, national conferences, and accredited continuing medical education.
-          </p>
         </div>
       </div>
 

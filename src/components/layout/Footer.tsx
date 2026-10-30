@@ -9,7 +9,6 @@ export const Footer: React.FC = () => {
   const platform = [
     { label: 'Community', path: '/community' },
     { label: 'Events', path: '/events' },
-    { label: 'Opportunities', path: '/opportunities' },
     { label: 'Research', path: '/knowledge' },
   ];
 

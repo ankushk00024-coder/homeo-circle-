@@ -60,13 +60,6 @@ const spaces = [
     to: '/events',
     accent: 'from-indigo-500/15 to-indigo-500/0 text-indigo-700',
   },
-  {
-    title: 'Opportunities',
-    desc: 'Clinic openings, internships, fellowships and research collaborations.',
-    icon: Briefcase,
-    to: '/opportunities',
-    accent: 'from-amber-500/15 to-amber-500/0 text-amber-700',
-  },
 ];
 
 const roleLabel = (role: string) => {

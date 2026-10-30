@@ -102,11 +102,8 @@ export const KnowledgePage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-serif font-bold text-brand-navy">
-            Curated Research & Publications
+            Research
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Peer-reviewed homeopathic literature, clinical trials, and monographs with explicit methodological transparency.
-          </p>
         </div>
 
         {currentUser ? (
@@ -116,7 +113,7 @@ export const KnowledgePage: React.FC = () => {
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow-xs transition"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Submit Research Reference</span>
+              <span>Add research</span>
             </button>
           )
         ) : (
@@ -125,7 +122,7 @@ export const KnowledgePage: React.FC = () => {
             className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow-xs transition"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Submit Research Reference</span>
+            <span>Add research</span>
           </button>
         )}
       </div>
@@ -144,35 +141,12 @@ export const KnowledgePage: React.FC = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search research by pathology, author, or journal..."
+            placeholder="Search research…"
             className="w-full pl-9 pr-4 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none"
           />
           <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3 pointer-events-none" />
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition ${
-                selectedCategory === cat
-                  ? 'bg-teal-700 text-white'
-                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Academic Integrity Disclaimer */}
-      <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 text-xs text-slate-600 flex items-start gap-3">
-        <Scale className="w-4 h-4 text-teal-700 flex-shrink-0 mt-0.5" />
-        <p className="leading-relaxed">
-          <strong>Academic Transparency Rule:</strong> In compliance with Homeo Circle editorial policy, all indexed studies clearly indicate design limitations, sample sizes, and primary journal DOIs. Published research is provided for academic review and does not constitute universal clinical efficacy proof.
-        </p>
       </div>
 
       {/* Publications List */}

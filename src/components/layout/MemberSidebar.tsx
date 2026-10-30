@@ -6,7 +6,6 @@ import {
   MessageSquare, 
   Users, 
   Calendar, 
-  Briefcase, 
   Settings, 
   ShieldCheck,
   GraduationCap,
@@ -22,10 +21,9 @@ export const MemberSidebar: React.FC = () => {
     { label: 'Home', path: '/', icon: Home },
     ...(isAuthenticated ? [{ label: 'My Dashboard', path: '/dashboard', icon: LayoutDashboard }] : []),
     { label: 'Discussions', path: '/community', icon: MessageSquare },
-    { label: 'Member Directory', path: '/members', icon: Users },
+    { label: 'Doctors', path: '/members', icon: Users },
     { label: 'Student Corner', path: '/students', icon: GraduationCap },
     { label: 'Events & CMEs', path: '/events', icon: Calendar },
-    { label: 'Opportunities', path: '/opportunities', icon: Briefcase },
     { label: 'Research', path: '/knowledge', icon: BookOpen },
     ...(isAuthenticated ? [{ label: 'Account Settings', path: '/settings', icon: Settings }] : []),
   ];
@@ -81,17 +79,7 @@ export const MemberSidebar: React.FC = () => {
               </Link>
             </div>
           </div>
-        ) : (
-          <div className="p-4 bg-gradient-to-br from-teal-50 to-slate-50 rounded-2xl border border-teal-100/70 text-xs text-slate-600 space-y-2 shadow-2xs">
-            <div className="flex items-center gap-1.5 text-teal-800 font-semibold">
-              <ShieldCheck className="w-4 h-4 text-teal-600" />
-              <span>Unified Professional Network</span>
-            </div>
-            <p className="text-[11px] text-slate-500 leading-relaxed">
-              Connecting registered doctors, researchers, and students across India.
-            </p>
-          </div>
-        )}
+        ) : null}
 
       </div>
     </aside>

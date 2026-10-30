@@ -236,14 +236,19 @@
   .draw-in { stroke-dashoffset: 0; }
 }
 
-/* Hero tagline swipe-in (RotatingTagline) */
+/* Hero tagline: old line slides out while the new one slides in (RotatingTagline) */
 @keyframes tagline-in {
-  from { opacity: 0; transform: translateX(40px); }
+  from { opacity: 0; transform: translateX(60%); }
   to   { opacity: 1; transform: none; }
 }
-.animate-tagline-in { animation: tagline-in .55s cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes tagline-out {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateX(-60%); }
+}
+.animate-tagline-in  { animation: tagline-in .7s cubic-bezier(.22, 1, .36, 1) both; }
+.animate-tagline-out { animation: tagline-out .7s cubic-bezier(.22, 1, .36, 1) both; }
 @media (prefers-reduced-motion: reduce) {
-  .animate-tagline-in { animation: none; }
+  .animate-tagline-in, .animate-tagline-out { animation-duration: .01s; }
 }
 
 /* Keep tilted hero photos crisp while rotated */

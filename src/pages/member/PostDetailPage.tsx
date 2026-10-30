@@ -21,6 +21,13 @@ import {
   CornerDownRight
 } from 'lucide-react';
 
+const fmtWhen = (iso: string) => {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime())
+    ? iso
+    : d.toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+};
+
 export const PostDetailPage: React.FC = () => {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
@@ -234,16 +241,12 @@ export const PostDetailPage: React.FC = () => {
                   </span>
                 )}
               </div>
-              <p className="text-xs text-brand-muted">{post.author_qualification} • {post.author_experience}</p>
-              <span className="text-[10px] text-brand-teal font-medium">Verified Community Contributor</span>
+              <p className="text-xs text-brand-muted">{[post.author_qualification, post.author_experience].filter((x) => x && x !== 'Not specified').join(' • ')}</p>
             </div>
           </div>
 
           <div className="flex flex-col items-end gap-1.5">
-            <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border ${post.category_badge_color}`}>
-              {post.category_name}
-            </span>
-            <span className="text-[11px] text-slate-400">{post.created_at}</span>
+            <span className="text-[11px] text-slate-400">{fmtWhen(post.created_at)}</span>
           </div>
         </div>
 
@@ -425,7 +428,7 @@ export const PostDetailPage: React.FC = () => {
                           {comment.author_name}
                         </span>
                         <span className="text-[10px] text-slate-400">
-                          {comment.author_qualification || 'Doctor'} • {comment.created_at}
+                          {[comment.author_qualification, fmtWhen(comment.created_at)].filter((x) => x && x !== 'Not specified').join(' • ')}
                         </span>
                       </div>
                     </div>

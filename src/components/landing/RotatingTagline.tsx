@@ -14,23 +14,29 @@ const TAGLINES: { line: string; punch: string }[] = [
   { line: "Come in. You're one of us.", punch: "Where India's homeopaths belong." },
 ];
 
-const INTERVAL_MS = 30_000;
+const INTERVAL_MS = 20_000;
+const SLIDE_MS = 700;
 
 /**
- * Hero tagline that changes on its own every 30 seconds with a soft swipe,
- * set on a gentle glow. Dots below let visitors jump to a tagline.
+ * Hero tagline that changes on its own every 20 seconds. The old line slides
+ * out while the new one slides in at the same time, so there is no gap.
+ * Dots below let visitors jump to a tagline.
  */
 export const RotatingTagline: React.FC = () => {
   const [index, setIndex] = useState(0);
-  const [leaving, setLeaving] = useState(false);
+  const [prev, setPrev] = useState<number | null>(null);
 
   const goTo = (next: number) => {
-    setLeaving(true);
-    window.setTimeout(() => {
-      setIndex(next);
-      setLeaving(false);
-    }, 450);
+    setPrev(index);
+    setIndex(next);
   };
+
+  // Drop the outgoing line once its slide has finished.
+  useEffect(() => {
+    if (prev === null) return;
+    const id = window.setTimeout(() => setPrev(null), SLIDE_MS);
+    return () => window.clearTimeout(id);
+  }, [prev]);
 
   useEffect(() => {
     const id = window.setInterval(() => goTo((index + 1) % TAGLINES.length), INTERVAL_MS);
@@ -47,15 +53,25 @@ export const RotatingTagline: React.FC = () => {
         className="pointer-events-none absolute -inset-x-3 -inset-y-3 rounded-[2rem] bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.95),rgba(207,241,236,0.55)_55%,transparent_75%)] blur-md"
       />
       <div className="relative rounded-3xl bg-white/55 px-6 py-5 ring-1 ring-white/80 shadow-[0_0_40px_rgba(14,138,128,0.18)] backdrop-blur-sm overflow-hidden">
-        <div
-          key={index}
-          aria-live="polite"
-          className={`min-h-[6.5rem] sm:min-h-[6rem] flex flex-col items-center justify-center transition-all duration-[450ms] ease-out motion-reduce:transition-none ${
-            leaving ? 'opacity-0 -translate-x-10' : 'opacity-100 translate-x-0 animate-tagline-in'
-          }`}
-        >
-          <p className="text-[clamp(1.1rem,1.7vw,1.6rem)] text-[#3E4C5E] leading-snug">{line}</p>
-          <p className="mt-1 font-serif font-bold text-brand-navy text-[clamp(1.3rem,2vw,1.9rem)]">{punch}</p>
+        <div className="relative">
+          <div
+            key={`in-${index}`}
+            aria-live="polite"
+            className={`min-h-[6.5rem] sm:min-h-[6rem] flex flex-col items-center justify-center ${prev !== null ? 'animate-tagline-in' : ''}`}
+          >
+            <p className="text-[clamp(1.1rem,1.7vw,1.6rem)] text-[#3E4C5E] leading-snug">{line}</p>
+            <p className="mt-1 font-serif font-bold text-brand-navy text-[clamp(1.3rem,2vw,1.9rem)]">{punch}</p>
+          </div>
+          {prev !== null && (
+            <div
+              key={`out-${prev}`}
+              aria-hidden="true"
+              className="absolute inset-0 flex flex-col items-center justify-center animate-tagline-out"
+            >
+              <p className="text-[clamp(1.1rem,1.7vw,1.6rem)] text-[#3E4C5E] leading-snug">{TAGLINES[prev].line}</p>
+              <p className="mt-1 font-serif font-bold text-brand-navy text-[clamp(1.3rem,2vw,1.9rem)]">{TAGLINES[prev].punch}</p>
+            </div>
+          )}
         </div>
       </div>
       <div className="mt-3 flex justify-center gap-1.5" aria-label="Choose a tagline">

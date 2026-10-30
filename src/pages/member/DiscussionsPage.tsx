@@ -41,11 +41,10 @@ export const DiscussionsPage: React.FC = () => {
   const [composerOpen, setComposerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [copiedPostId, setCopiedPostId] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<'latest' | 'discussed' | 'liked'>('latest');
 
   // New/Edit post state
   const [postTitle, setPostTitle] = useState('');
-  const [postCategory, setPostCategory] = useState('clinical-cases');
+  const postCategory = 'general';
   const [postBody, setPostBody] = useState('');
   const [postSource, setPostSource] = useState('');
   const [posting, setPosting] = useState(false);
@@ -57,18 +56,6 @@ export const DiscussionsPage: React.FC = () => {
   const [reportNote, setReportNote] = useState('');
   const [reportSubmitted, setReportSubmitted] = useState(false);
 
-  // Filter tabs matching requirements
-  const filterTabs = [
-    { label: 'All Discussions', id: 'all' },
-    { label: 'General Discussion', id: 'general' },
-    { label: 'Clinical Learning', id: 'clinical-cases' },
-    { label: 'Research', id: 'research' },
-    { label: 'Student Corner', id: 'students' },
-    { label: 'Practice Management', id: 'practice-management' },
-    { label: 'Events & CMEs', id: 'events' },
-    { label: 'Saved Bookmarks', id: 'saved' },
-  ];
-
   const categoryMetadata: Record<string, { name: string; color: string }> = {
     'general': { name: 'General Discussion', color: 'bg-slate-100 text-slate-800 border-slate-200' },
     'clinical-cases': { name: 'Clinical Learning', color: 'bg-teal-50 text-teal-800 border-teal-200' },
@@ -78,19 +65,10 @@ export const DiscussionsPage: React.FC = () => {
     'events': { name: 'Events', color: 'bg-purple-50 text-purple-800 border-purple-200' }
   };
 
-  const trendingTopics = [
-    { tag: 'Boenninghausen Method', count: '24 posts' },
-    { tag: 'Autoimmune Protocols', count: '19 posts' },
-    { tag: 'Seasonal Allergies', count: '16 posts' },
-    { tag: 'DISHA Patient Privacy', count: '14 posts' },
-    { tag: 'Student Clinical Cases', count: '12 posts' },
-  ];
-
   const loadPosts = async () => {
     setLoading(true);
-    const catQuery = activeCategory === 'saved' ? 'all' : activeCategory;
     const [fetchedPosts, bookmarks] = await Promise.all([
-      dataService.getPosts(catQuery, sortBy),
+      dataService.getPosts('all', 'latest'),
       currentUser?.id ? dataService.getSavedPostIds(currentUser.id) : Promise.resolve([])
     ]);
     setPosts(fetchedPosts);
@@ -100,7 +78,7 @@ export const DiscussionsPage: React.FC = () => {
 
   useEffect(() => {
     loadPosts();
-  }, [activeCategory, sortBy]);
+  }, []);
 
   const handleLike = async (e: React.MouseEvent, postId: string) => {
     e.preventDefault();
@@ -142,7 +120,6 @@ export const DiscussionsPage: React.FC = () => {
     setPostTitle('');
     setPostBody('');
     setPostSource('');
-    setPostCategory('clinical-cases');
     setPostError(null);
     setComposerOpen(true);
   };
@@ -223,16 +200,28 @@ export const DiscussionsPage: React.FC = () => {
     }, 2000);
   };
 
-  const filteredPosts = posts.filter(p => {
-    if (activeCategory === 'saved' || filterParam === 'saved') {
-      if (!savedPostIds.includes(p.id)) return false;
-    }
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    return p.title.toLowerCase().includes(q) || 
-           p.body.toLowerCase().includes(q) || 
-           p.author_name.toLowerCase().includes(q);
-  });
+  // Search moves matching posts to the top (title matches first); the rest follow.
+  const q = searchQuery.trim().toLowerCase();
+  const scoreOf = (p: Post) => {
+    if (!q) return 0;
+    if (p.title.toLowerCase().includes(q)) return 2;
+    if (p.body.toLowerCase().includes(q) || p.author_name.toLowerCase().includes(q)) return 1;
+    return 0;
+  };
+  const showSavedOnly = activeCategory === 'saved' || filterParam === 'saved';
+  const filteredPosts = posts
+    .filter((p) => !showSavedOnly || savedPostIds.includes(p.id))
+    .map((p, i) => ({ p, i, score: scoreOf(p) }))
+    .sort((a, b) => b.score - a.score || a.i - b.i)
+    .map(({ p }) => p);
+  const matchCount = q ? filteredPosts.filter((p) => scoreOf(p) > 0).length : 0;
+
+  const formatWhen = (iso: string) => {
+    const d = new Date(iso);
+    return Number.isNaN(d.getTime())
+      ? iso
+      : d.toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+  };
 
   return (
     <div className="space-y-6">
@@ -241,11 +230,8 @@ export const DiscussionsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-serif font-bold text-brand-navy">
-            Community Discussions
+            {showSavedOnly ? 'Saved Discussions' : 'Discussions'}
           </h1>
-          <p className="text-xs text-[#5A6E85] mt-0.5">
-            Share clinical case observations, repertory queries, research insights, and student study notes.
-          </p>
         </div>
 
         <button
@@ -257,62 +243,26 @@ export const DiscussionsPage: React.FC = () => {
         </button>
       </div>
 
-      {/* Disclaimer on Professional Medical Judgement */}
-      <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 text-[11.5px] text-slate-600 flex items-start gap-2.5">
-        <Scale className="w-4 h-4 text-teal-700 flex-shrink-0 mt-0.5" />
-        <p className="leading-relaxed">
-          <strong>Clinical Exchange Standard:</strong> Case observations shared in Homeo Circle are for educational peer review among registered doctors, researchers, and students. Discussions do not constitute formal medical prescription or treatment advice. Patient identifiers must remain completely de-identified.
-        </p>
-      </div>
-
-      {/* Filter Tabs & Sorting */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-brand-border/70 pb-3">
-        {/* Categories Tab Bar */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-          {filterTabs.map((tab) => {
-            const isActive = activeCategory === tab.id || (tab.id === 'saved' && filterParam === 'saved');
-            return (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  if (tab.id === 'saved') {
-                    setSearchParams({ category: 'saved' });
-                  } else {
-                    setSearchParams(tab.id === 'all' ? {} : { category: tab.id });
-                  }
-                }}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition ${
-                  isActive
-                    ? 'bg-brand-teal text-white shadow-xs'
-                    : 'bg-white text-slate-600 hover:bg-slate-100 border border-brand-border'
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Sort Controls */}
-        <div className="flex items-center gap-1.5 text-xs text-slate-500 flex-shrink-0">
-          <span>Sort by:</span>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
-            className="p-1 px-2.5 bg-white border border-brand-border rounded-lg text-xs font-semibold text-brand-navy outline-none"
-          >
-            <option value="latest">Latest Discussions</option>
-            <option value="discussed">Most Discussed</option>
-            <option value="liked">Top Liked</option>
-          </select>
-        </div>
+      {/* Search: matching posts move to the top */}
+      <div className="relative">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search discussions…"
+          className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-brand-border rounded-xl focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal outline-none text-slate-700 placeholder:text-slate-400"
+        />
+        <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3 pointer-events-none" />
+        {q && (
+          <p className="mt-1.5 text-xs text-slate-500">
+            {matchCount === 0 ? 'No posts match your search.' : `${matchCount} matching post${matchCount === 1 ? '' : 's'} shown first.`}
+          </p>
+        )}
       </div>
 
       {/* 2-Column Feed Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* Left Feed (8 cols) */}
-        <div className="lg:col-span-8 space-y-4">
+      <div>
+        <div className="space-y-4">
           
           {loading ? (
             <div className="space-y-4">
@@ -331,18 +281,16 @@ export const DiscussionsPage: React.FC = () => {
             <div className="bg-white rounded-2xl p-12 text-center border border-brand-border space-y-3">
               <MessageSquare className="w-10 h-10 text-slate-300 mx-auto" />
               <h3 className="text-base font-bold text-brand-navy">
-                {activeCategory === 'saved' ? 'No saved bookmarks yet' : 'No discussions in this category'}
+                {showSavedOnly ? 'No saved posts yet' : 'No discussions yet'}
               </h3>
               <p className="text-xs text-slate-500">
-                {activeCategory === 'saved'
-                  ? 'Bookmark useful discussions using the save icon on any post.'
-                  : 'Start the conversation by sharing a clinical query or case study.'}
+                {showSavedOnly ? 'Use the save icon on any post to keep it here.' : 'Be the first to start one.'}
               </p>
               <button
                 onClick={openCreateComposer}
                 className="px-4 py-2 bg-brand-teal text-white rounded-xl text-xs font-semibold shadow transition"
               >
-                Create New Discussion
+                New Discussion
               </button>
             </div>
           ) : (
@@ -383,17 +331,15 @@ export const DiscussionsPage: React.FC = () => {
                             </span>
                           )}
                         </div>
-                        <p className="text-[11px] text-[#5A6E85]">
-                          {post.author_qualification} • {post.author_experience}
-                        </p>
+                        {[post.author_qualification, post.author_experience].filter((x) => x && x !== 'Not specified').length > 0 && (
+                          <p className="text-[11px] text-[#5A6E85]">
+                            {[post.author_qualification, post.author_experience].filter((x) => x && x !== 'Not specified').join(' • ')}
+                          </p>
+                        )}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border ${post.category_badge_color}`}>
-                        {post.category_name}
-                      </span>
-
                       {/* Authors can delete their discussion; posts cannot be edited. */}
                       {isAuthor && (
                         <div className="flex items-center gap-1 pl-1">
@@ -477,7 +423,7 @@ export const DiscussionsPage: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="text-[11px] text-slate-400">{post.created_at}</span>
+                      <span className="text-[11px] text-slate-400">{formatWhen(post.created_at)}</span>
                       <button
                         onClick={() => {
                           if (!currentUser?.id) {
@@ -500,69 +446,6 @@ export const DiscussionsPage: React.FC = () => {
           )}
         </div>
 
-        {/* Right Sidebar (4 cols) */}
-        <aside className="lg:col-span-4 space-y-6">
-          
-          {/* Search Card */}
-          <div className="bg-white rounded-2xl p-5 border border-brand-border/80 shadow-subtle space-y-3">
-            <h3 className="text-xs font-bold text-brand-navy uppercase tracking-wider">
-              Search Discussions
-            </h3>
-            <div className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search topics or symptoms..."
-                className="w-full pl-9 pr-3 py-2 text-xs bg-[#EEF6FC]/60 border border-brand-border/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-teal/20 text-slate-700"
-              />
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3 pointer-events-none" />
-            </div>
-          </div>
-
-          {/* Trending Clinical Topics */}
-          <div className="bg-white rounded-2xl p-5 border border-brand-border/80 shadow-subtle space-y-3">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-brand-teal" />
-              <h3 className="text-xs font-bold text-brand-navy uppercase tracking-wider">
-                Trending Clinical Topics
-              </h3>
-            </div>
-            <div className="space-y-2">
-              {trendingTopics.map((item) => (
-                <div
-                  key={item.tag}
-                  onClick={() => setSearchQuery(item.tag)}
-                  className="flex items-center justify-between text-xs py-1.5 px-2 hover:bg-slate-50 rounded-lg cursor-pointer transition"
-                >
-                  <span className="font-medium text-brand-navy hover:text-brand-teal">
-                    #{item.tag}
-                  </span>
-                  <span className="text-[11px] text-[#5A6E85]">{item.count}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Student Corner Banner */}
-          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-5 border border-emerald-200/80 shadow-subtle space-y-3">
-            <div className="flex items-center gap-2 text-emerald-800">
-              <GraduationCap className="w-4 h-4 text-emerald-600" />
-              <h3 className="text-xs font-bold uppercase tracking-wider">Student Corner Active</h3>
-            </div>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Are you a BHMS student or intern? Access curated study notes, repertory rubrics, and request clinical mentorship from senior practitioners.
-            </p>
-            <Link
-              to="/students"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-900"
-            >
-              <span>Explore Student Resources</span>
-              <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
-
-        </aside>
 
       </div>
 
@@ -574,7 +457,7 @@ export const DiscussionsPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <MessageSquare className="w-5 h-5 text-teal-700" />
                 <h3 className="text-base font-bold text-brand-navy">
-                  Start a Clinical / Peer Discussion
+                  New Discussion
                 </h3>
               </div>
               <button onClick={() => setComposerOpen(false)} className="text-slate-400 hover:text-slate-600">
@@ -592,25 +475,7 @@ export const DiscussionsPage: React.FC = () => {
             <form onSubmit={handleSavePost} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Discussion Category *
-                </label>
-                <select
-                  value={postCategory}
-                  onChange={(e) => setPostCategory(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 outline-none bg-white"
-                >
-                  <option value="general">General Discussion</option>
-                  <option value="clinical-cases">Clinical Learning & Case Observations</option>
-                  <option value="research">Research & Publications</option>
-                  <option value="students">Student Corner & Mentorship</option>
-                  <option value="practice-management">Practice Management & Ethics</option>
-                  <option value="events">Conferences & CME Events</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Title / Subject *
+                  Title *
                 </label>
                 <input
                   type="text"
@@ -624,21 +489,21 @@ export const DiscussionsPage: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Discussion Content & Observations *
+                  Details *
                 </label>
                 <textarea
                   rows={6}
                   required
                   value={postBody}
                   onChange={(e) => setPostBody(e.target.value)}
-                  placeholder="Describe your clinical observation, repertorial rubrics, potencies studied, and questions for peer deliberation..."
+                  placeholder="Write your question or case…"
                   className="w-full p-3.5 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 outline-none leading-relaxed"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Reference Source Link or DOI (Optional)
+                  Reference link (optional)
                 </label>
                 <input
                   type="url"
@@ -653,7 +518,7 @@ export const DiscussionsPage: React.FC = () => {
               <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-xl text-[11px] text-amber-800 flex items-start gap-2">
                 <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
                 <span>
-                  <strong>DISHA & Privacy Rule:</strong> Never include identifiable patient names, facial photos, or Aadhaar/UHID records.
+                  Don't include patient names, photos or ID numbers.
                 </span>
               </div>
 

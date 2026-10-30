@@ -56,28 +56,14 @@ export const MembersPage: React.FC = () => {
   const [members, setMembers] = useState<UserProfile[]>([]);
   const [connectionRequests, setConnectionRequests] = useState<ConnectionRequest[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedState, setSelectedState] = useState('All');
-  const [selectedSpec, setSelectedSpec] = useState('All');
-  const [selectedRole, setSelectedRole] = useState('All');
-  const [showFilterDrawer, setShowFilterDrawer] = useState(false);
   const [loading, setLoading] = useState(true);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [connectTarget, setConnectTarget] = useState<UserProfile | null>(null);
 
-  const statesList = [
-    'All', 'Maharashtra', 'Karnataka', 'Delhi', 'Uttar Pradesh', 'Gujarat', 'West Bengal', 'Kerala', 'Telangana'
-  ];
-
-  const specList = [
-    'All', 'Clinical Practice', 'Research & Academia', "Women's Health", 'Chronic Disease', 'Pediatrics', 'Practice Management', 'Materia Medica'
-  ];
-
-  const rolesList = ['All', 'Doctor', 'Student', 'Researcher'];
-
   const loadData = async () => {
     setLoading(true);
     const [fetchedMembers, fetchedConns] = await Promise.all([
-      dataService.getMembers(searchQuery, selectedState, selectedSpec, selectedRole),
+      dataService.getMembers(searchQuery, 'All', 'All', 'Doctor'),
       dataService.getConnectionRequests()
     ]);
     setMembers(fetchedMembers);
@@ -87,7 +73,7 @@ export const MembersPage: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, [searchQuery, selectedState, selectedSpec, selectedRole]);
+  }, [searchQuery]);
 
   useEffect(() => {
     if (searchParams.get('tab') === 'network') {
@@ -165,11 +151,8 @@ export const MembersPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-serif font-bold text-brand-navy">
-            {activeTab === 'directory' ? 'Professional Member Directory' : 'My Network & Peer Connections'}
+            {activeTab === 'directory' ? 'Doctors' : 'My Network'}
           </h1>
-          <p className="text-xs text-[#5A6E85] mt-0.5">
-            Connect with verified practitioners, educators, researchers, and students across India.
-          </p>
         </div>
 
         {/* Tab Toggle */}
@@ -183,7 +166,7 @@ export const MembersPage: React.FC = () => {
             }`}
           >
             <Users className="w-3.5 h-3.5" />
-            <span>Find Members ({members.length})</span>
+            <span>Doctors ({members.length})</span>
           </button>
 
           <button
@@ -214,28 +197,6 @@ export const MembersPage: React.FC = () => {
       {/* ────────────────── DIRECTORY TAB ────────────────── */}
       {activeTab === 'directory' && (
         <>
-          {/* Guest Practitioner Callout */}
-          {!currentUser && (
-            <div className="p-4 bg-teal-50/70 border border-teal-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-teal-700 text-white flex items-center justify-center flex-shrink-0 shadow-2xs">
-                  <Stethoscope className="w-4 h-4" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-teal-950">Are you a registered BHMS / MD homoeopath?</h4>
-                  <p className="text-[11px] text-teal-800">List your clinical practice and connect with peers across India on Homeo Circle.</p>
-                </div>
-              </div>
-              <Link
-                to="/apply?role=doctor"
-                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold whitespace-nowrap shadow-2xs transition"
-              >
-                <span>Join as Practitioner</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          )}
-
           {/* Search and Filters Bar */}
           <div className="bg-white rounded-2xl p-4 border border-brand-border/80 shadow-subtle flex flex-wrap items-center gap-3">
             <div className="relative flex-1 min-w-[220px]">
@@ -243,107 +204,13 @@ export const MembersPage: React.FC = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by name, qualification, college, or specialty..."
+                placeholder="Search doctors by name, city or specialty…"
                 className="w-full pl-9 pr-4 py-2 text-xs bg-[#EEF6FC]/60 border border-brand-border/80 rounded-xl focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal outline-none text-slate-700 placeholder-slate-400"
               />
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3 pointer-events-none" />
             </div>
 
-            {/* Role Filter */}
-            <div className="hidden sm:block">
-              <select
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-                className="px-3 py-2 text-xs bg-[#EEF6FC]/60 border border-brand-border/80 rounded-xl focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal outline-none text-slate-700"
-              >
-                <option value="All">All Roles</option>
-                {rolesList.filter(r => r !== 'All').map(r => (
-                  <option key={r} value={r}>{r}s</option>
-                ))}
-              </select>
-            </div>
-
-            {/* State Filter dropdown */}
-            <div className="hidden sm:block">
-              <select
-                value={selectedState}
-                onChange={(e) => setSelectedState(e.target.value)}
-                className="px-3 py-2 text-xs bg-[#EEF6FC]/60 border border-brand-border/80 rounded-xl focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal outline-none text-slate-700"
-              >
-                <option value="All">All States</option>
-                {statesList.filter(s => s !== 'All').map(s => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Specialization Filter dropdown */}
-            <div className="hidden md:block">
-              <select
-                value={selectedSpec}
-                onChange={(e) => setSelectedSpec(e.target.value)}
-                className="px-3 py-2 text-xs bg-[#EEF6FC]/60 border border-brand-border/80 rounded-xl focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal outline-none text-slate-700"
-              >
-                <option value="All">All Specializations</option>
-                {specList.filter(s => s !== 'All').map(s => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Filters toggle button */}
-            <button
-              onClick={() => setShowFilterDrawer(!showFilterDrawer)}
-              className="px-4 py-2 bg-white hover:bg-slate-50 border border-brand-border rounded-xl text-xs font-semibold text-brand-navy flex items-center gap-1.5 shadow-subtle transition"
-            >
-              <Filter className="w-3.5 h-3.5 text-brand-teal" />
-              <span>Filters</span>
-            </button>
           </div>
-
-          {/* Filter Drawer */}
-          {showFilterDrawer && (
-            <div className="p-4 bg-white rounded-2xl border border-brand-border shadow-card space-y-3">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                <span className="text-xs font-bold text-brand-navy">Filter Directory</span>
-                <button onClick={() => setShowFilterDrawer(false)} className="text-slate-400">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="text-[11px] font-semibold text-slate-500 mb-1 block">Account Type / Role</label>
-                  <select
-                    value={selectedRole}
-                    onChange={(e) => setSelectedRole(e.target.value)}
-                    className="w-full p-2 text-xs border border-brand-border rounded-lg outline-none bg-white"
-                  >
-                    {rolesList.map(r => <option key={r} value={r}>{r}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[11px] font-semibold text-slate-500 mb-1 block">State / Region</label>
-                  <select
-                    value={selectedState}
-                    onChange={(e) => setSelectedState(e.target.value)}
-                    className="w-full p-2 text-xs border border-brand-border rounded-lg outline-none bg-white"
-                  >
-                    {statesList.map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[11px] font-semibold text-slate-500 mb-1 block">Clinical Focus</label>
-                  <select
-                    value={selectedSpec}
-                    onChange={(e) => setSelectedSpec(e.target.value)}
-                    className="w-full p-2 text-xs border border-brand-border rounded-lg outline-none bg-white"
-                  >
-                    {specList.map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Members Grid */}
           {loading ? (
@@ -358,14 +225,17 @@ export const MembersPage: React.FC = () => {
             </div>
           ) : members.length === 0 ? (
             <div className="bg-white rounded-2xl p-12 text-center border border-brand-border space-y-3">
-              <p className="text-sm font-bold text-brand-navy">No members found matching your filter criteria</p>
-              <p className="text-xs text-[#5A6E85]">Try adjusting your search keywords or resetting filters.</p>
-              <button
-                onClick={() => { setSearchQuery(''); setSelectedState('All'); setSelectedSpec('All'); setSelectedRole('All'); }}
-                className="px-4 py-2 bg-brand-teal text-white rounded-xl text-xs font-semibold"
-              >
-                Reset Filters
-              </button>
+              <p className="text-sm font-bold text-brand-navy">
+                {searchQuery ? 'No doctors match your search.' : 'No verified doctors yet.'}
+              </p>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="px-4 py-2 bg-brand-teal text-white rounded-xl text-xs font-semibold"
+                >
+                  Clear search
+                </button>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -412,32 +282,30 @@ export const MembersPage: React.FC = () => {
                           {member.full_name}
                         </Link>
                         <p className="text-[11px] text-[#5A6E85] font-medium mt-0.5">
-                          {memberType === 'student' 
-                            ? member.qualification 
-                            : `${member.qualification}${member.experience_years ? ` • ${member.experience_years} yrs exp` : ''}`}
+                          {[member.qualification, member.experience_years ? `${member.experience_years} yrs exp` : null]
+                            .filter((x) => x && x !== 'Not specified')
+                            .join(' • ')}
                         </p>
                       </div>
 
                       <div className="space-y-1.5 text-xs text-slate-600">
-                        <div className="flex items-center justify-center sm:justify-start gap-1.5 text-[#5A6E85]">
-                          <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                          <span className="text-[11px] truncate">
-                            {member.city ? `${member.city}, ${member.state}` : member.state}
-                          </span>
-                        </div>
+                        {[member.city, member.state].some((x) => x && x !== 'Not specified') && (
+                          <div className="flex items-center justify-center sm:justify-start gap-1.5 text-[#5A6E85]">
+                            <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                            <span className="text-[11px] truncate">
+                              {[member.city, member.state].filter((x) => x && x !== 'Not specified').join(', ')}
+                            </span>
+                          </div>
+                        )}
 
-                        <div className="flex items-center justify-center sm:justify-start gap-1.5">
-                          {memberType === 'student' ? (
-                            <GraduationCap className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-                          ) : (
+                        {(member.specialization || member.clinic_institution) && (
+                          <div className="flex items-center justify-center sm:justify-start gap-1.5">
                             <Briefcase className="w-3.5 h-3.5 text-brand-teal flex-shrink-0" />
-                          )}
-                          <span className="text-[11px] font-medium text-brand-navy bg-[#EEF6FC] px-2 py-0.5 rounded truncate max-w-[200px]">
-                            {memberType === 'student'
-                              ? member.institution || 'Medical College'
-                              : member.specialization || 'Clinical Practice'}
-                          </span>
-                        </div>
+                            <span className="text-[11px] font-medium text-brand-navy bg-[#EEF6FC] px-2 py-0.5 rounded truncate max-w-[200px]">
+                              {member.specialization || member.clinic_institution}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -638,7 +506,7 @@ export const MembersPage: React.FC = () => {
                   onClick={() => setActiveTab('directory')}
                   className="px-4 py-2 bg-brand-teal text-white rounded-xl text-xs font-semibold"
                 >
-                  Browse Member Directory
+                  Browse Doctors
                 </button>
               </div>
             ) : (

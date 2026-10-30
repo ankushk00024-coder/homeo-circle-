@@ -155,7 +155,7 @@ export const MemberProfilePage: React.FC = () => {
       <div className="py-12 text-center space-y-3">
         <h2 className="text-xl font-bold text-brand-navy">Member Profile Not Found</h2>
         <Link to="/members" className="px-4 py-2 bg-teal-700 text-white rounded-xl text-xs font-semibold">
-          Return to Member Directory
+          Back to Doctors
         </Link>
       </div>
     );
@@ -176,7 +176,7 @@ export const MemberProfilePage: React.FC = () => {
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-brand-navy transition"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Member Directory</span>
+          <span>Back to Doctors</span>
         </button>
 
         {isSelf && (

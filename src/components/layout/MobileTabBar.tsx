@@ -5,7 +5,7 @@ import { Home, MessageSquare, Users, GraduationCap, Calendar } from 'lucide-reac
 const tabs = [
   { to: '/', label: 'Home', icon: Home },
   { to: '/community', label: 'Discuss', icon: MessageSquare },
-  { to: '/members', label: 'Network', icon: Users },
+  { to: '/members', label: 'Doctors', icon: Users },
   { to: '/students', label: 'Students', icon: GraduationCap },
   { to: '/events', label: 'Events', icon: Calendar },
 ];
