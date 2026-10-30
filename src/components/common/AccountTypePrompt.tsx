@@ -7,7 +7,7 @@ import { AccountTypeSelect, ApplicationUnderReview, accountTypeOf, useOpenApplic
  * Shown at the top of member pages until the member's type is verified.
  * Picking Doctor / Student / Researcher opens the verification form; while
  * the application is reviewed the banner shows its status instead.
- * Dismissible for the session; the same choice lives in Settings.
+ * Dismissible for the session; the same choice lives on the profile page.
  */
 export const AccountTypePrompt: React.FC = () => {
   const { currentUser, isAdmin } = useAuth();

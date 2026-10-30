@@ -37,7 +37,6 @@ const OpportunitiesPage = lazy(() => import('./pages/member/OpportunitiesPage').
 const KnowledgePage = lazy(() => import('./pages/member/KnowledgePage').then((m) => ({ default: m.KnowledgePage })));
 const StudentsPage = lazy(() => import('./pages/member/StudentsPage').then((m) => ({ default: m.StudentsPage })));
 const ProfileEditPage = lazy(() => import('./pages/member/ProfileEditPage').then((m) => ({ default: m.ProfileEditPage })));
-const SettingsPage = lazy(() => import('./pages/member/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 
 // Admin pages (lazy)
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard').then((m) => ({ default: m.AdminDashboard })));
@@ -202,7 +201,7 @@ export function App() {
           }>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/profile" element={<ProfileEditPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/settings" element={<Navigate to="/profile" replace />} />
           </Route>
 
           {/* Admin Panel Routes (Protected for Admin role) */}

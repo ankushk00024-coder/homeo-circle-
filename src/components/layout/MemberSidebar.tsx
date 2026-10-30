@@ -25,7 +25,6 @@ export const MemberSidebar: React.FC = () => {
     { label: 'Student Corner', path: '/students', icon: GraduationCap },
     { label: 'Events & CMEs', path: '/events', icon: Calendar },
     { label: 'Research', path: '/knowledge', icon: BookOpen },
-    ...(isAuthenticated ? [{ label: 'Account Settings', path: '/settings', icon: Settings }] : []),
   ];
 
   return (

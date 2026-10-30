@@ -298,22 +298,6 @@ export const MemberNavbar: React.FC = () => {
                         <span>Edit Profile & Credentials</span>
                       </Link>
 
-                      <Link
-                        to="/students"
-                        className="flex items-center gap-2.5 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-teal-700"
-                      >
-                        <GraduationCap className="w-4 h-4 text-slate-400" />
-                        <span>Student Corner & Mentors</span>
-                      </Link>
-
-                      <Link
-                        to="/settings"
-                        className="flex items-center gap-2.5 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-teal-700"
-                      >
-                        <Settings className="w-4 h-4 text-slate-400" />
-                        <span>Account Settings</span>
-                      </Link>
-
                       {isAdmin && (
                         <Link
                           to="/admin"

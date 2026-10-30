@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from '../../components/feedback/ToastProvider';
+import { AccountTypeSelect } from '../../components/common/AccountTypeSelect';
 
 export const ProfileEditPage: React.FC = () => {
   const { currentUser, updateCurrentUser } = useAuth();
@@ -765,6 +766,24 @@ export const ProfileEditPage: React.FC = () => {
         </div>
 
       </form>
+
+      {/* Account type (opens the verification form) */}
+      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-card">
+        <AccountTypeSelect />
+      </div>
+
+      {/* Account deletion */}
+      <div className="bg-white rounded-2xl p-6 border border-rose-100 shadow-card space-y-3">
+        <h2 className="text-sm font-bold text-rose-800">Delete account</h2>
+        <p className="text-xs text-slate-600">You can ask us to permanently delete your account and data.</p>
+        <button
+          type="button"
+          onClick={() => toast.info('To delete your account, email dpo@homeocircle.in from your registered email. We respond within 30 days.')}
+          className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-semibold border border-rose-200 transition"
+        >
+          Request account deletion
+        </button>
+      </div>
     </div>
   );
 };
