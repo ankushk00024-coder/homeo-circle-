@@ -20,7 +20,7 @@ import { useToast } from '../../components/feedback/ToastProvider';
 import { AccountTypeSelect } from '../../components/common/AccountTypeSelect';
 
 export const ProfileEditPage: React.FC = () => {
-  const { currentUser, updateCurrentUser } = useAuth();
+  const { currentUser, updateCurrentUser, logout } = useAuth();
   const toast = useToast();
   const location = useLocation();
   const navigate = useNavigate();
@@ -772,10 +772,18 @@ export const ProfileEditPage: React.FC = () => {
         <AccountTypeSelect />
       </div>
 
-      {/* Account deletion */}
+      {/* Sign out & account deletion */}
       <div className="bg-white rounded-2xl p-6 border border-rose-100 shadow-card space-y-3">
-        <h2 className="text-sm font-bold text-rose-800">Delete account</h2>
-        <p className="text-xs text-slate-600">You can ask us to permanently delete your account and data.</p>
+        <h2 className="text-sm font-bold text-rose-800">Account</h2>
+        <p className="text-xs text-slate-600">Sign out, or ask us to permanently delete your account and data.</p>
+        <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={async () => { await logout(); navigate('/'); }}
+          className="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold border border-slate-200 transition"
+        >
+          Sign out
+        </button>
         <button
           type="button"
           onClick={() => toast.info('To delete your account, email dpo@homeocircle.in from your registered email. We respond within 30 days.')}
@@ -783,6 +791,7 @@ export const ProfileEditPage: React.FC = () => {
         >
           Request account deletion
         </button>
+        </div>
       </div>
     </div>
   );
