@@ -18,7 +18,7 @@ const INTERVAL_MS = 20_000;
 const SLIDE_MS = 700;
 
 /**
- * Hero tagline that changes on its own every 20 seconds. The old line slides
+ * Hero tagline (plain text, no box) that changes on its own every 20 seconds. The old line slides
  * out while the new one slides in at the same time, so there is no gap.
  * Dots below let visitors jump to a tagline.
  */
@@ -47,12 +47,7 @@ export const RotatingTagline: React.FC = () => {
 
   return (
     <div className="relative mx-auto mt-8 max-w-2xl animate-fade-up [animation-delay:900ms]">
-      {/* Soft light behind the tagline */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -inset-x-3 -inset-y-3 rounded-[2rem] bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.95),rgba(207,241,236,0.55)_55%,transparent_75%)] blur-md"
-      />
-      <div className="relative rounded-3xl bg-white/55 px-6 py-5 ring-1 ring-white/80 shadow-[0_0_40px_rgba(14,138,128,0.18)] backdrop-blur-sm overflow-hidden">
+      <div className="relative overflow-hidden">
         <div className="relative">
           <div
             key={`in-${index}`}
