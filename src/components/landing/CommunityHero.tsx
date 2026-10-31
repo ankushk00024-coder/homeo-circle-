@@ -31,7 +31,7 @@ const photos: PhotoSpec[] = [
     tilt: 8,
     position: 'lg:left-[7.4%] lg:top-[47%] lg:w-[18%]',
     delay: 400,
-    width: 964,
+    width: 674,
     height: 482,
   },
   {
