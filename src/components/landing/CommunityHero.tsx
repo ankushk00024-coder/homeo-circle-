@@ -22,8 +22,8 @@ const photos: PhotoSpec[] = [
     tilt: -8,
     position: 'lg:left-[3.3%] lg:top-[16%] lg:w-[20%]',
     delay: 250,
-    width: 1208,
-    height: 858,
+    width: 1400,
+    height: 1000,
   },
   {
     src: '/images/community-students.webp',
