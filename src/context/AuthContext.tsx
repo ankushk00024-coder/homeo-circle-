@@ -90,6 +90,9 @@ export const TEST_USERS: Record<string, UserProfile> = {
  * 3. Attempts non-blocking upsert to public.profiles.
  */
 async function resolveOrCreateProfile(client: any, user: any): Promise<UserProfile> {
+  // Only a confirmed "no row" may create a profile. A failed lookup (network
+  // blip) must never write: it would overwrite the real profile.
+  let lookupFailed = false;
   try {
     const { data: profile, error } = await client
       .from('profiles')
@@ -100,7 +103,9 @@ async function resolveOrCreateProfile(client: any, user: any): Promise<UserProfi
     if (profile && !error) {
       return profile;
     }
+    if (error) lookupFailed = true;
   } catch (err) {
+    lookupFailed = true;
     console.warn('Could not query public.profiles:', err);
   }
 
@@ -131,10 +136,14 @@ async function resolveOrCreateProfile(client: any, user: any): Promise<UserProfi
     updated_at: new Date().toISOString()
   };
 
+  // Lookup failed: keep the member signed in with a temporary in-memory
+  // profile; the next auth event or page load fetches the real one.
+  if (lookupFailed) return fallback;
+
   try {
     const { data: inserted, error: insErr } = await client
       .from('profiles')
-      .upsert([fallback], { onConflict: 'id' })
+      .upsert([fallback], { onConflict: 'id', ignoreDuplicates: true })
       .select()
       .maybeSingle();
 
@@ -206,21 +215,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     // 2. Reactive subscription to Supabase auth state transitions
-    const { data: { subscription } } = client.auth.onAuthStateChange(async (event, session) => {
+    // Supabase must not be awaited inside this callback (it can deadlock the
+    // auth client), so profile loading is deferred to the next tick.
+    const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
       if (signingUpRef.current) return;
-      if (session?.user) {
+      if (event === 'SIGNED_OUT') {
+        setCurrentUser(null);
+        localStorage.removeItem('homeocircle_current_user');
+        setLoading(false);
+        return;
+      }
+      // Hourly token refreshes keep the member signed in; no need to refetch.
+      if (event === 'TOKEN_REFRESHED' || !session?.user) {
+        setLoading(false);
+        return;
+      }
+      const user = session.user;
+      setTimeout(async () => {
         try {
-          const profile = await resolveOrCreateProfile(client, session.user);
+          const profile = await resolveOrCreateProfile(client, user);
           setCurrentUser(profile);
           localStorage.setItem('homeocircle_current_user', JSON.stringify(profile));
         } catch (err) {
           console.error('Error fetching profile on auth state change:', err);
+        } finally {
+          setLoading(false);
         }
-      } else if (event === 'SIGNED_OUT') {
-        setCurrentUser(null);
-        localStorage.removeItem('homeocircle_current_user');
-      }
-      setLoading(false);
+      }, 0);
     });
 
     return () => {

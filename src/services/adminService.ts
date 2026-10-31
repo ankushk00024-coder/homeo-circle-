@@ -56,9 +56,9 @@ export const adminService = {
       upcomingEvents,
     ] = await Promise.all([
       wrapQuery(supabase.from('profiles').select('id', { count: 'exact', head: true })),
-      wrapQuery(supabase.from('profiles').select('id', { count: 'exact', head: true }).in('role', ['doctor', 'member'])),
-      wrapQuery(supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'student')),
-      wrapQuery(supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'researcher')),
+      wrapQuery(supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('account_type', 'doctor')),
+      wrapQuery(supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('account_type', 'student')),
+      wrapQuery(supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('account_type', 'researcher')),
       wrapQuery(supabase.from('practitioner_applications').select('id', { count: 'exact', head: true }).in('status', ['pending_review', 'submitted', 'needs_information'])),
       wrapQuery(supabase.from('practitioner_applications').select('id', { count: 'exact', head: true }).eq('status', 'verified')),
       wrapQuery(supabase.from('practitioner_applications').select('id', { count: 'exact', head: true }).in('status', ['declined', 'rejected'])),
