@@ -31,8 +31,8 @@ const photos: PhotoSpec[] = [
     tilt: 8,
     position: 'lg:left-[7.4%] lg:top-[47%] lg:w-[18%]',
     delay: 400,
-    width: 1066,
-    height: 844,
+    width: 964,
+    height: 482,
   },
   {
     src: '/images/community-meetup.webp',
@@ -40,8 +40,8 @@ const photos: PhotoSpec[] = [
     tilt: 7.5,
     position: 'lg:right-[2.9%] lg:top-[14%] lg:w-[17.7%]',
     delay: 320,
-    width: 1036,
-    height: 878,
+    width: 766,
+    height: 536,
   },
   {
     src: '/images/community-circle.webp',
@@ -49,8 +49,8 @@ const photos: PhotoSpec[] = [
     tilt: -6.5,
     position: 'lg:right-[4.7%] lg:top-[53%] lg:w-[18.7%]',
     delay: 480,
-    width: 1140,
-    height: 802,
+    width: 762,
+    height: 536,
   },
 ];
 
@@ -153,7 +153,7 @@ export const CommunityHero: React.FC = () => {
                     width={photo.width}
                     height={photo.height}
                     decoding="async"
-                    className="aspect-[7/5]"
+                    style={{ aspectRatio: `${photo.width} / ${photo.height}` }}
                   />
                 </span>
               </Link>
