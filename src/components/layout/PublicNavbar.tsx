@@ -81,7 +81,7 @@ export const PublicNavbar: React.FC = () => {
                   Sign in
                 </Link>
                 <Link to="/apply" className="btn-primary group !px-6 !py-3 !text-base">
-                  Join the Circle
+                  Join Homeo India
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </>
@@ -146,7 +146,7 @@ export const PublicNavbar: React.FC = () => {
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full text-center px-4 py-2.5 rounded-xl bg-[#0D817B] text-white text-xs font-semibold"
                 >
-                  Join the Circle
+                  Join Homeo India
                 </Link>
               </>
             )}

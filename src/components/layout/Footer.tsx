@@ -104,7 +104,7 @@ export const Footer: React.FC = () => {
 
         {/* Bottom bar */}
         <div className="mt-12 pt-6 border-t border-[#D0E2EF]/70 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#5A738E] font-medium">
-          <p>© {new Date().getFullYear()} Homeo Circle India. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Homeo India. All rights reserved.</p>
           <p className="text-center">India's verified professional homoeopathic community.</p>
         </div>
       </div>

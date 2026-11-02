@@ -265,11 +265,11 @@ export const AdminSettings: React.FC = () => {
             <span>Concurrency-Safe Stored Procedure</span>
           </div>
           <p className="text-[11px] leading-relaxed text-slate-600">
-            Homeo Circle strictly rejects client-side role manipulation. Initial Super Administrator designation is guarded by an advisory transaction lock. Execute the database procedure via the Supabase SQL editor:
+            Homeo India strictly rejects client-side role manipulation. Initial Super Administrator designation is guarded by an advisory transaction lock. Execute the database procedure via the Supabase SQL editor:
           </p>
           <pre className="p-3 bg-slate-900 text-teal-300 rounded-xl text-[11px] font-mono overflow-x-auto">
 {`-- Atomic elevation with concurrency advisory lock:
-CALL public.provision_first_super_admin('admin@homeocircle.in');`}
+CALL public.provision_first_super_admin('admin@homeoindia.in');`}
           </pre>
         </div>
 

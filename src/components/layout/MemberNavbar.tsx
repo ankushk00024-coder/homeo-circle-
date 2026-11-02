@@ -333,7 +333,7 @@ export const MemberNavbar: React.FC = () => {
                   to="/apply"
                   className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl bg-[#0D817B] hover:bg-[#0a6b66] text-white text-xs sm:text-sm font-semibold shadow-xs transition"
                 >
-                  <span>Join Homeo Circle</span>
+                  <span>Join Homeo India</span>
                   <ArrowRight className="w-3.5 h-3.5 hidden sm:inline" />
                 </Link>
               </div>

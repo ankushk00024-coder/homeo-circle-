@@ -17,7 +17,7 @@ export const initialMembers: UserProfile[] = [
   // 1. Senior Doctor / Practitioner (Default member)
   {
     id: 'user-ananya',
-    email: 'ananya@homeocircle.in',
+    email: 'ananya@homeoindia.in',
     full_name: 'Dr. Ananya Sharma',
     display_name: 'Dr. Ananya',
     avatar_url: 'https://images.unsplash.com/photo-1594824813633-4f24f8087569?w=150&auto=format&fit=crop&q=80',
@@ -283,7 +283,7 @@ export const initialMembers: UserProfile[] = [
   // 9. Administrator / Super Admin
   {
     id: 'user-admin',
-    email: 'admin@homeocircle.in',
+    email: 'admin@homeoindia.in',
     full_name: 'Dr. Sanjeev Bannerjee',
     display_name: 'Administrator',
     avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
@@ -388,7 +388,7 @@ export const initialPosts: Post[] = [
     author_qualification: 'BHMS',
     author_experience: '10 years experience',
     author_role: 'doctor',
-    title: 'General Discussion: Welcome to Homeo Circle National Network',
+    title: 'General Discussion: Welcome to Homeo India National Network',
     body: 'Warm welcome to all doctors, educators, researchers, and students who have joined our verified community! Let us use this space for constructive medical exchange, clinical peer learning, and collaborative advancement of homeopathy in India.',
     category_id: 'general',
     category_name: 'General Discussion',
@@ -511,7 +511,7 @@ export const initialEventRegistrations: EventRegistration[] = [
     event_id: 'event-1',
     user_id: 'user-ananya',
     user_name: 'Dr. Ananya Sharma',
-    user_email: 'ananya@homeocircle.in',
+    user_email: 'ananya@homeoindia.in',
     status: 'registered',
     registered_at: '2026-10-20T11:00:00Z'
   }
@@ -531,12 +531,12 @@ export const initialEvents: Event[] = [
     start_at: '2026-12-19T18:00:00+05:30',
     format: 'Webinar',
     location: 'Online via Secure Zoom',
-    registration_url: 'https://homeocircle.in/webinars/research-evidence-2026',
+    registration_url: 'https://homeoindia.in/webinars/research-evidence-2026',
     source_url: 'https://nch.org.in/cme/2026/evidence-webinar',
     status: 'published',
     attendees_count: 184,
     image_url: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=80',
-    meeting_link: 'https://meet.homeocircle.in/cme-research-19'
+    meeting_link: 'https://meet.homeoindia.in/cme-research-19'
   },
   {
     id: 'event-2',
@@ -551,7 +551,7 @@ export const initialEvents: Event[] = [
     start_at: '2027-01-11T10:00:00+05:30',
     format: 'State Chapter CME',
     location: 'Auditorium, Osmania Medical College Campus, Hyderabad',
-    registration_url: 'https://homeocircle.in/cme/hyderabad-2027',
+    registration_url: 'https://homeoindia.in/cme/hyderabad-2027',
     source_url: 'https://telanganahomeoboard.org/cme-jan',
     status: 'published',
     attendees_count: 120,
@@ -561,7 +561,7 @@ export const initialEvents: Event[] = [
     id: 'event-3',
     title: 'Materia Medica Study Circle: Comparative Analysis of Snake Venoms',
     summary: 'A structured peer study session analyzing Lachesis, Crotalus Horridus, Naja, and Elaps with clinical differentiation rubrics.',
-    organizer: 'Homeo Circle Clinical Circle',
+    organizer: 'Homeo India Clinical Circle',
     speaker: 'Dr. P. Nair',
     speaker_title: 'Consultant Homoeopath, Kochi',
     date_badge_day: '26',
@@ -570,8 +570,8 @@ export const initialEvents: Event[] = [
     start_at: '2027-01-26T17:00:00+05:30',
     format: 'Study Circle',
     location: 'Interactive Google Meet Room',
-    registration_url: 'https://homeocircle.in/study/materia-medica-26',
-    source_url: 'https://homeocircle.in/study-circle',
+    registration_url: 'https://homeoindia.in/study/materia-medica-26',
+    source_url: 'https://homeoindia.in/study-circle',
     status: 'published',
     attendees_count: 95,
     image_url: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=600&auto=format&fit=crop&q=80',
@@ -581,7 +581,7 @@ export const initialEvents: Event[] = [
     id: 'event-4',
     title: 'Student Webinar: Aphorism §83 to §104 Mastery & Case Taking',
     summary: 'A dedicated educational clinic for BHMS interns and final year students on taking acute and chronic case histories with Boenninghausen analysis.',
-    organizer: 'Homeo Circle Academic Council',
+    organizer: 'Homeo India Academic Council',
     speaker: 'Dr. Ananya Sharma & Dr. Arjun Nair',
     speaker_title: 'Faculty & Clinical Investigators',
     date_badge_day: '05',
@@ -590,12 +590,12 @@ export const initialEvents: Event[] = [
     start_at: '2027-02-05T19:00:00+05:30',
     format: 'Webinar',
     location: 'Online Webinar Room',
-    registration_url: 'https://homeocircle.in/students/webinar-case-taking',
-    source_url: 'https://homeocircle.in/students',
+    registration_url: 'https://homeoindia.in/students/webinar-case-taking',
+    source_url: 'https://homeoindia.in/students',
     status: 'published',
     attendees_count: 142,
     image_url: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600&auto=format&fit=crop&q=80',
-    meeting_link: 'https://meet.homeocircle.in/student-case-taking'
+    meeting_link: 'https://meet.homeoindia.in/student-case-taking'
   }
 ];
 
@@ -612,7 +612,7 @@ export const initialOpportunities: Opportunity[] = [
     timing: 'Full-time',
     deadline: '2026-11-30',
     source_url: 'https://ccrhindia.nic.in/careers',
-    application_url: 'https://homeocircle.in/apply/opp-1',
+    application_url: 'https://homeoindia.in/apply/opp-1',
     status: 'published',
     posted_time_ago: '5 days ago'
   },
@@ -628,7 +628,7 @@ export const initialOpportunities: Opportunity[] = [
     timing: 'Part-time',
     deadline: '2026-12-15',
     source_url: 'https://wellnessdelhi.org/openings',
-    application_url: 'https://homeocircle.in/apply/opp-2',
+    application_url: 'https://homeoindia.in/apply/opp-2',
     status: 'published',
     posted_time_ago: '1 week ago'
   },
@@ -644,7 +644,7 @@ export const initialOpportunities: Opportunity[] = [
     timing: 'Part-time',
     deadline: '2026-12-20',
     source_url: 'https://nih.nic.in/internships',
-    application_url: 'https://homeocircle.in/apply/opp-3',
+    application_url: 'https://homeoindia.in/apply/opp-3',
     status: 'published',
     posted_time_ago: '3 days ago'
   },
@@ -660,7 +660,7 @@ export const initialOpportunities: Opportunity[] = [
     timing: 'Part-time',
     deadline: '2026-12-31',
     source_url: 'https://hyderabadhealth.in/consultants',
-    application_url: 'https://homeocircle.in/apply/opp-4',
+    application_url: 'https://homeoindia.in/apply/opp-4',
     status: 'published',
     posted_time_ago: '2 weeks ago'
   }
@@ -697,8 +697,8 @@ export const initialKnowledgePosts: KnowledgePost[] = [
     id: 'know-3',
     title: 'Boenninghausen Concordance & Complementary Remedy Index: Study Resource',
     summary: 'A structured comparative reference chart correlating relationship of remedies, inimical pairings, and chronic follow-up remedies for clinical study.',
-    source_url: 'https://homeocircle.in/resources/boenninghausen-concordance.pdf',
-    journal: 'Homeo Circle Clinical Education Series',
+    source_url: 'https://homeoindia.in/resources/boenninghausen-concordance.pdf',
+    journal: 'Homeo India Clinical Education Series',
     content_type: 'Educational Resource',
     limitations: 'Compiled from classic Materia Medica and Boenninghausen Therapeutic Pocket Book; intended as an educational rubric study guide rather than prescriptive dogma.',
     status: 'published',
@@ -818,5 +818,5 @@ export const initialPlatformSettings: PlatformSettings = {
   require_student_verification: false,
   enable_email_notifications: false,
   auto_appeals_enabled: true,
-  announcement_banner: 'Welcome to Homeo Circle — India’s professional homeopathy community.'
+  announcement_banner: 'Welcome to Homeo India — India’s professional homeopathy community.'
 };

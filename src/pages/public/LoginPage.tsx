@@ -95,7 +95,7 @@ export const LoginPage: React.FC = () => {
     if (searchParams.get('confirmed') === '1') {
       setActiveTab('signin');
       setNoticeTitle('Email confirmed');
-      setConfirmationNotice('Your email is confirmed. Sign in below to enter Homeo Circle.');
+      setConfirmationNotice('Your email is confirmed. Sign in below to enter Homeo India.');
     }
 
     // Check query params and hash for OAuth error/cancellation callbacks
@@ -248,7 +248,7 @@ export const LoginPage: React.FC = () => {
   };
 
   const handleAutoFillAdmin = () => {
-    setEmail('admin@homeocircle.in');
+    setEmail('admin@homeoindia.in');
     setPassword('admin123');
     setError(null);
   };
@@ -261,8 +261,8 @@ export const LoginPage: React.FC = () => {
         <div className="text-center space-y-2">
           <BrandLogo size="lg" className="justify-center mb-1" />
           <h2 className="text-2xl sm:text-3xl font-serif font-bold text-brand-navy">
-            {activeTab === 'signin' && 'Welcome to Homeo Circle'}
-            {activeTab === 'register' && 'Join Homeo Circle'}
+            {activeTab === 'signin' && 'Welcome to Homeo India'}
+            {activeTab === 'register' && 'Join Homeo India'}
             {activeTab === 'forgot' && 'Reset Account Password'}
           </h2>
           <p className="text-xs sm:text-sm text-brand-muted max-w-sm mx-auto">
@@ -460,7 +460,7 @@ export const LoginPage: React.FC = () => {
 
               <div className="pt-2 text-center">
                 <p className="text-xs text-slate-600">
-                  New to Homeo Circle?{' '}
+                  New to Homeo India?{' '}
                   <button
                     type="button"
                     onClick={() => { setActiveTab('register'); setError(null); }}
@@ -581,7 +581,7 @@ export const LoginPage: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <span>Create Homeo Circle Account</span>
+                    <span>Create Homeo India Account</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -663,7 +663,7 @@ export const LoginPage: React.FC = () => {
             </button>
           </div>
           <p className="text-[11px] text-slate-600">
-            Platform administrators can use <code className="bg-white/80 px-1 py-0.5 rounded border border-slate-200 text-slate-800 font-mono text-[10.5px]">admin@homeocircle.in</code> / <code className="bg-white/80 px-1 py-0.5 rounded border border-slate-200 text-slate-800 font-mono text-[10.5px]">admin123</code>.
+            Platform administrators can use <code className="bg-white/80 px-1 py-0.5 rounded border border-slate-200 text-slate-800 font-mono text-[10.5px]">admin@homeoindia.in</code> / <code className="bg-white/80 px-1 py-0.5 rounded border border-slate-200 text-slate-800 font-mono text-[10.5px]">admin123</code>.
           </p>
         </div>
 

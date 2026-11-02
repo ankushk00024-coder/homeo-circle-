@@ -88,7 +88,7 @@ supabase functions deploy review-application
 
 ## 6. Check it works (5 minutes)
 
-- [ ] Home page loads; "Explore the community" and "Join the Circle" work.
+- [ ] Home page loads; "Explore the community" and "Join Homeo India" work.
 - [ ] Sign up with a new email → you land on the **sign-in** page with a success message.
 - [ ] Sign in with that email → you land in **Community** and see "What describes you best?".
 - [ ] Pick Doctor / Student / Researcher → Save → the message disappears.

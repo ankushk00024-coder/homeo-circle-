@@ -323,8 +323,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // 1. Evaluator demo accounts — ONLY when no backend is configured. With a
     //    real backend these emails go through Supabase Auth like everyone else
-    //    (otherwise anyone could type admin@homeocircle.in and become admin).
-    if (!isSupabaseConfigured && (cleanEmail === 'admin@homeocircle.in' || cleanEmail === 'admin' || cleanEmail === 'admin@test.com')) {
+    //    (otherwise anyone could type admin@homeoindia.in and become admin).
+    if (!isSupabaseConfigured && (cleanEmail === 'admin@homeoindia.in' || cleanEmail === 'admin' || cleanEmail === 'admin@test.com')) {
       if (!password || password.trim().length === 0) {
         return { success: false, error: 'Please enter a password.' };
       }
@@ -333,13 +333,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: true };
     }
 
-    if (!isSupabaseConfigured && (cleanEmail === 'ananya@homeocircle.in' || cleanEmail === 'doctor@homeocircle.in' || cleanEmail === 'member@homeocircle.in')) {
+    if (!isSupabaseConfigured && (cleanEmail === 'ananya@homeoindia.in' || cleanEmail === 'doctor@homeoindia.in' || cleanEmail === 'member@homeoindia.in')) {
       setCurrentUser(TEST_USERS.member);
       localStorage.setItem('homeocircle_current_user', JSON.stringify(TEST_USERS.member));
       return { success: true };
     }
 
-    if (!isSupabaseConfigured && (cleanEmail === 'rohit@homeocircle.in' || cleanEmail === 'applicant@homeocircle.in')) {
+    if (!isSupabaseConfigured && (cleanEmail === 'rohit@homeoindia.in' || cleanEmail === 'applicant@homeoindia.in')) {
       setCurrentUser(TEST_USERS.applicant);
       localStorage.setItem('homeocircle_current_user', JSON.stringify(TEST_USERS.applicant));
       return { success: true };
@@ -371,7 +371,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!isSupabaseConfigured || !supabase) {
       return { 
         success: false, 
-        error: 'Supabase backend is not configured. For admin access, use: admin@homeocircle.in / admin123' 
+        error: 'Supabase backend is not configured. For admin access, use: admin@homeoindia.in / admin123' 
       };
     }
 

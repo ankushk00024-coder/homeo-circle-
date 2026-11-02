@@ -1,6 +1,6 @@
-# HOMEO CIRCLE — National Homoeopathy Community & Professional Platform
+# HOMEO INDIA — National Homoeopathy Community & Professional Platform
 
-A unified, professional platform for registered homoeopathic practitioners, academic researchers/educators, and students across India. Built in strict accordance with the Homeo Circle PRD and official National Commission for Homoeopathy (NCH) verification guidelines.
+A unified, professional platform for registered homoeopathic practitioners, academic researchers/educators, and students across India. Built in strict accordance with the Homeo India PRD and official National Commission for Homoeopathy (NCH) verification guidelines.
 
 ---
 
@@ -18,9 +18,9 @@ Preserves the signature **Pale-Blue, Navy/Deep Indigo, and Teal** branding:
 
 ## 2. Unified Account Architecture & Role Workflows
 
-Homeo Circle features **one unified account system**. Users do not need separate accounts for different areas of the website. 
+Homeo India features **one unified account system**. Users do not need separate accounts for different areas of the website. 
 
-### "How would you like to join Homeo Circle?"
+### "How would you like to join Homeo India?"
 The unified onboarding flow (`/apply`) allows users to choose from three tailored account pathways:
 
 1. **Doctor / Registered Homoeopathic Practitioner:**
@@ -105,7 +105,7 @@ The admin console is located at:
 - **Audit Logs (`/admin/audit-logs`):** Immutable log of every administrative decision with actor ID and timestamp.
 
 ### Secure Super Admin Provisioning (Zero Client-Side Bypass)
-Homeo Circle strictly rejects client-side admin toggles or hardcoded passwords. Administrative privileges are enforced on the backend via PostgreSQL Row Level Security (`is_admin()` helper function).
+Homeo India strictly rejects client-side admin toggles or hardcoded passwords. Administrative privileges are enforced on the backend via PostgreSQL Row Level Security (`is_admin()` helper function).
 
 To provision a Super Admin on your Supabase database:
 ```sql
@@ -115,13 +115,13 @@ SET
   role = 'super_admin',
   verification_status = 'verified',
   status = 'active'
-WHERE email = 'admin@homeocircle.in';
+WHERE email = 'admin@homeoindia.in';
 
 -- Ensure user role record is present:
 INSERT INTO public.user_roles (user_id, role)
 SELECT id, 'super_admin'
 FROM auth.users
-WHERE email = 'admin@homeocircle.in'
+WHERE email = 'admin@homeoindia.in'
 ON CONFLICT (user_id, role) DO NOTHING;
 ```
 

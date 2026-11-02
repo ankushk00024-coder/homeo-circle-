@@ -1,5 +1,5 @@
 -- ==============================================================================
--- Homeo Circle — Essential System Reference Data (Categories & System Settings)
+-- Homeo India — Essential System Reference Data (Categories & System Settings)
 -- Safe for production and staging instances
 -- ==============================================================================
 

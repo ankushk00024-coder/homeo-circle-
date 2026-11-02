@@ -383,7 +383,7 @@ export const MembersPage: React.FC = () => {
               onClick={() => navigate('/login', { state: { from: location } })}
               className="w-full py-2.5 bg-brand-teal text-white font-semibold text-xs rounded-xl shadow-xs hover:bg-teal-800 transition"
             >
-              Sign in to Homeo Circle
+              Sign in to Homeo India
             </button>
           </div>
         ) : (

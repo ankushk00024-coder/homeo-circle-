@@ -21,7 +21,7 @@ export const PrivacyPage: React.FC = () => {
             <span>1. Information We Collect</span>
           </h2>
           <p>
-            When you apply for membership on Homeo Circle, we collect:
+            When you apply for membership on Homeo India, we collect:
           </p>
           <ul className="list-disc pl-5 space-y-1">
             <li><strong>Identity & Credentials:</strong> Full legal name, medical qualification (BHMS, MD), state/central registration number, and state council authority.</li>
@@ -61,7 +61,7 @@ export const PrivacyPage: React.FC = () => {
             <span>4. Data Retention & Deletion</span>
           </h2>
           <p>
-            Practitioners have the right to request deletion of their account and profile data at any time through their settings or by contacting <code className="bg-slate-100 px-1 py-0.5 rounded text-brand-navy">privacy@homeocircle.in</code>. Basic audit logs of registration decisions are retained for compliance records with statutory authorities.
+            Practitioners have the right to request deletion of their account and profile data at any time through their settings or by contacting <code className="bg-slate-100 px-1 py-0.5 rounded text-brand-navy">privacy@homeoindia.in</code>. Basic audit logs of registration decisions are retained for compliance records with statutory authorities.
           </p>
         </section>
       </div>

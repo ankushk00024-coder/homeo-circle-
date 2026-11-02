@@ -103,7 +103,7 @@ export const AdminSidebar: React.FC = () => {
         />
         <div className="overflow-hidden flex-1 min-w-0">
           <p className="text-xs font-semibold text-white truncate">{currentUser?.full_name || 'Administrator'}</p>
-          <p className="text-[10px] text-slate-400 truncate">{currentUser?.email || 'admin@homeocircle.in'}</p>
+          <p className="text-[10px] text-slate-400 truncate">{currentUser?.email || 'admin@homeoindia.in'}</p>
           <span className="inline-block mt-0.5 text-[9px] uppercase tracking-wider font-semibold text-teal-300 bg-teal-950 px-1.5 py-0.5 rounded border border-teal-800">
             {currentUser?.role === 'super_admin' ? 'Super Admin' : 'Admin Console'}
           </span>

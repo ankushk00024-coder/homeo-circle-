@@ -68,7 +68,7 @@ const steps = [
   },
   {
     icon: BadgeCheck,
-    title: 'Join the circle',
+    title: 'Join the community',
     desc: 'Post, connect with members and join events.',
   },
 ];
@@ -139,7 +139,7 @@ export const LandingPage: React.FC = () => {
               />
               <Reveal delay={100}>
                 <Link to="/about" className="btn-secondary group">
-                  About Homeo Circle
+                  About Homeo India
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Reveal>
@@ -280,7 +280,7 @@ export const LandingPage: React.FC = () => {
         <Reveal className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-7">
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 ring-1 ring-white/20 text-xs font-bold text-teal-200 uppercase tracking-wider backdrop-blur">
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Join India’s professional circle</span>
+            <span>Join India’s homeopathy community</span>
           </div>
 
           <h2 className="text-4xl sm:text-5xl font-serif font-bold !text-white leading-tight">
@@ -290,7 +290,7 @@ export const LandingPage: React.FC = () => {
 
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Link to="/apply" className="btn-primary group">
-              Join the Circle
+              Join Homeo India
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>

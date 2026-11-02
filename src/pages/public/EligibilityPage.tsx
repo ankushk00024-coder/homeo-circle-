@@ -28,7 +28,7 @@ export const EligibilityPage: React.FC = () => {
           Practitioner Eligibility Guidelines
         </h1>
         <p className="text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
-          Homeo Circle is exclusively restricted to certified homoeopaths licensed to practice under the laws of the Republic of India.
+          Homeo India is exclusively restricted to certified homoeopaths licensed to practice under the laws of the Republic of India.
         </p>
       </div>
 

@@ -403,7 +403,7 @@ export const EventsPage: React.FC = () => {
                     <span>Your Seat is Confirmed</span>
                   </div>
                   <p className="text-[11px] text-teal-800">
-                    Meeting link: <a href="https://meet.homeocircle.in/cme-hall-1" target="_blank" rel="noopener noreferrer" className="font-semibold underline inline-flex items-center gap-0.5">https://meet.homeocircle.in/cme-hall-1 <ExternalLink className="w-3 h-3" /></a>
+                    Meeting link: <a href="https://meet.homeoindia.in/cme-hall-1" target="_blank" rel="noopener noreferrer" className="font-semibold underline inline-flex items-center gap-0.5">https://meet.homeoindia.in/cme-hall-1 <ExternalLink className="w-3 h-3" /></a>
                   </p>
                   <p className="text-[10px] text-teal-700">
                     The video room opens 15 minutes before scheduled start time. Verification token is attached to your registered account.

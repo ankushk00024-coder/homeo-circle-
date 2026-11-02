@@ -13,7 +13,7 @@ export const CommunityRulesPage: React.FC = () => {
           Community Rules & Clinical Standards
         </h1>
         <p className="text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
-          Homeo Circle is committed to maintaining high standards of clinical rigor, academic integrity, and legal compliance. All members agree to uphold these standards.
+          Homeo India is committed to maintaining high standards of clinical rigor, academic integrity, and legal compliance. All members agree to uphold these standards.
         </p>
       </div>
 
@@ -84,7 +84,7 @@ export const CommunityRulesPage: React.FC = () => {
           <h2>3. Zero Tolerance for Spam & Direct Remedy Selling</h2>
         </div>
         <p className="text-xs text-slate-600 leading-relaxed">
-          Homeo Circle is an intellectual sanctuary, not an advertising channel:
+          Homeo India is an intellectual sanctuary, not an advertising channel:
         </p>
         <ul className="space-y-2 text-xs text-slate-600">
           <li className="flex items-start gap-2">

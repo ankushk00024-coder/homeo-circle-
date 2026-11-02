@@ -57,7 +57,7 @@ export const AccountTypePrompt: React.FC = () => {
               </>
             ) : (
               <>
-                <p className="font-semibold text-brand-navy">Welcome to Homeo Circle! What describes you best?</p>
+                <p className="font-semibold text-brand-navy">Welcome to Homeo India! What describes you best?</p>
                 <p className="text-sm text-slate-600">
                   Choose doctor, student or researcher, then fill a short form for verification. Once approved, your
                   profile appears in the member directory.

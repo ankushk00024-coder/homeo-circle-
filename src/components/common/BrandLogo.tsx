@@ -51,7 +51,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
 
       {/* Brand Text */}
       <span className={`font-sans font-bold tracking-[0.14em] uppercase ${textSizes[size]} ${isDark ? 'text-white' : 'text-brand-navy'}`}>
-        HOMEO <span className={isDark ? 'text-teal-400' : 'text-brand-teal'}>CIRCLE</span>
+        HOMEO <span className={isDark ? 'text-teal-400' : 'text-brand-teal'}>INDIA</span>
       </span>
     </Link>
   );

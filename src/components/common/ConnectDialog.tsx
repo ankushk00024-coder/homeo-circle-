@@ -99,7 +99,7 @@ export const ConnectDialog: React.FC<ConnectDialogProps> = ({ target, onClose, o
               value={note}
               onChange={(e) => setNote(e.target.value.slice(0, CONNECT_NOTE_LIMIT))}
               rows={5}
-              placeholder={`Hi ${firstName}, I'd like to connect with you on Homeo Circle…`}
+              placeholder={`Hi ${firstName}, I'd like to connect with you on Homeo India…`}
               className="w-full px-3.5 py-3 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 outline-none resize-none text-slate-800 placeholder:text-slate-400"
             />
             <div className="flex justify-between mt-1 text-[11px] text-slate-400">

@@ -19,7 +19,7 @@ if (fs.existsSync('.env.local')) {
   }
 }
 
-console.log('=== HOMEO CIRCLE AUTHENTICATION & USER JOURNEY TEST SUITE ===\n');
+console.log('=== HOMEO INDIA AUTHENTICATION & USER JOURNEY TEST SUITE ===\n');
 
 let testsPassed = 0;
 let testsFailed = 0;
@@ -76,7 +76,7 @@ async function runTestSuite() {
   console.log('\n3. Testing Email/Password Sign-In Error Handling (Invalid Credentials)');
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: 'nonexistent.practitioner@homeocircle.in',
+      email: 'nonexistent.practitioner@homeoindia.in',
       password: 'invalid_password_12345'
     });
     assert(Boolean(error), 'Invalid credentials correctly returned an authentication error');
@@ -159,8 +159,8 @@ async function runTestSuite() {
     'Removed prominent "Join as Researcher" forced button'
   );
   assert(
-    landingPageContent.includes('to="/login"') && landingPageContent.includes('Join Homeo Circle'),
-    'Homepage primary CTA is "Join Homeo Circle" linking directly to /login'
+    landingPageContent.includes('to="/login"') && landingPageContent.includes('Join Homeo India'),
+    'Homepage primary CTA is "Join Homeo India" linking directly to /login'
   );
 
   console.log('\n7. Testing Navigation Bar & Sidebar Links');
@@ -169,11 +169,11 @@ async function runTestSuite() {
 
   assert(
     navbarContent.includes('to="/login"') && !navbarContent.includes('to="/apply"\n                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#0D817B]'),
-    'Public navbar "Join Homeo Circle" redirects to /login'
+    'Public navbar "Join Homeo India" redirects to /login'
   );
   assert(
     sidebarContent.includes('to="/login" \n                className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 bg-[#0D817B]'),
-    'Member sidebar "Join Homeo Circle" redirects to /login'
+    'Member sidebar "Join Homeo India" redirects to /login'
   );
 
   console.log('\n8. Testing Profile Type Selection Safety');

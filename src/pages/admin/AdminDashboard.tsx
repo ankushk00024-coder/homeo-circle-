@@ -169,7 +169,7 @@ export const AdminDashboard: React.FC = () => {
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Homeo Circle India clinical network and verification operations console.
+            Homeo India clinical network and verification operations console.
           </p>
         </div>
 

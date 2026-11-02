@@ -21,14 +21,14 @@ export const AdminEvents: React.FC = () => {
   // New Event form fields
   const [title, setTitle] = useState('');
   const [format, setFormat] = useState<'Webinar' | 'Conference' | 'Workshop' | 'Study Circle' | 'State Chapter CME'>('Webinar');
-  const [organizer, setOrganizer] = useState('Homeo Circle Central');
+  const [organizer, setOrganizer] = useState('Homeo India Central');
   const [speaker, setSpeaker] = useState('');
   const [speakerTitle, setSpeakerTitle] = useState('Senior Consultant');
   const [day, setDay] = useState('15');
   const [month, setMonth] = useState('FEB');
   const [timeDisplay, setTimeDisplay] = useState('Online • 6:00 PM - 7:30 PM IST');
   const [location, setLocation] = useState('Online via Secure Meeting Room');
-  const [registrationUrl, setRegistrationUrl] = useState('https://homeocircle.in');
+  const [registrationUrl, setRegistrationUrl] = useState('https://homeoindia.in');
   const [summary, setSummary] = useState('');
   const [submitting, setSubmitting] = useState(false);
 

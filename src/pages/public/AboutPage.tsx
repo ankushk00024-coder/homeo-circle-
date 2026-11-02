@@ -11,7 +11,7 @@ export const AboutPage: React.FC = () => {
           Mission & Governance
         </span>
         <h1 className="text-4xl font-serif font-bold text-brand-navy">
-          About Homeo Circle India
+          About Homeo India
         </h1>
         <p className="text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
           A dedicated sanctuary for registered homoeopathic medical professionals in India to collaborate, exchange clinical case observations, and foster evidence-based research.
@@ -24,7 +24,7 @@ export const AboutPage: React.FC = () => {
           <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center font-bold">
             <CheckCircle2 className="w-5 h-5" />
           </div>
-          <h2 className="text-lg font-bold text-brand-navy">What Homeo Circle Is</h2>
+          <h2 className="text-lg font-bold text-brand-navy">What Homeo India Is</h2>
           <ul className="space-y-2.5 text-xs text-slate-600">
             <li className="flex items-start gap-2">
               <span className="text-teal-600 font-bold">&bull;</span>
@@ -49,7 +49,7 @@ export const AboutPage: React.FC = () => {
           <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
             <AlertCircle className="w-5 h-5" />
           </div>
-          <h2 className="text-lg font-bold text-brand-navy">What Homeo Circle Is Not</h2>
+          <h2 className="text-lg font-bold text-brand-navy">What Homeo India Is Not</h2>
           <ul className="space-y-2.5 text-xs text-slate-600">
             <li className="flex items-start gap-2">
               <span className="text-rose-500 font-bold">&bull;</span>
@@ -76,7 +76,7 @@ export const AboutPage: React.FC = () => {
           In India, the practice of homoeopathy is regulated under the National Commission for Homoeopathy Act, 2020. Practitioners are legally mandated to be enrolled in the Central Register of Homoeopathy or the relevant State Homoeopathic Register. 
         </p>
         <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-          Homeo Circle adheres strictly to this statutory framework. Every applicant must submit their official registration number and state council authority. In v1 of our platform, each record is manually audited by authorized practitioners before access to the member network is granted.
+          Homeo India adheres strictly to this statutory framework. Every applicant must submit their official registration number and state council authority. In v1 of our platform, each record is manually audited by authorized practitioners before access to the member network is granted.
         </p>
       </div>
 

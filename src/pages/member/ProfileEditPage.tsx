@@ -694,7 +694,7 @@ export const ProfileEditPage: React.FC = () => {
         </button>
         <button
           type="button"
-          onClick={() => toast.info('To delete your account, email dpo@homeocircle.in from your registered email. We respond within 30 days.')}
+          onClick={() => toast.info('To delete your account, email dpo@homeoindia.in from your registered email. We respond within 30 days.')}
           className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-semibold border border-rose-200 transition"
         >
           Request account deletion

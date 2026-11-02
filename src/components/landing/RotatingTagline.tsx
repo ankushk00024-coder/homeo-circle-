@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 /** Each tagline: a sentence and its short punchline. */
 const TAGLINES: { line: string; punch: string }[] = [
   { line: 'Behind every good homeopath are a hundred others who helped.', punch: 'Be one of the hundred.' },
+  { line: "Homeo India. It's in the name.", punch: 'A home for every homeopath.' },
   { line: 'You were never meant to do homeopathy alone.', punch: 'Find your people.' },
   { line: 'Spread across India. Gathered in one place.', punch: "India's homeopathy common room." },
   { line: 'Small doses. Massive movement.', punch: 'Every member matters.' },

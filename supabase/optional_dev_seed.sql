@@ -1,5 +1,5 @@
 -- ==============================================================================
--- Homeo Circle — OPTIONAL Local Development Seed Data
+-- Homeo India — OPTIONAL Local Development Seed Data
 -- CAUTION: DO NOT RUN THIS SCRIPT IN A PRODUCTION ENVIRONMENT!
 -- This script contains sample dummy entities for local frontend verification only.
 -- Real practitioners must register and undergo verification through official state gazettes.
@@ -26,7 +26,7 @@ INSERT INTO public.events (
   'e0000000-0000-0000-0000-000000000001',
   'Clinical Posology & Potency Selection in Chronic Pathologies',
   'Detailed exploration of minimum dose, repetition criteria, and potencies according to Organon 6th Edition.',
-  'Homeo Circle Academic Council',
+  'Homeo India Academic Council',
   'Dr. Sanjeev Bannerjee',
   'MD (Hom), Senior Consultant',
   '15',
@@ -35,7 +35,7 @@ INSERT INTO public.events (
   now() + interval '18 days',
   'Webinar',
   'Live Stream (Member CME Portal)',
-  'https://homeocircle.in/events',
+  'https://homeoindia.in/events',
   'published',
   42
 ) ON CONFLICT (id) DO NOTHING;
@@ -65,7 +65,7 @@ INSERT INTO public.opportunities (
   'MD (Hom) / Post-Graduate Scholars with research methodology background',
   '2026-12-15',
   'Join an observational and in-vitro study evaluating nanoparticle dynamics in serial ultramolecular dynamizations.',
-  'https://homeocircle.in/opportunities',
+  'https://homeoindia.in/opportunities',
   'published'
 ) ON CONFLICT (id) DO NOTHING;
 

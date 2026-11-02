@@ -100,7 +100,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           </div>
           <h2 className="text-xl font-bold text-brand-navy">Account suspended</h2>
           <p className="text-sm text-slate-600 leading-relaxed">
-            Your access to the community is paused. If you think this is a mistake, contact support@homeocircle.in.
+            Your access to the community is paused. If you think this is a mistake, contact support@homeoindia.in.
           </p>
           <Link to="/" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-navy text-white text-sm font-semibold hover:bg-slate-800 transition">
             Back to homepage

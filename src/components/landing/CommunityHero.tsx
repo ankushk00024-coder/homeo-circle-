@@ -120,7 +120,7 @@ export const CommunityHero: React.FC = () => {
               to="/apply"
               className="group inline-flex items-center gap-3 rounded-2xl bg-brand-navy px-5 py-3 text-[15px] sm:px-9 sm:py-4 sm:text-lg font-semibold text-white shadow-elevated transition duration-300 hover:-translate-y-0.5 hover:bg-[#1B3150] active:scale-[.98]"
             >
-              Join the Circle
+              Join Homeo India
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link

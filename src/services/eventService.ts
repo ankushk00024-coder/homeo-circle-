@@ -37,7 +37,7 @@ export const eventService = {
     const payload = {
       title: eventData.title?.trim() || '',
       summary: eventData.summary?.trim() || '',
-      organizer: eventData.organizer?.trim() || 'Homeo Circle Clinical Committee',
+      organizer: eventData.organizer?.trim() || 'Homeo India Clinical Committee',
       speaker: eventData.speaker?.trim() || '',
       speaker_title: eventData.speaker_title?.trim() || 'Senior Consultant',
       date_badge_day: eventData.date_badge_day || '15',

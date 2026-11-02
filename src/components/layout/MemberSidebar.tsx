@@ -57,7 +57,7 @@ export const MemberSidebar: React.FC = () => {
           <div className="p-4 bg-gradient-to-br from-teal-50 to-emerald-50 rounded-2xl border border-teal-200/80 text-xs text-slate-700 space-y-2.5 shadow-2xs">
             <div className="flex items-center gap-1.5 text-teal-900 font-bold">
               <ShieldCheck className="w-4 h-4 text-teal-600" />
-              <span>Join Homeo Circle</span>
+              <span>Join Homeo India</span>
             </div>
             <p className="text-[11px] text-slate-500 leading-relaxed">
               Connect with clinical mentors, discuss cases, and register for accredited events.
@@ -67,7 +67,7 @@ export const MemberSidebar: React.FC = () => {
                 to="/login" 
                 className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 bg-[#0D817B] text-white rounded-xl text-xs font-semibold hover:bg-[#0a6b66] transition shadow-2xs"
               >
-                <span>Join Homeo Circle</span>
+                <span>Join Homeo India</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
               <Link 

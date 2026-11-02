@@ -282,7 +282,7 @@ export const ExplorePage: React.FC = () => {
             {!isMember && locked.length > 0 && (
               <p className="mt-6 text-center text-sm text-brand-muted">
                 {locked.length} more {locked.length === 1 ? 'member keeps their' : 'members keep their'} profile visible to verified members only.{' '}
-                <Link to="/apply" className="font-semibold text-brand-teal hover:underline">Join the Circle</Link> to connect.
+                <Link to="/apply" className="font-semibold text-brand-teal hover:underline">Join Homeo India</Link> to connect.
               </p>
             )}
           </>
@@ -293,7 +293,7 @@ export const ExplorePage: React.FC = () => {
       <section className="bg-white border-y border-brand-border/70 py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <Reveal className="text-center max-w-2xl mx-auto">
-            <p className="text-xs font-bold text-brand-teal tracking-[0.18em] uppercase">Inside the circle</p>
+            <p className="text-xs font-bold text-brand-teal tracking-[0.18em] uppercase">Inside Homeo India</p>
             <h2 className="mt-3 text-3xl sm:text-4xl font-serif font-bold text-brand-navy">Spaces built for every stage</h2>
             <p className="mt-3 text-[15px] text-[#3E4C5E]">Members get full access to these spaces once their credentials are verified.</p>
           </Reveal>
@@ -333,7 +333,7 @@ export const ExplorePage: React.FC = () => {
               to="/apply"
               className="group inline-flex items-center gap-3 rounded-2xl bg-brand-navy px-8 py-4 text-base font-semibold text-white shadow-elevated transition duration-300 hover:-translate-y-0.5 hover:bg-[#1B3150] active:scale-[.98]"
             >
-              Join the Circle <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              Join Homeo India <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link to="/login" className="btn-secondary !px-8 !py-4 !text-base">
               Sign in

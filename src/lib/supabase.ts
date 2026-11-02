@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * Homeo Circle — Centralized Data Access Layer
+ * Homeo India — Centralized Data Access Layer
  * Integrates directly with Supabase PostgreSQL, Auth, and Storage.
  * ==============================================================================
  */

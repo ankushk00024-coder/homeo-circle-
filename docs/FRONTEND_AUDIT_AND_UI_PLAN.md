@@ -1,4 +1,4 @@
-# Homeo Circle — Frontend Audit & UI/Animation Plan
+# Homeo India — Frontend Audit & UI/Animation Plan
 
 > **Status (branch `feat/security-fixes-and-ui-upgrade`):** Part A (A1–A6) is
 > implemented. B1, B3 (focus, dialogs, reduced motion), B4 (code-splitting,

@@ -146,7 +146,7 @@ export const ApplyPage: React.FC = () => {
 
       if (newApp.status === 'verified') {
         // If automatically approved by platform settings
-        navigate('/dashboard', { state: { welcomeMessage: 'Welcome to Homeo Circle!' } });
+        navigate('/dashboard', { state: { welcomeMessage: 'Welcome to Homeo India!' } });
       } else {
         navigate('/application-status', { 
           state: { 
@@ -178,7 +178,7 @@ export const ApplyPage: React.FC = () => {
           <div className="w-12 h-12 mx-auto rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center">
             <ShieldCheck className="w-6 h-6" />
           </div>
-          <h1 className="text-xl font-serif font-bold text-brand-navy">Join Homeo Circle</h1>
+          <h1 className="text-xl font-serif font-bold text-brand-navy">Join Homeo India</h1>
           <p className="text-sm text-slate-600">
             Create a free account or sign in, then fill a short form to get verified.
           </p>
@@ -213,7 +213,7 @@ export const ApplyPage: React.FC = () => {
           <span>Get verified</span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-serif font-bold text-brand-navy">
-          Join Homeo Circle India
+          Join Homeo India
         </h1>
         <p className="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto leading-relaxed">
           Choose who you are and fill a short form. Our team will review it.
@@ -230,11 +230,11 @@ export const ApplyPage: React.FC = () => {
       {/* Main Form Wrapper */}
       <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-card space-y-8">
         
-        {/* Step 1: “How would you like to join Homeo Circle?” */}
+        {/* Step 1: “How would you like to join Homeo India?” */}
         <div className="space-y-4">
           <div>
             <h2 className="text-base font-bold text-brand-navy">
-              How would you like to join Homeo Circle?
+              How would you like to join Homeo India?
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
               Select your membership category to customize your profile, directory listing, and community permissions.
