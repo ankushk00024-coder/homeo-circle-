@@ -226,6 +226,8 @@ export interface Post {
   category_badge_color: string;
   source_url?: string;
   attachment_url?: string;
+  /** Up to 4 photo URLs (Supabase 'post-images' bucket). */
+  image_urls?: string[];
   status: 'published' | 'hidden' | 'removed';
   likes_count: number;
   comments_count: number;

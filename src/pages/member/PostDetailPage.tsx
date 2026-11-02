@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../lib/supabase';
 import { Post, Comment, Report } from '../../types';
 import { Avatar } from '../../components/common/Avatar';
+import { PostImages } from '../../components/common/PostImages';
 import { 
   ArrowLeft, 
   Heart, 
@@ -260,6 +261,8 @@ export const PostDetailPage: React.FC = () => {
             <div className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line space-y-3">
               {post.body}
             </div>
+
+            <PostImages urls={post.image_urls} />
 
             {post.source_url && (
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs">

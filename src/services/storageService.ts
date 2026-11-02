@@ -1,7 +1,7 @@
 import { supabase, isSupabaseConfigured, getRequiredSupabase } from './supabaseClient';
+import { compressImage, AVATAR_COMPRESSION, POST_IMAGE_COMPRESSION } from '../lib/imageCompress';
 
 const ALLOWED_AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-const MAX_AVATAR_SIZE = 5 * 1024 * 1024; // 5MB
 
 const ALLOWED_DOCUMENT_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
 const MAX_DOCUMENT_SIZE = 10 * 1024 * 1024; // 10MB
@@ -14,21 +14,18 @@ export const storageService = {
   async uploadAvatar(userId: string, file: File): Promise<{ path: string; publicUrl: string }> {
     const client = getRequiredSupabase();
 
-    if (!ALLOWED_AVATAR_TYPES.includes(file.type)) {
-      throw new Error('Invalid file type. Allowed formats: JPEG, PNG, WebP, GIF.');
+    if (!ALLOWED_AVATAR_TYPES.includes(file.type) && !file.type.startsWith('image/')) {
+      throw new Error('Please choose a photo (JPEG, PNG or WebP).');
     }
 
-    if (file.size > MAX_AVATAR_SIZE) {
-      throw new Error('Avatar image must not exceed 5MB.');
-    }
-
-    const ext = file.name.split('.').pop() || 'jpg';
-    const cleanFileName = `avatar-${Date.now()}.${ext}`;
-    const filePath = `${userId}/${cleanFileName}`;
+    // Any size is accepted: the photo is shrunk to ~200 KB before upload.
+    const small = await compressImage(file, AVATAR_COMPRESSION);
+    const ext = small.name.split('.').pop() || 'webp';
+    const filePath = `${userId}/avatar-${Date.now()}.${ext}`;
 
     const { data, error } = await client.storage
       .from('avatars')
-      .upload(filePath, file, {
+      .upload(filePath, small, {
         cacheControl: '3600',
         upsert: true
       });
@@ -43,6 +40,24 @@ export const storageService = {
       path: data.path,
       publicUrl: publicUrlData.publicUrl
     };
+  },
+
+  /**
+   * Compresses a photo (~500 KB, max 1600 px) and uploads it to the public
+   * 'post-images' bucket under `${userId}/`, returning its public URL.
+   */
+  async uploadPostImage(userId: string, file: File): Promise<string> {
+    const client = getRequiredSupabase();
+    const small = await compressImage(file, POST_IMAGE_COMPRESSION);
+    const ext = small.name.split('.').pop() || 'webp';
+    const filePath = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+    const { data, error } = await client.storage
+      .from('post-images')
+      .upload(filePath, small, { cacheControl: '31536000', upsert: false, contentType: small.type });
+    if (error) throw error;
+
+    return client.storage.from('post-images').getPublicUrl(data.path).data.publicUrl;
   },
 
   /**

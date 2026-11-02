@@ -441,6 +441,10 @@ export const dataService = {
     return storageService.uploadAvatar(userId, file);
   },
 
+  async uploadPostImage(userId: string, file: File): Promise<string> {
+    return storageService.uploadPostImage(userId, file);
+  },
+
   async uploadVerificationDocument(userId: string, file: File): Promise<{ path: string }> {
     return storageService.uploadVerificationDocument(userId, file);
   },

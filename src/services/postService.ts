@@ -131,6 +131,7 @@ export const postService = {
       category_name: categoryNames[catId] || 'Clinical Learning',
       category_badge_color: categoryColors[catId] || 'bg-teal-50 text-teal-800 border-teal-200',
       source_url: postData.source_url?.trim() || null,
+      image_urls: (postData.image_urls || []).slice(0, 4),
       attachment_url: postData.attachment_url?.trim() || null,
       status: 'published',
       likes_count: 0,

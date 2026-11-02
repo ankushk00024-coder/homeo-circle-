@@ -25,13 +25,11 @@ export const ProfileEditPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Permitted user categories (doctor/practitioner, student/intern, researcher/educator)
-  const [category, setCategory] = useState<'doctor' | 'student' | 'researcher'>(() => {
-    if (currentUser?.account_type) return currentUser.account_type;
-    if (currentUser?.role === 'student') return 'student';
-    if (currentUser?.role === 'researcher') return 'researcher';
-    return 'doctor';
-  });
+  // The verified account type decides which fields show. It is changed only
+  // through the verification form (picker at the bottom), never by Save.
+  const category: 'doctor' | 'student' | 'researcher' =
+    currentUser?.account_type ||
+    (currentUser?.role === 'student' ? 'student' : currentUser?.role === 'researcher' ? 'researcher' : 'doctor');
 
   const isDoctor = category === 'doctor';
   const isStudent = category === 'student';
@@ -106,10 +104,6 @@ export const ProfileEditPage: React.FC = () => {
       toast.error('Please upload a valid image file (JPEG, PNG, WebP).');
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size must be less than 5MB.');
-      return;
-    }
 
     try {
       setUploadingAvatar(true);
@@ -130,15 +124,9 @@ export const ProfileEditPage: React.FC = () => {
     if (saving) return;
     const interests = interestsStr.split(',').map(s => s.trim()).filter(Boolean);
     
-    // Preserve admin/moderator roles; otherwise allow updating role to match chosen category
-    const isPrivileged = ['admin', 'super_admin', 'moderator'].includes(currentUser?.role || '');
-    const targetRole = isPrivileged ? currentUser?.role : category;
-
     setSaving(true);
     try {
     await updateCurrentUser({
-      account_type: category,
-      role: targetRole,
       display_name: displayName.trim(),
       avatar_url: avatarUrl || currentUser?.avatar_url,
       qualification: qualification.trim(),
@@ -288,86 +276,6 @@ export const ProfileEditPage: React.FC = () => {
           </span>
         </div>
 
-        {/* Profile Category Selection */}
-        <div className="p-5 bg-gradient-to-br from-[#F8FBFE] to-teal-50/40 rounded-2xl border border-teal-200/80 space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <h3 className="text-sm font-bold text-brand-navy flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-brand-teal" />
-                <span>Choose Your Profile Type</span>
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Select the category that best matches your practice. You can change this anytime.
-              </p>
-            </div>
-            <span className="self-start sm:self-auto text-[11px] font-semibold text-teal-800 bg-teal-100/70 px-2.5 py-0.5 rounded-full capitalize">
-              Active: {category === 'doctor' ? 'Practitioner' : category === 'student' ? 'Student / Intern' : 'Researcher'}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-            <button
-              type="button"
-              onClick={() => setCategory('doctor')}
-              className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
-                category === 'doctor'
-                  ? 'bg-white border-teal-600 shadow-xs ring-2 ring-teal-500/20'
-                  : 'bg-white/70 border-slate-200 hover:border-slate-300 hover:bg-white'
-              }`}
-            >
-              <div className="flex items-center gap-2 mb-1.5">
-                <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${category === 'doctor' ? 'bg-teal-100 text-teal-800' : 'bg-slate-100 text-slate-600'}`}>
-                  <Stethoscope className="w-4 h-4" />
-                </div>
-                <span className="text-xs font-bold text-slate-800">Practitioner</span>
-              </div>
-              <p className="text-[11px] text-slate-500 leading-snug">
-                Practicing clinician in OPD or private consultation practice.
-              </p>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setCategory('student')}
-              className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
-                category === 'student'
-                  ? 'bg-white border-teal-600 shadow-xs ring-2 ring-teal-500/20'
-                  : 'bg-white/70 border-slate-200 hover:border-slate-300 hover:bg-white'
-              }`}
-            >
-              <div className="flex items-center gap-2 mb-1.5">
-                <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${category === 'student' ? 'bg-teal-100 text-teal-800' : 'bg-slate-100 text-slate-600'}`}>
-                  <GraduationCap className="w-4 h-4" />
-                </div>
-                <span className="text-xs font-bold text-slate-800">Student / Intern</span>
-              </div>
-              <p className="text-[11px] text-slate-500 leading-snug">
-                Enrolled BHMS undergraduate or rotating hospital intern.
-              </p>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setCategory('researcher')}
-              className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
-                category === 'researcher'
-                  ? 'bg-white border-teal-600 shadow-xs ring-2 ring-teal-500/20'
-                  : 'bg-white/70 border-slate-200 hover:border-slate-300 hover:bg-white'
-              }`}
-            >
-              <div className="flex items-center gap-2 mb-1.5">
-                <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${category === 'researcher' ? 'bg-teal-100 text-teal-800' : 'bg-slate-100 text-slate-600'}`}>
-                  <Microscope className="w-4 h-4" />
-                </div>
-                <span className="text-xs font-bold text-slate-800">Researcher</span>
-              </div>
-              <p className="text-[11px] text-slate-500 leading-snug">
-                Academic faculty, clinical researcher, or medical author.
-              </p>
-            </button>
-          </div>
-        </div>
-
         {/* Basic Section */}
         <div className="space-y-4">
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 border-b pb-1">
@@ -392,7 +300,7 @@ export const ProfileEditPage: React.FC = () => {
             <div className="flex-1 space-y-1">
               <span className="block text-xs font-bold text-slate-800">Profile Photo</span>
               <p className="text-[11px] text-slate-500">
-                Upload a professional photo or portrait (JPEG, PNG, WebP up to 5MB).
+                Upload a clear photo of yourself. Any size works; we shrink it automatically.
               </p>
               <div className="pt-1 flex items-center gap-3">
                 <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-300 hover:border-teal-600 rounded-lg text-xs font-medium text-slate-700 hover:text-teal-700 transition-colors shadow-xs">

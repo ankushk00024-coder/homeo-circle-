@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../lib/supabase';
 import { Post, Report } from '../../types';
 import { Avatar } from '../../components/common/Avatar';
+import { PostImages } from '../../components/common/PostImages';
 import { 
   Heart, 
   MessageSquare, 
@@ -24,7 +25,9 @@ import {
   Sparkles,
   ExternalLink,
   ShieldCheck,
-  Scale
+  Scale,
+  ImagePlus,
+  X as XIcon
 } from 'lucide-react';
 
 export const DiscussionsPage: React.FC = () => {
@@ -48,6 +51,22 @@ export const DiscussionsPage: React.FC = () => {
   const [postBody, setPostBody] = useState('');
   const [postSource, setPostSource] = useState('');
   const [posting, setPosting] = useState(false);
+  // Photos chosen for the new post (uploaded on publish, compressed first)
+  const [postPhotos, setPostPhotos] = useState<{ file: File; preview: string }[]>([]);
+
+  const addPhotos = (files: FileList | null) => {
+    if (!files) return;
+    const picked = Array.from(files).filter((f) => f.type.startsWith('image/'));
+    setPostPhotos((prev) => [
+      ...prev,
+      ...picked.slice(0, 4 - prev.length).map((file) => ({ file, preview: URL.createObjectURL(file) })),
+    ]);
+  };
+  const removePhoto = (i: number) =>
+    setPostPhotos((prev) => {
+      URL.revokeObjectURL(prev[i].preview);
+      return prev.filter((_, idx) => idx !== i);
+    });
   const [postError, setPostError] = useState<string | null>(null);
 
   // Report state
@@ -151,6 +170,10 @@ export const DiscussionsPage: React.FC = () => {
 
       {
         const authorType = currentUser?.account_type || currentUser?.role;
+        const imageUrls: string[] = [];
+        for (const p of postPhotos) {
+          imageUrls.push(await dataService.uploadPostImage(currentUser!.id, p.file));
+        }
         await dataService.createPost({
           author_id: currentUser?.id,
           author_name: currentUser?.display_name || currentUser?.full_name || 'Practitioner',
@@ -165,10 +188,13 @@ export const DiscussionsPage: React.FC = () => {
           category_id: postCategory,
           category_name: selectedMeta.name,
           category_badge_color: selectedMeta.color,
-          source_url: postSource.trim() || undefined
+          source_url: postSource.trim() || undefined,
+          image_urls: imageUrls
         });
       }
 
+      postPhotos.forEach((p) => URL.revokeObjectURL(p.preview));
+      setPostPhotos([]);
       setComposerOpen(false);
         await loadPosts();
     } catch (err: any) {
@@ -365,6 +391,7 @@ export const DiscussionsPage: React.FC = () => {
                     <p className="text-xs sm:text-[13px] text-slate-700 leading-relaxed line-clamp-3">
                       {post.body}
                     </p>
+                    <PostImages urls={post.image_urls} compact />
                     {post.source_url && (
                       <div className="pt-1">
                         <a
@@ -514,6 +541,41 @@ export const DiscussionsPage: React.FC = () => {
                 />
               </div>
 
+              {/* Photos (up to 4, compressed automatically before upload) */}
+              <div className="space-y-2">
+                {postPhotos.length > 0 && (
+                  <div className="grid grid-cols-4 gap-2">
+                    {postPhotos.map((p, i) => (
+                      <div key={p.preview} className="relative aspect-square rounded-lg overflow-hidden ring-1 ring-slate-200">
+                        <img src={p.preview} alt={`Selected photo ${i + 1}`} className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => removePhoto(i)}
+                          className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80"
+                          aria-label="Remove photo"
+                        >
+                          <XIcon className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {postPhotos.length < 4 && (
+                  <label className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-brand-navy hover:bg-slate-50 cursor-pointer transition">
+                    <ImagePlus className="w-4 h-4 text-brand-teal" />
+                    <span>{postPhotos.length ? 'Add more photos' : 'Add photos'}</span>
+                    <span className="font-normal text-slate-400">({postPhotos.length}/4)</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => { addPhotos(e.target.files); e.target.value = ''; }}
+                    />
+                  </label>
+                )}
+              </div>
+
               {/* Patient Privacy Advisory */}
               <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-xl text-[11px] text-amber-800 flex items-start gap-2">
                 <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
@@ -535,7 +597,7 @@ export const DiscussionsPage: React.FC = () => {
                   disabled={posting}
                   className="px-5 py-2 bg-brand-teal hover:bg-teal-700 text-white rounded-xl text-xs font-semibold shadow transition disabled:opacity-50"
                 >
-                  {posting ? 'Publishing...' : 'Publish Discussion'}
+                  {posting ? (postPhotos.length ? 'Uploading photos…' : 'Publishing...') : 'Publish Discussion'}
                 </button>
               </div>
             </form>
