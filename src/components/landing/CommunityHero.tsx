@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { AnimatedWords } from '../motion/AnimatedWords';
 import { RotatingTagline } from './RotatingTagline';
+import { MobilePhotoFan } from './MobilePhotoFan';
 
 type PhotoSpec = {
   src: string;
@@ -90,11 +91,11 @@ export const CommunityHero: React.FC = () => {
         <div className="absolute left-0 top-1/4 w-40 h-1/2 bg-grid opacity-50" />
       </div>
 
-      <div className="relative mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-0 lg:min-h-[clamp(760px,57vw,930px)] pt-12 pb-16 lg:py-0">
+      <div className="relative mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-0 lg:min-h-[clamp(760px,57vw,930px)] pt-7 pb-10 sm:pt-12 sm:pb-16 lg:py-0">
 
         {/* ── Centre copy ──────────────────────────────────────────────── */}
         <div className="relative z-20 mx-auto max-w-4xl text-center lg:absolute lg:inset-x-0 lg:top-[26%]">
-          <h1 className="font-serif font-bold tracking-[-0.025em] leading-[0.98] text-[clamp(3rem,6.4vw,6.4rem)]">
+          <h1 className="font-serif font-bold tracking-[-0.025em] leading-[0.98] text-[clamp(2.5rem,6.4vw,6.4rem)]">
             <span className="block text-brand-navy">
               <AnimatedWords text="Every homeopath" delay={150} />
             </span>
@@ -114,17 +115,17 @@ export const CommunityHero: React.FC = () => {
 
           <RotatingTagline />
 
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-4 animate-fade-up [animation-delay:1200ms]">
+          <div className="mt-5 sm:mt-9 flex flex-wrap items-center justify-center gap-2.5 sm:gap-4 animate-fade-up [animation-delay:1200ms]">
             <Link
               to="/apply"
-              className="group inline-flex items-center gap-3 rounded-2xl bg-brand-navy px-9 py-4 text-lg font-semibold text-white shadow-elevated transition duration-300 hover:-translate-y-0.5 hover:bg-[#1B3150] active:scale-[.98]"
+              className="group inline-flex items-center gap-3 rounded-2xl bg-brand-navy px-5 py-3 text-[15px] sm:px-9 sm:py-4 sm:text-lg font-semibold text-white shadow-elevated transition duration-300 hover:-translate-y-0.5 hover:bg-[#1B3150] active:scale-[.98]"
             >
               Join the Circle
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
               to="/explore"
-              className="group inline-flex items-center gap-3 rounded-2xl bg-white px-8 py-4 text-lg font-semibold text-brand-navy shadow-card ring-1 ring-[#DCE8F1] transition duration-300 hover:-translate-y-0.5 hover:ring-brand-teal/40 hover:shadow-card-hover active:scale-[.98]"
+              className="group inline-flex items-center gap-3 rounded-2xl bg-white px-5 py-3 text-[15px] sm:px-8 sm:py-4 sm:text-lg font-semibold text-brand-navy shadow-card ring-1 ring-[#DCE8F1] transition duration-300 hover:-translate-y-0.5 hover:ring-brand-teal/40 hover:shadow-card-hover active:scale-[.98]"
             >
               Explore the community
               <ArrowUpRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -132,8 +133,12 @@ export const CommunityHero: React.FC = () => {
           </div>
         </div>
 
-        {/* ── Tilted photos (absolute on desktop, 2×2 grid on smaller screens) ── */}
-        <div className="relative z-10 mt-14 grid grid-cols-2 gap-x-5 gap-y-8 sm:gap-x-10 lg:mt-0 lg:block lg:absolute lg:inset-0 lg:pointer-events-none [&>*]:pointer-events-auto">
+        {/* ── Photos ── */}
+        {/* Phones/tablets: fanned card stack */}
+        <MobilePhotoFan photos={photos} />
+
+        {/* Desktop: scattered tilted photos */}
+        <div className="hidden lg:block relative z-10 lg:absolute lg:inset-0 lg:pointer-events-none [&>*]:pointer-events-auto">
           {photos.map((photo) => (
             <div
               key={photo.src}

@@ -46,16 +46,16 @@ export const RotatingTagline: React.FC = () => {
   const { line, punch } = TAGLINES[index];
 
   return (
-    <div className="relative mx-auto mt-8 max-w-2xl animate-fade-up [animation-delay:900ms]">
+    <div className="relative mx-auto mt-4 sm:mt-8 max-w-2xl animate-fade-up [animation-delay:900ms]">
       <div className="relative overflow-hidden">
         <div className="relative">
           <div
             key={`in-${index}`}
             aria-live="polite"
-            className={`min-h-[6.5rem] sm:min-h-[6rem] flex flex-col items-center justify-center ${prev !== null ? 'animate-tagline-in' : ''}`}
+            className={`min-h-[5.5rem] sm:min-h-[6rem] flex flex-col items-center justify-center ${prev !== null ? 'animate-tagline-in' : ''}`}
           >
-            <p className="text-[clamp(1.1rem,1.7vw,1.6rem)] text-[#3E4C5E] leading-snug">{line}</p>
-            <p className="mt-1 font-serif font-bold text-brand-navy text-[clamp(1.3rem,2vw,1.9rem)]">{punch}</p>
+            <p className="text-[clamp(1rem,1.7vw,1.6rem)] text-[#3E4C5E] leading-snug">{line}</p>
+            <p className="mt-1 font-serif font-bold text-brand-navy text-[clamp(1.15rem,2vw,1.9rem)]">{punch}</p>
           </div>
           {prev !== null && (
             <div
@@ -63,13 +63,13 @@ export const RotatingTagline: React.FC = () => {
               aria-hidden="true"
               className="absolute inset-0 flex flex-col items-center justify-center animate-tagline-out"
             >
-              <p className="text-[clamp(1.1rem,1.7vw,1.6rem)] text-[#3E4C5E] leading-snug">{TAGLINES[prev].line}</p>
-              <p className="mt-1 font-serif font-bold text-brand-navy text-[clamp(1.3rem,2vw,1.9rem)]">{TAGLINES[prev].punch}</p>
+              <p className="text-[clamp(1rem,1.7vw,1.6rem)] text-[#3E4C5E] leading-snug">{TAGLINES[prev].line}</p>
+              <p className="mt-1 font-serif font-bold text-brand-navy text-[clamp(1.15rem,2vw,1.9rem)]">{TAGLINES[prev].punch}</p>
             </div>
           )}
         </div>
       </div>
-      <div className="mt-3 flex justify-center gap-1.5" aria-label="Choose a tagline">
+      <div className="mt-2 sm:mt-3 flex justify-center gap-1.5" aria-label="Choose a tagline">
         {TAGLINES.map((t, i) => (
           <button
             key={t.punch}
