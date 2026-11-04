@@ -9,7 +9,6 @@ import { AccountType, PractitionerApplication } from '../../types';
 export const ACCOUNT_TYPE_OPTIONS: { value: AccountType; label: string; hint: string; icon: React.ElementType }[] = [
   { value: 'doctor', label: 'Doctor / Practitioner', hint: 'BHMS, MD (Hom), DHMS — registered clinicians', icon: Stethoscope },
   { value: 'student', label: 'Student / Intern', hint: 'BHMS students and clinical interns', icon: GraduationCap },
-  { value: 'researcher', label: 'Researcher / Educator', hint: 'Faculty, investigators and scholars', icon: Microscope },
 ];
 
 const ADMIN_ROLES = ['admin', 'super_admin', 'moderator'];

@@ -10,7 +10,7 @@ export interface CompressOptions {
 }
 
 export const AVATAR_COMPRESSION: CompressOptions = { maxDimension: 512, maxBytes: 200 * 1024 };
-export const POST_IMAGE_COMPRESSION: CompressOptions = { maxDimension: 1600, maxBytes: 500 * 1024 };
+export const POST_IMAGE_COMPRESSION: CompressOptions = { maxDimension: 2048, maxBytes: 900 * 1024 };
 
 const loadImage = (file: File): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {

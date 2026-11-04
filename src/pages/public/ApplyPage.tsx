@@ -30,12 +30,12 @@ export const ApplyPage: React.FC = () => {
   // Step 1: Account Type Selection
   const initialRole = (searchParams.get('role') as AccountType) || 'doctor';
   const [accountType, setAccountType] = useState<AccountType>(
-    ['doctor', 'student', 'researcher'].includes(initialRole) ? initialRole : 'doctor'
+    ['doctor', 'student'].includes(initialRole) ? initialRole : 'doctor'
   );
 
   useEffect(() => {
     const roleParam = searchParams.get('role') as AccountType;
-    if (roleParam && ['doctor', 'student', 'researcher'].includes(roleParam)) {
+    if (roleParam && ['doctor', 'student'].includes(roleParam)) {
       setAccountType(roleParam);
     }
   }, [searchParams]);
@@ -241,7 +241,7 @@ export const ApplyPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             
             {/* 1. Doctor */}
             <div
@@ -300,36 +300,6 @@ export const ApplyPage: React.FC = () => {
               </div>
               <div className="pt-2 text-[11px] font-semibold text-teal-700">
                 {accountType === 'student' ? '✓ Selected' : 'Select'}
-              </div>
-            </div>
-
-            {/* 3. Researcher */}
-            <div
-              onClick={() => setAccountType('researcher')}
-              className={`p-5 rounded-2xl border-2 cursor-pointer transition flex flex-col justify-between space-y-3 ${
-                accountType === 'researcher'
-                  ? 'border-brand-teal bg-teal-50/40 shadow-xs ring-1 ring-brand-teal/20'
-                  : 'border-slate-200 hover:border-slate-300 bg-white'
-              }`}
-            >
-              <div className="space-y-2.5">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                  accountType === 'researcher' ? 'bg-brand-teal text-white' : 'bg-slate-100 text-slate-600'
-                }`}>
-                  <Microscope className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-brand-navy">Researcher / Educator</h3>
-                  <span className="text-[10px] font-semibold text-sky-800 bg-sky-50 px-2 py-0.5 rounded border border-sky-200 mt-1 inline-block">
-                    Institution
-                  </span>
-                </div>
-                <p className="text-[11.5px] text-slate-500 leading-snug">
-                  Faculty and research scholars.
-                </p>
-              </div>
-              <div className="pt-2 text-[11px] font-semibold text-teal-700">
-                {accountType === 'researcher' ? '✓ Selected' : 'Select'}
               </div>
             </div>
 

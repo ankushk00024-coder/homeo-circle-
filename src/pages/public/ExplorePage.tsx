@@ -28,7 +28,6 @@ const roleFilters: { id: RoleFilter; label: string; icon: React.ElementType }[] 
   { id: 'all', label: 'Everyone', icon: Users },
   { id: 'doctor', label: 'Doctors', icon: Stethoscope },
   { id: 'student', label: 'Students', icon: GraduationCap },
-  { id: 'researcher', label: 'Researchers', icon: Microscope },
 ];
 
 const spaces = [
@@ -139,7 +138,7 @@ export const ExplorePage: React.FC = () => {
             </span>
           </h1>
           <p className="mt-4 text-lg text-[#3E4C5E] max-w-2xl mx-auto animate-fade-up [animation-delay:400ms]">
-            Verified homeopaths, students and researchers from every corner of India. Search by name,
+            Verified homeopaths and students from every corner of India. Search by name,
             speciality or city.
           </p>
 
@@ -327,7 +326,7 @@ export const ExplorePage: React.FC = () => {
           <h2 className="text-3xl sm:text-4xl font-serif font-bold text-brand-navy">
             Every homeopath <span className="italic text-[#0E8A80]">needs a home.</span>
           </h2>
-          <p className="text-lg text-[#3E4C5E]">Apply as a doctor, student or researcher. It takes about five minutes.</p>
+          <p className="text-lg text-[#3E4C5E]">Apply as a doctor or student. It takes about five minutes.</p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               to="/apply"

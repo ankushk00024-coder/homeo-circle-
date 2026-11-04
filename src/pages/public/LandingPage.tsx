@@ -52,7 +52,6 @@ const communityFeatures = [
 const whoCanJoin = [
   { role: 'Doctors', desc: 'BHMS, MD (Hom) and DHMS practitioners.', cta: 'Join as Doctor', icon: Stethoscope, applyRole: 'doctor' },
   { role: 'Students', desc: 'BHMS students and interns.', cta: 'Join as Student', icon: GraduationCap, applyRole: 'student' },
-  { role: 'Researchers', desc: 'Faculty and research scholars.', cta: 'Join as Researcher', icon: Microscope, applyRole: 'researcher' },
 ];
 
 const steps = [
@@ -181,7 +180,7 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading center eyebrow="Who can join" title="Pick your path" />
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8 max-w-2xl mx-auto">
             {whoCanJoin.map((item, idx) => (
               <Reveal key={item.role} delay={idx * 100}>
                 <Link
