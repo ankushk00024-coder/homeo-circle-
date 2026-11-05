@@ -1,0 +1,16 @@
+{
+  "name": "Homeo India — Community for Homeopathic Doctors & Students",
+  "short_name": "Homeo India",
+  "description": "India's verified community for homeopathic doctors and BHMS students.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F4F9FD",
+  "theme_color": "#0D817B",
+  "lang": "en-IN",
+  "categories": ["medical", "education", "social"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

@@ -1,25 +1,64 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-IN">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Homeo India — Verified Homeopathic Community</title>
-    <meta name="description" content="A trusted, members-only professional community for registered homeopathic practitioners in India. Connect with peers, share clinical insights, discover research, events, and opportunities." />
+    <!-- The plain page content inside #root is for crawlers and link previews;
+         browsers running the app hide it until React replaces it. -->
+    <script>document.documentElement.classList.add('js')</script>
+    <style>.js .seo-prerender{display:none}</style>
+    <!-- SEO: __SITE_URL__ and the per-page tags below are filled in for every
+         public route by scripts/seo/postbuild.mjs (see src/seo/pages.json). -->
+    <title>Homeo India — India's Community for Homeopathic Doctors &amp; BHMS Students</title>
+    <meta name="description" content="Join Homeo India, the verified community for homeopathic doctors and BHMS students across India. Discuss cases, find mentors, join CMEs and share homeopathy research." />
+    <meta name="keywords" content="homeopathy India, homoeopathy, homeopathic doctors India, BHMS students, MD Homeopathy, homeopathy community, homoeopathic practitioners, homeopathy CME, homeopathy research, Homeo India" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="author" content="Homeo India" />
+    <meta name="application-name" content="Homeo India" />
+    <meta name="apple-mobile-web-app-title" content="Homeo India" />
     <meta name="theme-color" content="#0D817B" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="canonical" href="__SITE_URL__/" />
+    <link rel="alternate" hreflang="en-IN" href="__SITE_URL__/" />
+    <link rel="alternate" hreflang="x-default" href="__SITE_URL__/" />
+    <!--__GOOGLE_SITE_VERIFICATION__-->
+
+    <!-- Icons & app manifest -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- Open Graph / WhatsApp / Facebook / LinkedIn -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Homeo India" />
-    <meta property="og:title" content="Homeo India — India's Verified Homoeopathic Community" />
-    <meta property="og:description" content="A verified professional network for homoeopathic practitioners, researchers and students in India." />
-    <meta property="og:image" content="/images/og-image.jpg" />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:url" content="__SITE_URL__/" />
+    <meta property="og:title" content="Homeo India — India's Community for Homeopathic Doctors &amp; BHMS Students" />
+    <meta property="og:description" content="Join Homeo India, the verified community for homeopathic doctors and BHMS students across India. Discuss cases, find mentors, join CMEs and share homeopathy research." />
+    <meta property="og:image" content="__SITE_URL__/images/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Homeopathic doctors discussing a case together" />
+
+    <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
-    <!-- Google Fonts: Playfair Display (Serif) & Plus Jakarta Sans (Sans) -->
+    <meta name="twitter:title" content="Homeo India — India's Community for Homeopathic Doctors &amp; BHMS Students" />
+    <meta name="twitter:description" content="Join Homeo India, the verified community for homeopathic doctors and BHMS students across India. Discuss cases, find mentors, join CMEs and share homeopathy research." />
+    <meta name="twitter:image" content="__SITE_URL__/images/og-image.jpg" />
+
+    <!-- Structured data: who we are, so Google can show the site name and logo -->
+    <!--__JSON_LD__-->
+
+    <!-- Performance: connect early to font and image hosts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://jfgccnbknfkdmrclwclr.supabase.co">
+    <link rel="preload" as="image" href="/images/community-clinic.webp" type="image/webp" fetchpriority="high">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Gochi+Hand&display=swap" rel="stylesheet">
   </head>
   <body class="bg-brand-paper font-sans text-slate-800 antialiased min-h-screen">
-    <div id="root"></div>
+    <div id="root"><!--__PRERENDER__--></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

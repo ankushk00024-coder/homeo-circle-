@@ -1,6 +1,7 @@
 import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Outlet, Link, useLocation, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { RouteSeo } from './seo/RouteSeo';
 import { ToastProvider } from './components/feedback/ToastProvider';
 import { MobileTabBar } from './components/layout/MobileTabBar';
 import { AccountTypePrompt } from './components/common/AccountTypePrompt';
@@ -159,6 +160,7 @@ export function App() {
     <AuthProvider>
       <BrowserRouter>
         <ScrollToTop />
+        <RouteSeo />
         <Routes>
           {/* Public Routes */}
           <Route element={<PublicLayout />}>

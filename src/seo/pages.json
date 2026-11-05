@@ -1,0 +1,128 @@
+{
+  "siteName": "Homeo India",
+  "defaultSiteUrl": "https://homeo-india.vercel.app",
+  "locale": "en_IN",
+  "twitterHandle": "",
+  "ogImage": "/images/og-image.jpg",
+  "ogImageWidth": 1200,
+  "ogImageHeight": 630,
+  "keywords": "homeopathy India, homoeopathy, homeopathic doctors India, BHMS students, MD Homeopathy, homeopathy community, homoeopathic practitioners, homeopathy CME, homeopathy research, Homeo India",
+  "organization": {
+    "description": "Homeo India is India's verified online community for homeopathic doctors and BHMS students — a place to discuss cases, find mentors, join CMEs and share homeopathy research.",
+    "email": "support@homeoindia.in",
+    "areaServed": "IN",
+    "sameAs": []
+  },
+  "pages": [
+    {
+      "path": "/",
+      "title": "Homeo India — India's Community for Homeopathic Doctors & BHMS Students",
+      "description": "Join Homeo India, the verified community for homeopathic doctors and BHMS students across India. Discuss cases, find mentors, join CMEs and share homeopathy research.",
+      "changefreq": "daily",
+      "priority": 1.0,
+      "h1": "Every homeopath needs a home.",
+      "content": [
+        "Homeo India is India's verified community for homeopathic doctors and BHMS students.",
+        "Behind every good homeopath are a hundred others who helped. Be one of the hundred.",
+        "Doctors: BHMS, MD (Hom) and DHMS practitioners verified by their degree.",
+        "Students: BHMS students and interns verified by their college.",
+        "Discuss clinical cases, connect with doctors, find mentors, join webinars and CMEs, and read homeopathy research."
+      ],
+      "links": [["/apply?role=doctor", "Join as a doctor"], ["/apply?role=student", "Join as a student"], ["/explore", "Explore the community"], ["/about", "About Homeo India"]]
+    },
+    {
+      "path": "/explore",
+      "title": "Explore Homeopathic Doctors & Students in India | Homeo India",
+      "description": "Find verified homeopathic doctors and BHMS students from every corner of India. Search by name, specialty or city and join the Homeo India community.",
+      "changefreq": "daily",
+      "priority": 0.9,
+      "h1": "Find your people.",
+      "content": [
+        "Verified homeopaths and students from every corner of India.",
+        "Search by name, speciality or city, then join to connect, discuss cases and find mentors."
+      ],
+      "links": [["/apply", "Join Homeo India"], ["/", "Home"]]
+    },
+    {
+      "path": "/about",
+      "title": "About Homeo India — Our Mission for Indian Homeopathy",
+      "description": "Homeo India brings India's homeopathic doctors and students together to learn, share cases and grow. Read about our mission and how verification works.",
+      "changefreq": "monthly",
+      "priority": 0.7,
+      "h1": "About Homeo India",
+      "content": [
+        "Homeo India is a professional community for homeopathy in India.",
+        "Every member is verified: doctors by their degree, students by their college.",
+        "Members discuss cases, find mentors, attend CMEs and share research."
+      ],
+      "links": [["/eligibility", "Who can join"], ["/community-rules", "Community rules"], ["/apply", "Join Homeo India"]]
+    },
+    {
+      "path": "/eligibility",
+      "title": "Who Can Join Homeo India — Homeopathic Doctors & BHMS Students",
+      "description": "Homeo India is open to BHMS, MD (Hom) and DHMS doctors and to BHMS students and interns in India. See what you need to join and get verified.",
+      "changefreq": "monthly",
+      "priority": 0.7,
+      "h1": "Who can join Homeo India",
+      "content": [
+        "Doctors: BHMS, MD (Hom) and DHMS practitioners. Upload your degree certificate to get verified.",
+        "Students: BHMS students and interns. Add your college name to get verified."
+      ],
+      "links": [["/apply?role=doctor", "Join as a doctor"], ["/apply?role=student", "Join as a student"]]
+    },
+    {
+      "path": "/apply",
+      "title": "Join Homeo India — Sign Up as a Homeopathic Doctor or Student",
+      "description": "Create your free Homeo India account and get verified as a homeopathic doctor or BHMS student. It takes a few minutes.",
+      "changefreq": "monthly",
+      "priority": 0.8,
+      "h1": "Join Homeo India",
+      "content": [
+        "Choose doctor or student, fill a short form and our team will verify you.",
+        "Doctors upload their degree certificate. Students add their college name."
+      ],
+      "links": [["/login", "Sign in"], ["/eligibility", "Who can join"]]
+    },
+    {
+      "path": "/community-rules",
+      "title": "Community Rules | Homeo India",
+      "description": "The rules that keep Homeo India a safe, respectful and patient-private space for homeopathic doctors and students.",
+      "changefreq": "yearly",
+      "priority": 0.4,
+      "h1": "Community rules",
+      "content": ["Be respectful, keep patient details private and share knowledge responsibly."],
+      "links": [["/about", "About Homeo India"]]
+    },
+    {
+      "path": "/privacy",
+      "title": "Privacy Policy | Homeo India",
+      "description": "How Homeo India collects, uses and protects the personal information of its members.",
+      "changefreq": "yearly",
+      "priority": 0.3,
+      "h1": "Privacy policy",
+      "content": ["How Homeo India collects, uses and protects your personal information."],
+      "links": [["/terms", "Terms of service"]]
+    },
+    {
+      "path": "/terms",
+      "title": "Terms of Service | Homeo India",
+      "description": "The terms that apply when you use Homeo India, the community for homeopathic doctors and students in India.",
+      "changefreq": "yearly",
+      "priority": 0.3,
+      "h1": "Terms of service",
+      "content": ["The terms that apply when you use Homeo India."],
+      "links": [["/privacy", "Privacy policy"]]
+    },
+    {
+      "path": "/login",
+      "title": "Sign In | Homeo India",
+      "description": "Sign in to Homeo India with your email or Google account.",
+      "changefreq": "yearly",
+      "priority": 0.3,
+      "h1": "Sign in to Homeo India",
+      "content": ["Sign in with your email or Google account."],
+      "links": [["/apply", "Create an account"]]
+    }
+  ],
+  "privatePaths": ["/admin", "/dashboard", "/profile", "/settings", "/community", "/members", "/students", "/events", "/knowledge", "/opportunities", "/application-status", "/reset-password"]
+}
