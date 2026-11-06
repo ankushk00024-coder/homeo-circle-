@@ -37,6 +37,9 @@ export const knowledgeService = {
       doi: postData.doi?.trim() || null,
       author_name: postData.author_name?.trim() || null,
       author_affiliation: postData.author_affiliation?.trim() || null,
+      image_urls: (postData.image_urls || []).slice(0, 6),
+      attachment_url: postData.attachment_url || null,
+      created_by: postData.created_by || null,
       status: 'published',
       published_at: postData.published_at || new Date().toISOString().split('T')[0]
     };

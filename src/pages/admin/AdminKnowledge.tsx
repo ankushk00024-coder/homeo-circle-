@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { dataService } from '../../lib/supabase';
 import { KnowledgePost } from '../../types';
 import { useAuth } from '../../context/AuthContext';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, ImagePlus, FileText } from 'lucide-react';
+import { useToast } from '../../components/feedback/ToastProvider';
 
 export const AdminKnowledge: React.FC = () => {
   const { currentUser } = useAuth();
@@ -12,12 +13,22 @@ export const AdminKnowledge: React.FC = () => {
 
   // Form
   const [title, setTitle] = useState('');
-  const [journal, setJournal] = useState('Indian Journal of Research in Homoeopathy');
+  const [journal, setJournal] = useState('');
   const [contentType, setContentType] = useState<'Clinical Trial' | 'Systematic Review' | 'Observational Study' | 'Materia Medica Analysis'>('Clinical Trial');
   const [sourceUrl, setSourceUrl] = useState('');
   const [summary, setSummary] = useState('');
-  const [limitations, setLimitations] = useState('Preliminary cohort; requires multicenter blinded replication before definitive clinical recommendation.');
+  const [limitations, setLimitations] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [photos, setPhotos] = useState<{ file: File; preview: string }[]>([]);
+  const [pdf, setPdf] = useState<File | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const toast = useToast();
+
+  const addPhotos = (files: FileList | null) => {
+    if (!files) return;
+    const picked = Array.from(files).filter((f) => f.type.startsWith('image/'));
+    setPhotos((prev) => [...prev, ...picked.slice(0, 6 - prev.length).map((file) => ({ file, preview: URL.createObjectURL(file) }))]);
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -32,17 +43,26 @@ export const AdminKnowledge: React.FC = () => {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!currentUser?.id) return;
+    setFormError(null);
     setSubmitting(true);
 
     try {
+      // Upload files first (photos are compressed; the PDF is kept as is).
+      const imageUrls: string[] = [];
+      for (const p of photos) imageUrls.push(await dataService.uploadResearchFile(currentUser.id, p.file));
+      const attachmentUrl = pdf ? await dataService.uploadResearchFile(currentUser.id, pdf) : undefined;
+
       const newPost = await dataService.createKnowledgePost({
         title: title.trim(),
-        journal: journal.trim(),
+        journal: journal.trim() || 'Homeo India',
         content_type: contentType,
-        source_url: sourceUrl.trim(),
+        source_url: sourceUrl.trim() || attachmentUrl || '',
         summary: summary.trim(),
-        limitations: limitations.trim(),
-        created_by: currentUser?.id
+        limitations: limitations.trim() || 'See the full paper for methods and limitations.',
+        image_urls: imageUrls,
+        attachment_url: attachmentUrl,
+        created_by: currentUser.id
       });
 
       await dataService.addAuditLog({
@@ -57,10 +77,17 @@ export const AdminKnowledge: React.FC = () => {
       setTitle('');
       setSummary('');
       setSourceUrl('');
+      setJournal('');
+      setLimitations('');
+      photos.forEach((p) => URL.revokeObjectURL(p.preview));
+      setPhotos([]);
+      setPdf(null);
       setCreateModalOpen(false);
+      toast.success('Research published. It is live on the Research page.');
       await loadData();
     } catch (err) {
       console.error(err);
+      setFormError(err instanceof Error ? err.message : 'Could not publish this research.');
     } finally {
       setSubmitting(false);
     }
@@ -71,10 +98,10 @@ export const AdminKnowledge: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-serif font-bold text-brand-navy">
-            Curated Research Knowledge Repository
+            Research
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Maintain high-quality research entries with explicit study limitations and primary DOI references.
+            Add papers with images and a PDF. They go live on the Research page straight away.
           </p>
         </div>
 
@@ -83,7 +110,7 @@ export const AdminKnowledge: React.FC = () => {
           className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow transition"
         >
           <Plus className="w-3.5 h-3.5" />
-          <span>Index New Study</span>
+          <span>Add research</span>
         </button>
       </div>
 
@@ -109,6 +136,13 @@ export const AdminKnowledge: React.FC = () => {
                 <tr key={post.id} className="hover:bg-slate-50 transition">
                   <td className="py-3.5 px-4 max-w-sm">
                     <span className="font-bold text-brand-navy block truncate">{post.title}</span>
+                    {(post.image_urls?.length || post.attachment_url) && (
+                      <span className="text-[10px] text-teal-700">
+                        {post.image_urls?.length ? `${post.image_urls.length} image${post.image_urls.length > 1 ? 's' : ''}` : ''}
+                        {post.image_urls?.length && post.attachment_url ? ' · ' : ''}
+                        {post.attachment_url ? 'PDF attached' : ''}
+                      </span>
+                    )}
                     <span className="text-[11px] text-slate-400 line-clamp-1">{post.summary}</span>
                   </td>
                   <td className="py-3.5 px-4 font-medium text-slate-700 italic">
@@ -138,7 +172,7 @@ export const AdminKnowledge: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <h3 className="text-base font-bold text-brand-navy">Index Peer-Reviewed Research</h3>
+              <h3 className="text-base font-bold text-brand-navy">Add research</h3>
               <button onClick={() => setCreateModalOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
               </button>
@@ -146,7 +180,7 @@ export const AdminKnowledge: React.FC = () => {
 
             <form onSubmit={handleCreate} className="space-y-3.5 text-xs">
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Study Title *</label>
+                <label className="block font-semibold text-slate-700 mb-1">Title *</label>
                 <input
                   type="text"
                   required
@@ -159,10 +193,10 @@ export const AdminKnowledge: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Journal Name *</label>
+                  <label className="block font-semibold text-slate-700 mb-1">Journal / source</label>
                   <input
                     type="text"
-                    required
+                    placeholder="e.g. Indian Journal of Research in Homoeopathy"
                     value={journal}
                     onChange={(e) => setJournal(e.target.value)}
                     className="w-full px-3 py-2 border border-slate-200 rounded-xl outline-none"
@@ -170,7 +204,7 @@ export const AdminKnowledge: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Methodology Type *</label>
+                  <label className="block font-semibold text-slate-700 mb-1">Type *</label>
                   <select
                     value={contentType}
                     onChange={(e: any) => setContentType(e.target.value)}
@@ -185,10 +219,9 @@ export const AdminKnowledge: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Primary DOI / PubMed URL *</label>
+                <label className="block font-semibold text-slate-700 mb-1">Link (DOI / PubMed / website, optional)</label>
                 <input
                   type="url"
-                  required
                   value={sourceUrl}
                   onChange={(e) => setSourceUrl(e.target.value)}
                   placeholder="https://doi.org/... or https://pubmed.ncbi.nlm.nih.gov/..."
@@ -197,9 +230,9 @@ export const AdminKnowledge: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Abstract Summary *</label>
+                <label className="block font-semibold text-slate-700 mb-1">Summary *</label>
                 <textarea
-                  rows={3}
+                  rows={5}
                   required
                   value={summary}
                   onChange={(e) => setSummary(e.target.value)}
@@ -209,17 +242,56 @@ export const AdminKnowledge: React.FC = () => {
 
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">
-                  Documented Limitations (Mandatory under PRD guidelines) *
+                  Limitations (optional)
                 </label>
                 <textarea
                   rows={2}
-                  required
                   value={limitations}
                   onChange={(e) => setLimitations(e.target.value)}
                   placeholder="Mention sample size constraints, open-label bias, or need for multicentric replication..."
                   className="w-full p-2.5 border border-slate-200 rounded-xl outline-none text-amber-900 bg-amber-50/50"
                 />
               </div>
+
+              {/* Images (up to 6) */}
+              <div className="space-y-2">
+                {photos.length > 0 && (
+                  <div className="grid grid-cols-6 gap-1.5">
+                    {photos.map((p, i) => (
+                      <div key={p.preview} className="relative aspect-square rounded-lg overflow-hidden ring-1 ring-slate-200">
+                        <img src={p.preview} alt="" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setPhotos((prev) => { URL.revokeObjectURL(prev[i].preview); return prev.filter((_, idx) => idx !== i); })}
+                          className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center"
+                          aria-label="Remove image"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  {photos.length < 6 && (
+                    <label className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 font-semibold text-brand-navy hover:bg-slate-50 cursor-pointer">
+                      <ImagePlus className="w-4 h-4 text-teal-700" />
+                      Add images <span className="font-normal text-slate-400">({photos.length}/6)</span>
+                      <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => { addPhotos(e.target.files); e.target.value = ''; }} />
+                    </label>
+                  )}
+                  <label className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 font-semibold text-brand-navy hover:bg-slate-50 cursor-pointer max-w-full">
+                    <FileText className="w-4 h-4 text-teal-700 flex-shrink-0" />
+                    <span className="truncate">{pdf ? pdf.name : 'Attach PDF (optional)'}</span>
+                    <input type="file" accept="application/pdf" className="hidden" onChange={(e) => { setPdf(e.target.files?.[0] || null); e.target.value = ''; }} />
+                  </label>
+                  {pdf && (
+                    <button type="button" onClick={() => setPdf(null)} className="text-slate-400 hover:text-rose-600 text-[11px]">Remove PDF</button>
+                  )}
+                </div>
+              </div>
+
+              {formError && <p className="text-rose-700 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">{formError}</p>}
 
               <div className="flex items-center justify-end gap-2 pt-2">
                 <button
@@ -234,7 +306,7 @@ export const AdminKnowledge: React.FC = () => {
                   disabled={submitting}
                   className="px-5 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow"
                 >
-                  {submitting ? 'Indexing...' : 'Index Publication'}
+                  {submitting ? 'Uploading…' : 'Publish research'}
                 </button>
               </div>
             </form>

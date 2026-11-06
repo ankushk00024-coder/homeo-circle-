@@ -61,6 +61,27 @@ export const storageService = {
   },
 
   /**
+   * Admin-only research upload to the public 'research-files' bucket: photos
+   * are compressed like post photos; PDFs (max 20 MB) are stored as they are.
+   */
+  async uploadResearchFile(userId: string, file: File): Promise<string> {
+    const client = getRequiredSupabase();
+    let body: File = file;
+    if (file.type === 'application/pdf') {
+      if (file.size > 20 * 1024 * 1024) throw new Error('The PDF must be 20 MB or smaller.');
+    } else {
+      body = await compressImage(file, POST_IMAGE_COMPRESSION);
+    }
+    const ext = body.name.split('.').pop() || (body.type === 'application/pdf' ? 'pdf' : 'webp');
+    const filePath = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { data, error } = await client.storage
+      .from('research-files')
+      .upload(filePath, body, { cacheControl: '31536000', upsert: false, contentType: body.type });
+    if (error) throw error;
+    return client.storage.from('research-files').getPublicUrl(data.path).data.publicUrl;
+  },
+
+  /**
    * Securely uploads a practitioner verification document into the private 'verification-documents' bucket.
    * Strictly unreadable by the public; only the applicant and authorized administrators can access.
    */

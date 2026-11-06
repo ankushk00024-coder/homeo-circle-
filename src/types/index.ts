@@ -315,6 +315,9 @@ export interface KnowledgePost {
   author_name?: string;
   author_affiliation?: string;
   doi?: string;
+  /** Up to 6 image URLs and an optional PDF of the paper ('research-files' bucket). */
+  image_urls?: string[];
+  attachment_url?: string;
   is_saved?: boolean;
 }
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { PostImages } from '../../components/common/PostImages';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../lib/supabase';
 import { KnowledgePost } from '../../types';
@@ -106,24 +107,14 @@ export const KnowledgePage: React.FC = () => {
           </h1>
         </div>
 
-        {currentUser ? (
-          (isDoctor || isResearcher || isAdmin) && (
-            <button
-              onClick={() => setShowSubmitModal(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow-xs transition"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Add research</span>
-            </button>
-          )
-        ) : (
-          <button
-            onClick={() => navigate('/login', { state: { from: location } })}
+        {isAdmin && (
+          <Link
+            to="/admin/knowledge"
             className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow-xs transition"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add research</span>
-          </button>
+          </Link>
         )}
       </div>
 
@@ -188,11 +179,14 @@ export const KnowledgePage: React.FC = () => {
                 </p>
               </div>
 
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
                 {post.summary}
               </p>
 
-              {/* Explicit Limitations Box (PRD requirement) */}
+              <PostImages urls={post.image_urls} />
+
+              {/* Limitations */}
+              {post.limitations && post.limitations !== 'See the full paper for methods and limitations.' && (
               <div className="p-3 bg-amber-50/70 rounded-xl border border-amber-200/80 text-xs text-amber-900 space-y-1">
                 <div className="flex items-center gap-1.5 font-bold text-xs uppercase tracking-wide text-amber-800">
                   <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
@@ -202,18 +196,32 @@ export const KnowledgePage: React.FC = () => {
                   {post.limitations}
                 </p>
               </div>
+              )}
 
               {/* Source Link */}
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                <a
-                  href={post.source_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-teal-700 hover:text-teal-800 font-semibold"
-                >
-                  <span>Read Full Text / DOI</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
+              <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-3 text-xs">
+                {post.attachment_url && (
+                  <a
+                    href={post.attachment_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-700 text-white hover:bg-teal-800 font-semibold"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Read the paper (PDF)</span>
+                  </a>
+                )}
+                {post.source_url && post.source_url !== post.attachment_url && (
+                  <a
+                    href={post.source_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-teal-700 hover:text-teal-800 font-semibold"
+                  >
+                    <span>Open link</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
               </div>
             </article>
           ))}

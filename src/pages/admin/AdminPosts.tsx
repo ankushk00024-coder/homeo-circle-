@@ -165,6 +165,12 @@ export const AdminPosts: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          <Link
+            to="/community?compose=1"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold shadow-xs transition"
+          >
+            <span>+ New discussion</span>
+          </Link>
           <button
             onClick={loadPosts}
             disabled={loading}

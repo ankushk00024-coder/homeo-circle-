@@ -143,6 +143,15 @@ export const DiscussionsPage: React.FC = () => {
     setComposerOpen(true);
   };
 
+  // /community?compose=1 (e.g. from the admin panel) opens the composer.
+  useEffect(() => {
+    if (searchParams.get('compose') === '1' && currentUser?.id) {
+      openCreateComposer();
+      searchParams.delete('compose');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, currentUser?.id]);
+
   const handleDeletePost = async (e: React.MouseEvent, postId: string) => {
     e.preventDefault();
     e.stopPropagation();

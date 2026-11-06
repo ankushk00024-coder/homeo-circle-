@@ -172,5 +172,22 @@ check('author cannot edit post', !(await attempt(`update public.posts set body='
 check('likes still update the counter', (await attempt(`insert into public.post_likes (post_id, user_id) values ($1,$2)`, [myPost, ids.student])).ok);
 check('author can delete post', (await attempt(`delete from public.posts where id=$1`, [myPost])).ok);
 
+
+console.log('\nADMIN HANDOVER');
+await asPostgres();
+const oldAdmin = (await db.query(`insert into auth.users (email) values ('old.admin@t.in') returning id`)).rows[0].id;
+const newAdmin = (await db.query(`insert into auth.users (email) values ('new.admin@t.in') returning id`)).rows[0].id;
+await db.query(`update public.profiles set role='super_admin', status='verified' where id=$1`, [oldAdmin]);
+await db.query(`insert into public.user_roles (user_id, role) values ($1,'super_admin'),($1,'admin') on conflict do nothing`, [oldAdmin]);
+const tr = await attempt(`call public.transfer_super_admin('NEW.admin@t.in', 'old.admin@t.in')`);
+check('transfer runs', tr.ok, tr.err);
+const rolesOf = async (id) => (await db.query(`select array_agg(role order by role) r from public.user_roles where user_id=$1`, [id])).rows[0].r;
+check('new account is super admin', (await prof(newAdmin)).role === 'super_admin' && JSON.stringify(await rolesOf(newAdmin)) === '["admin","super_admin"]', JSON.stringify(await rolesOf(newAdmin)));
+check('old account is no longer admin', (await prof(oldAdmin)).role === 'member' && !(await rolesOf(oldAdmin)).some((r) => ['admin','super_admin'].includes(r)), JSON.stringify(await rolesOf(oldAdmin)));
+check('transfer to unknown email refused', !(await attempt(`call public.transfer_super_admin('nobody@t.in')`)).ok);
+await asUser(newAdmin);
+check('new admin can add research with images and PDF', (await attempt(`insert into public.knowledge_posts (title, summary, journal, source_url, content_type, limitations, image_urls, attachment_url) values ('T','S','J','https://x','Clinical Trial','L', array['https://img'], 'https://pdf')`)).ok);
+check('members cannot call the handover', !(await attempt(`call public.transfer_super_admin('new.admin@t.in')`)).ok);
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
