@@ -45,6 +45,8 @@ export const AdminKnowledge: React.FC = () => {
     e.preventDefault();
     if (!currentUser?.id) return;
     setFormError(null);
+    if (!title.trim()) return setFormError('Please add a title (top of this form).');
+    if (!summary.trim()) return setFormError('Please add a summary.');
     setSubmitting(true);
 
     try {
@@ -178,7 +180,7 @@ export const AdminKnowledge: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handleCreate} className="space-y-3.5 text-xs">
+            <form onSubmit={handleCreate} noValidate className="space-y-3.5 text-xs">
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">Title *</label>
                 <input

@@ -62,11 +62,13 @@ export default {
         'fade-in': { from: { opacity: '0' }, to: { opacity: '1' } },
         'fade-up': {
           from: { opacity: '0', transform: 'translateY(16px)' },
-          to: { opacity: '1', transform: 'translateY(0)' },
+          // 'none' (not translateY(0)): a lingering transform would make the
+          // page the containing block for fixed pop-ups and push them off-screen.
+          to: { opacity: '1', transform: 'none' },
         },
         'slide-down': {
           from: { opacity: '0', transform: 'translateY(-6px)' },
-          to: { opacity: '1', transform: 'translateY(0)' },
+          to: { opacity: '1', transform: 'none' },
         },
         'slide-in-left': {
           from: { opacity: '0', transform: 'translateX(-24px)' },
@@ -99,8 +101,8 @@ export default {
       },
       animation: {
         'fade-in': 'fade-in .3s ease-out both',
-        'fade-up': 'fade-up .6s cubic-bezier(.22,1,.36,1) both',
-        'slide-down': 'slide-down .18s ease-out both',
+        'fade-up': 'fade-up .6s cubic-bezier(.22,1,.36,1) backwards',
+        'slide-down': 'slide-down .18s ease-out backwards',
         'scale-in': 'scale-in .22s cubic-bezier(.22,1,.36,1) both',
         'slide-in-left': 'slide-in-left .22s cubic-bezier(.22,1,.36,1) both',
         float: 'float 7s ease-in-out infinite',
