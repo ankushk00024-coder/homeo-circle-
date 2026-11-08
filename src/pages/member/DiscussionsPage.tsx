@@ -1,3 +1,4 @@
+import { normalizeUrl, safeHref } from '../../lib/safeUrl';
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -197,7 +198,7 @@ export const DiscussionsPage: React.FC = () => {
           category_id: postCategory,
           category_name: selectedMeta.name,
           category_badge_color: selectedMeta.color,
-          source_url: postSource.trim() || undefined,
+          source_url: normalizeUrl(postSource) || undefined,
           image_urls: imageUrls
         });
       }
@@ -404,7 +405,7 @@ export const DiscussionsPage: React.FC = () => {
                     {post.source_url && (
                       <div className="pt-1">
                         <a
-                          href={post.source_url}
+                          href={safeHref(post.source_url)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-[11px] font-medium text-teal-700 hover:underline"
@@ -517,6 +518,7 @@ export const DiscussionsPage: React.FC = () => {
                   type="text"
                   required
                   value={postTitle}
+                  maxLength={300}
                   onChange={(e) => setPostTitle(e.target.value)}
                   placeholder="e.g. Repertorial Rubrics in Chronic Allergic Rhinitis"
                   className="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 outline-none"
@@ -531,6 +533,7 @@ export const DiscussionsPage: React.FC = () => {
                   rows={6}
                   required
                   value={postBody}
+                  maxLength={20000}
                   onChange={(e) => setPostBody(e.target.value)}
                   placeholder="Write your question or case…"
                   className="w-full p-3.5 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 outline-none leading-relaxed"
@@ -544,6 +547,7 @@ export const DiscussionsPage: React.FC = () => {
                 <input
                   type="url"
                   value={postSource}
+                  maxLength={2048}
                   onChange={(e) => setPostSource(e.target.value)}
                   placeholder="https://doi.org/... or journal reference"
                   className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 outline-none"
@@ -655,6 +659,7 @@ export const DiscussionsPage: React.FC = () => {
                   <textarea
                     rows={3}
                     value={reportNote}
+                    maxLength={3000}
                     onChange={(e) => setReportNote(e.target.value)}
                     placeholder="Provide details for the moderation review queue..."
                     className="w-full p-2 border border-slate-200 rounded-lg outline-none"

@@ -1,3 +1,4 @@
+import { normalizeUrl } from '../../lib/safeUrl';
 import React, { useState, useEffect } from 'react';
 import { dataService } from '../../lib/supabase';
 import { KnowledgePost } from '../../types';
@@ -59,7 +60,7 @@ export const AdminKnowledge: React.FC = () => {
         title: title.trim(),
         journal: journal.trim() || 'Homeo India',
         content_type: contentType,
-        source_url: sourceUrl.trim() || attachmentUrl || '',
+        source_url: normalizeUrl(sourceUrl) || attachmentUrl || '',
         summary: summary.trim(),
         limitations: limitations.trim() || 'See the full paper for methods and limitations.',
         image_urls: imageUrls,

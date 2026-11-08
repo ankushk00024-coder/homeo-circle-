@@ -1,3 +1,4 @@
+import { safeHref } from '../../lib/safeUrl';
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { PostImages } from '../../components/common/PostImages';
@@ -202,7 +203,7 @@ export const KnowledgePage: React.FC = () => {
               <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-3 text-xs">
                 {post.attachment_url && (
                   <a
-                    href={post.attachment_url}
+                    href={safeHref(post.attachment_url)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-700 text-white hover:bg-teal-800 font-semibold"
@@ -213,7 +214,7 @@ export const KnowledgePage: React.FC = () => {
                 )}
                 {post.source_url && post.source_url !== post.attachment_url && (
                   <a
-                    href={post.source_url}
+                    href={safeHref(post.source_url)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-teal-700 hover:text-teal-800 font-semibold"

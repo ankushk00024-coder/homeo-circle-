@@ -1,3 +1,4 @@
+import { safeHref } from '../../lib/safeUrl';
 import React from 'react';
 
 /**
@@ -34,7 +35,7 @@ export const PostImages: React.FC<{ urls?: string[]; compact?: boolean }> = ({ u
       {list.map((url, i) => (
         <a
           key={url}
-          href={url}
+          href={safeHref(url)}
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}

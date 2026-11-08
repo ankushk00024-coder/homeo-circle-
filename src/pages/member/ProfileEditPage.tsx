@@ -1,3 +1,4 @@
+import { normalizeUrl } from '../../lib/safeUrl';
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../lib/supabase';
@@ -137,8 +138,8 @@ export const ProfileEditPage: React.FC = () => {
       interests,
       profile_visibility: visibility as any,
       social_links: {
-        linkedin: linkedin.trim(),
-        website: website.trim(),
+        linkedin: normalizeUrl(linkedin),
+        website: normalizeUrl(website),
         whatsapp: whatsapp.trim(),
         orcid: orcid.trim()
       },
@@ -535,6 +536,7 @@ export const ProfileEditPage: React.FC = () => {
             <textarea
               rows={4}
               value={bio}
+              maxLength={3000}
               onChange={(e) => setBio(e.target.value)}
               placeholder="Summarize your clinical methodology, research questions, or learning goals..."
               className="w-full p-3 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 outline-none leading-relaxed"

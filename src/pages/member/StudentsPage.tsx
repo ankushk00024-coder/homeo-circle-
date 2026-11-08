@@ -508,6 +508,7 @@ export const StudentsPage: React.FC = () => {
                     rows={4}
                     required
                     value={mentorshipMessage}
+                    maxLength={2000}
                     onChange={(e) => setMentorshipMessage(e.target.value)}
                     placeholder="Explain your academic year, college, and what clinical guidance you are looking for..."
                     className="w-full p-3 text-xs border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 leading-relaxed"

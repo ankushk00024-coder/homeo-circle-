@@ -1,3 +1,4 @@
+import { safeHref } from '../../lib/safeUrl';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -270,7 +271,7 @@ export const PostDetailPage: React.FC = () => {
                   Primary Reference: <span className="font-mono text-slate-700">{post.source_url}</span>
                 </span>
                 <a
-                  href={post.source_url}
+                  href={safeHref(post.source_url)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-teal-700 hover:text-teal-800 font-semibold flex items-center gap-1 flex-shrink-0"
@@ -377,6 +378,7 @@ export const PostDetailPage: React.FC = () => {
               rows={3}
               required
               value={newCommentBody}
+              maxLength={5000}
               onChange={(e) => setNewCommentBody(e.target.value)}
               placeholder="Contribute your clinical observation, repertorial rubrics, or posology question..."
               className="w-full p-3.5 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 outline-none leading-relaxed"
@@ -515,6 +517,7 @@ export const PostDetailPage: React.FC = () => {
                   <textarea
                     rows={3}
                     value={reportNote}
+                    maxLength={3000}
                     onChange={(e) => setReportNote(e.target.value)}
                     placeholder="Provide details for the moderation review queue..."
                     className="w-full p-2 border border-slate-200 rounded-lg outline-none"

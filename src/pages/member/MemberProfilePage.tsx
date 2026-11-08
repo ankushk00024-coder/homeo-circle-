@@ -1,3 +1,4 @@
+import { safeHref } from '../../lib/safeUrl';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { dataService } from '../../lib/supabase';
@@ -416,7 +417,7 @@ export const MemberProfilePage: React.FC = () => {
           <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center gap-3 text-xs">
             {member.social_links.linkedin && (
               <a
-                href={member.social_links.linkedin}
+                href={safeHref(member.social_links.linkedin)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl border border-slate-200 transition"
@@ -427,7 +428,7 @@ export const MemberProfilePage: React.FC = () => {
             )}
             {member.social_links.website && (
               <a
-                href={member.social_links.website}
+                href={safeHref(member.social_links.website)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl border border-slate-200 transition"
@@ -530,6 +531,7 @@ export const MemberProfilePage: React.FC = () => {
                     rows={4}
                     required
                     value={mentorshipMessage}
+                    maxLength={2000}
                     onChange={(e) => setMentorshipMessage(e.target.value)}
                     placeholder="Introduce yourself, your BHMS college, and what specific guidance you would value..."
                     className="w-full p-3 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 outline-none leading-relaxed"

@@ -17,7 +17,7 @@ const asPostgres = async () => { await db.exec(`reset role;`); await db.query(`s
 const attempt = async (sql, params = []) => { try { const r = await db.query(sql, params); return { ok: true, rows: r.rows, n: r.affectedRows }; } catch (e) { return { ok: false, err: e.message }; } };
 
 // Idempotency: re-run the last two migrations
-for (const f of ['20261028000000_schema_harmonization.sql', '20261029000000_launch_fixes.sql', '20261030000000_connection_requests.sql', '20261031000000_verify_sets_account_type.sql']) {
+for (const f of ['20261028000000_schema_harmonization.sql', '20261029000000_launch_fixes.sql', '20261030000000_connection_requests.sql', '20261031000000_verify_sets_account_type.sql', '20261106000000_research_files_and_admin_transfer.sql', '20261108000000_security_hardening.sql']) {
   try { await db.exec(fs.readFileSync(path.join(dir, f), 'utf8')); check(`re-run ${f}`, true); } catch (e) { check(`re-run ${f}`, false, e.message); }
 }
 
@@ -188,6 +188,49 @@ check('transfer to unknown email refused', !(await attempt(`call public.transfer
 await asUser(newAdmin);
 check('new admin can add research with images and PDF', (await attempt(`insert into public.knowledge_posts (title, summary, journal, source_url, content_type, limitations, image_urls, attachment_url) values ('T','S','J','https://x','Clinical Trial','L', array['https://img'], 'https://pdf')`)).ok);
 check('members cannot call the handover', !(await attempt(`call public.transfer_super_admin('new.admin@t.in')`)).ok);
+
+
+console.log('\nSECURITY HARDENING');
+await asPostgres();
+await db.query(`update public.profiles set display_name='Stu Dent', qualification='BHMS (Intern)' where id=$1`, [ids.student]);
+await asUser(ids.student);
+const fake = await attempt(`insert into public.posts (author_id, author_name, author_qualification, author_role, title, body, category_id, status, likes_count) values ($1,'Dr Famous','MD (Hom) PhD','admin','T','B','general','published', 999) returning author_name, author_qualification, author_role, likes_count`, [ids.student]);
+check('post author details come from the real profile', fake.ok && fake.rows[0].author_name === 'Stu Dent' && fake.rows[0].author_qualification === 'BHMS (Intern)' && fake.rows[0].likes_count === 0, JSON.stringify(fake.rows?.[0] ?? fake.err));
+const fakeC = await attempt(`insert into public.comments (post_id, author_id, author_name, body) values ($1,$2,'Dr Famous','x') returning author_name`, [post, ids.student]);
+check('comment author name comes from the real profile', fakeC.ok && fakeC.rows[0].author_name === 'Stu Dent', JSON.stringify(fakeC.rows?.[0] ?? fakeC.err));
+const sp = (await db.query(`select id from public.posts where author_id=$1 limit 1`, [ids.student])).rows[0].id;
+await asUser(adminId);
+check('admin can hide a post', (await attempt(`update public.posts set status='hidden' where id=$1`, [sp])).ok);
+await asUser(ids.student);
+check('author cannot re-publish a hidden post', !(await attempt(`update public.posts set status='published' where id=$1`, [sp])).ok);
+check('author cannot fake like counts', !(await attempt(`update public.posts set likes_count=500 where id=$1`, [sp])).ok);
+check('javascript: link rejected', !(await attempt(`insert into public.posts (author_id, title, body, category_id, source_url) values ($1,'T','B','general','javascript:alert(1)')`, [ids.student])).ok);
+check('https link accepted', (await attempt(`insert into public.posts (author_id, title, body, category_id, source_url) values ($1,'T','B','general','https://pubmed.ncbi.nlm.nih.gov/1')`, [ids.student])).ok);
+check('javascript: website on profile rejected', !(await attempt(`update public.profiles set social_links='{"website":"javascript:alert(1)"}' where id=$1`, [ids.student])).ok);
+check('over-long post body rejected', !(await attempt(`insert into public.posts (author_id, title, body, category_id) values ($1,'T',repeat('a',20001),'general')`, [ids.student])).ok);
+const mr = await attempt(`insert into public.mentorship_requests (student_id, mentor_id, message, status) values ($1,$2,'help','accepted') returning id, status`, [ids.student, ids.other]);
+check('mentorship request always starts pending', mr.ok && mr.rows[0].status === 'pending', JSON.stringify(mr.rows?.[0] ?? mr.err));
+check('student cannot accept own mentorship request', !(await attempt(`update public.mentorship_requests set status='accepted' where id=$1`, [mr.rows[0].id])).ok);
+check('student cannot redirect request to another mentor', !(await attempt(`update public.mentorship_requests set mentor_id=$2 where id=$1`, [mr.rows[0].id, ids.doctor])).ok);
+await asUser(ids.other);
+check('mentor can accept', (await attempt(`update public.mentorship_requests set status='accepted' where id=$1`, [mr.rows[0].id])).ok);
+await asUser(ids.notype);
+const selfApp = await attempt(`insert into public.practitioner_applications (user_id, full_name, email, phone, qualification, registration_number, registration_authority, state, role_applied, status, internal_notes) values ($1,'N','n@t.in','1','BHMS','R','C','Delhi','doctor','verified','ok') returning status, internal_notes`, [ids.notype]);
+check('application cannot self-approve', selfApp.ok && selfApp.rows[0].status === 'pending_review' && selfApp.rows[0].internal_notes === null, JSON.stringify(selfApp.rows?.[0] ?? selfApp.err));
+await asUser(null, 'anon');
+check('signed-out visitors cannot submit applications', !(await attempt(`insert into public.practitioner_applications (full_name, email, phone, qualification, registration_number, registration_authority, state) values ('G','g@t.in','1','BHMS','R','C','Delhi')`)).ok);
+await asUser(ids.student);
+let limited = false;
+for (let i = 0; i < 16; i++) { const r = await attempt(`insert into public.posts (author_id, title, body, category_id) values ($1,'Spam','B','general')`, [ids.student]); if (!r.ok && /too often/.test(r.err)) { limited = true; break; } }
+check('posting is rate limited', limited);
+await asUser(adminId);
+let adminLimited = false;
+for (let i = 0; i < 16; i++) { const r = await attempt(`insert into public.posts (author_id, author_name, title, body, category_id) values ($1,'Boss','Admin','B','general')`, [adminId]); if (!r.ok) { adminLimited = r.err; break; } }
+check('admins are not rate limited', !adminLimited, adminLimited);
+check('trigger functions cannot be called via the API', !(await attempt(`select public.notify_on_comment()`)).ok);
+await asPostgres();
+await db.query(`insert into public.user_roles (user_id, role) values ($1,'moderator')`, [ids.other]);
+check('role changes are written to the audit log', (await db.query(`select count(*)::int n from public.admin_audit_logs where action='ROLE_GRANTED' and target_id=$1`, [ids.other])).rows[0].n === 1);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
