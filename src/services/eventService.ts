@@ -49,6 +49,9 @@ export const eventService = {
       registration_url: eventData.registration_url?.trim() || '/events',
       source_url: eventData.source_url?.trim() || null,
       meeting_link: eventData.meeting_link?.trim() || null,
+      image_url: eventData.image_url || null,
+      end_at: eventData.end_at || null,
+      created_by: eventData.created_by || null,
       status: eventData.status || 'published',
       attendees_count: 0
     };

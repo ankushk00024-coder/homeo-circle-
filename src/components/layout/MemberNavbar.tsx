@@ -12,6 +12,7 @@ import {
   User, 
   Settings, 
   Shield, 
+  PenSquare,
   LogOut, 
   Check, 
   X, 
@@ -24,7 +25,7 @@ import {
 } from 'lucide-react';
 
 export const MemberNavbar: React.FC = () => {
-  const { currentUser, logout, isAdmin, role } = useAuth();
+  const { currentUser, logout, isAdmin, isPublisher, role } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
@@ -114,6 +115,16 @@ export const MemberNavbar: React.FC = () => {
           <div className="flex items-center gap-2.5 sm:gap-3">
             {currentUser ? (
               <>
+                {isPublisher && !isAdmin && (
+                  <Link
+                    to="/publish"
+                    className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-50 text-teal-700 text-xs font-semibold ring-1 ring-teal-200 hover:bg-teal-100 transition"
+                    title="Open the publishing panel"
+                  >
+                    <PenSquare className="w-4 h-4" />
+                    <span>Publish</span>
+                  </Link>
+                )}
                 {isAdmin && (
                   <Link
                     to="/admin"
@@ -297,6 +308,16 @@ export const MemberNavbar: React.FC = () => {
                         <UserCheck className="w-4 h-4 text-slate-400" />
                         <span>Edit Profile & Credentials</span>
                       </Link>
+
+                      {isPublisher && !isAdmin && (
+                        <Link
+                          to="/publish"
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-teal-700 bg-teal-50/60 hover:bg-teal-100/70"
+                        >
+                          <PenSquare className="w-4 h-4 text-teal-600" />
+                          <span>Publishing Panel</span>
+                        </Link>
+                      )}
 
                       {isAdmin && (
                         <Link

@@ -51,6 +51,12 @@ const AdminNotifications = lazy(() => import('./pages/admin/AdminNotifications')
 const AdminEvents = lazy(() => import('./pages/admin/AdminEvents').then((m) => ({ default: m.AdminEvents })));
 const AdminOpportunities = lazy(() => import('./pages/admin/AdminOpportunities').then((m) => ({ default: m.AdminOpportunities })));
 const AdminKnowledge = lazy(() => import('./pages/admin/AdminKnowledge').then((m) => ({ default: m.AdminKnowledge })));
+const AdminPublishers = lazy(() => import('./pages/admin/AdminPublishers').then((m) => ({ default: m.AdminPublishers })));
+const PublishLayout = lazy(() => import('./pages/publish/PublishLayout').then((m) => ({ default: m.PublishLayout })));
+const PublishHome = lazy(() => import('./pages/publish/PublishLayout').then((m) => ({ default: m.PublishHome })));
+const PublishDiscussions = lazy(() => import('./pages/publish/PublishDiscussions').then((m) => ({ default: m.PublishDiscussions })));
+const PublishResearch = lazy(() => import('./pages/publish/PublishResearch').then((m) => ({ default: m.PublishResearch })));
+const PublishEvents = lazy(() => import('./pages/publish/PublishEvents').then((m) => ({ default: m.PublishEvents })));
 const AdminAuditLogs = lazy(() => import('./pages/admin/AdminAuditLogs').then((m) => ({ default: m.AdminAuditLogs })));
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings').then((m) => ({ default: m.AdminSettings })));
 
@@ -195,6 +201,14 @@ export function App() {
             <Route path="/settings" element={<Navigate to="/profile" replace />} />
           </Route>
 
+          {/* Publishing panel: posting-only helpers (publishers) and admins */}
+          <Route element={<PublishLayout />}>
+            <Route path="/publish" element={<PublishHome />} />
+            <Route path="/publish/discussions" element={<PublishDiscussions />} />
+            <Route path="/publish/research" element={<PublishResearch />} />
+            <Route path="/publish/events" element={<PublishEvents />} />
+          </Route>
+
           {/* Admin Panel Routes (Protected for Admin role) */}
           <Route element={
             <ProtectedRoute requireAdmin={true}>
@@ -212,6 +226,7 @@ export function App() {
             <Route path="/admin/events" element={<AdminEvents />} />
             <Route path="/admin/opportunities" element={<AdminOpportunities />} />
             <Route path="/admin/knowledge" element={<AdminKnowledge />} />
+            <Route path="/admin/publishers" element={<AdminPublishers />} />
             <Route path="/admin/categories" element={<AdminCategories />} />
             <Route path="/admin/notifications" element={<AdminNotifications />} />
             <Route path="/admin/settings" element={<AdminSettings />} />

@@ -11,6 +11,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isVerifiedMember: boolean;
   isAdmin: boolean;
+  /** Posting-only helper: can use the Publishing panel (/publish). */
+  isPublisher: boolean;
   isDoctor: boolean;
   isStudent: boolean;
   isResearcher: boolean;
@@ -502,6 +504,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 
   const isAdmin = Boolean(currentUser && (currentUser.role === 'admin' || currentUser.role === 'super_admin'));
+
+  // Publisher is stored only in user_roles (it never changes the member's own
+  // role or type), so ask the database once per signed-in account.
+  const [isPublisher, setIsPublisher] = useState(false);
+  const currentUserId = currentUser?.id;
+  useEffect(() => {
+    let active = true;
+    if (!currentUserId || !isSupabaseConfigured || !supabase) {
+      setIsPublisher(false);
+      return;
+    }
+    supabase.rpc('is_publisher').then(({ data, error }) => {
+      if (active) setIsPublisher(!error && data === true);
+    });
+    return () => { active = false; };
+  }, [currentUserId]);
   const isDoctor = Boolean(currentUser && (currentUser.role === 'doctor' || currentUser.role === 'member'));
   const isStudent = Boolean(currentUser && currentUser.role === 'student');
   const isResearcher = Boolean(currentUser && currentUser.role === 'researcher');
@@ -520,6 +538,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated,
         isVerifiedMember,
         isAdmin,
+        isPublisher,
         isDoctor,
         isStudent,
         isResearcher,

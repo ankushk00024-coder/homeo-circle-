@@ -17,7 +17,7 @@ const asPostgres = async () => { await db.exec(`reset role;`); await db.query(`s
 const attempt = async (sql, params = []) => { try { const r = await db.query(sql, params); return { ok: true, rows: r.rows, n: r.affectedRows }; } catch (e) { return { ok: false, err: e.message }; } };
 
 // Idempotency: re-run the last two migrations
-for (const f of ['20261028000000_schema_harmonization.sql', '20261029000000_launch_fixes.sql', '20261030000000_connection_requests.sql', '20261031000000_verify_sets_account_type.sql', '20261106000000_research_files_and_admin_transfer.sql', '20261108000000_security_hardening.sql']) {
+for (const f of ['20261028000000_schema_harmonization.sql', '20261029000000_launch_fixes.sql', '20261030000000_connection_requests.sql', '20261031000000_verify_sets_account_type.sql', '20261106000000_research_files_and_admin_transfer.sql', '20261108000000_security_hardening.sql', '20261109000000_publisher_role.sql']) {
   try { await db.exec(fs.readFileSync(path.join(dir, f), 'utf8')); check(`re-run ${f}`, true); } catch (e) { check(`re-run ${f}`, false, e.message); }
 }
 
@@ -231,6 +231,40 @@ check('trigger functions cannot be called via the API', !(await attempt(`select 
 await asPostgres();
 await db.query(`insert into public.user_roles (user_id, role) values ($1,'moderator')`, [ids.other]);
 check('role changes are written to the audit log', (await db.query(`select count(*)::int n from public.admin_audit_logs where action='ROLE_GRANTED' and target_id=$1`, [ids.other])).rows[0].n === 1);
+
+
+console.log('\nPUBLISHER (posting-only helper)');
+await asPostgres();
+const pubId = (await signup('helper@t.in', { full_name: 'Content Helper' })).rows[0].id;
+await asUser(ids.doctor);
+check('members cannot add publishers', !(await attempt(`select * from public.add_publisher('helper@t.in')`)).ok);
+check('members cannot list publishers', !(await attempt(`select * from public.list_publishers()`)).ok);
+await asUser(adminId);
+const addPub = await attempt(`select * from public.add_publisher(' HELPER@t.in ')`);
+check('admin adds a publisher by email', addPub.ok && addPub.rows[0]?.name === 'Content Helper', JSON.stringify(addPub.rows?.[0] ?? addPub.err));
+check('admin sees publisher list', (await attempt(`select * from public.list_publishers()`)).rows?.length === 1);
+check('unknown email refused', !(await attempt(`select * from public.add_publisher('nobody@t.in')`)).ok);
+await asUser(pubId);
+check('publisher is not an admin', (await attempt(`select public.is_admin() a`)).rows[0].a === false);
+check('publisher can post a discussion (even unverified)', (await attempt(`insert into public.posts (author_id, title, body, category_id) values ($1,'From helper','B','general')`, [pubId])).ok);
+const pe = await attempt(`insert into public.events (title, summary, organizer, speaker, date_badge_day, date_badge_month, time_display, start_at, location, registration_url, status) values ('Pub CME','s','o','sp','2','FEB','t', now() + interval '5 days','online','/events','draft') returning id, created_by, status`);
+check('publisher can post an event (stamped as theirs, published)', pe.ok && pe.rows[0].created_by === pubId && pe.rows[0].status === 'published', JSON.stringify(pe.rows?.[0] ?? pe.err));
+const pk = await attempt(`insert into public.knowledge_posts (title, summary, journal, source_url, content_type, limitations, created_by) values ('Pub research','S','J','https://x','Clinical Trial','L',$1) returning id`, [pubId]);
+check('publisher can post research', pk.ok, pk.err);
+check('publisher sees own events', (await attempt(`select id from public.events where created_by=$1`, [pubId])).rows?.length === 1);
+check('publisher cannot read applications', (await attempt(`select id from public.practitioner_applications`)).rows?.length === 0);
+check('publisher cannot read audit logs', (await attempt(`select id from public.admin_audit_logs`)).rows?.length === 0);
+check('publisher cannot read reports', (await attempt(`select id from public.reports`)).rows?.length === 0);
+check('publisher cannot see other profiles', (await attempt(`select id from public.profiles where id <> $1`, [pubId])).rows?.length === 0);
+check('publisher cannot approve applications', !(await attempt(`select public.review_practitioner_application($1, 'verified')`, [staffApp])).ok);
+check('publisher cannot add publishers', !(await attempt(`select * from public.add_publisher('other@t.in')`)).ok);
+check('publisher cannot edit events of others', (await attempt(`update public.events set title='x' where created_by is distinct from $1`, [pubId])).n === 0);
+check('publisher can delete own event', (await attempt(`delete from public.events where id=$1`, [pe.rows[0].id])).n === 1);
+check('publisher can delete own research', (await attempt(`delete from public.knowledge_posts where id=$1`, [pk.rows[0].id])).n === 1);
+await asUser(adminId);
+check('admin removes the publisher', (await attempt(`select public.remove_publisher($1)`, [pubId])).ok);
+await asUser(pubId);
+check('removed publisher can no longer post events', !(await attempt(`insert into public.events (title, summary, organizer, speaker, date_badge_day, date_badge_month, time_display, start_at, location, registration_url) values ('x','s','o','sp','2','FEB','t', now(),'online','/events')`)).ok);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

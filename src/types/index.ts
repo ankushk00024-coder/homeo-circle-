@@ -303,6 +303,7 @@ export interface Opportunity {
 
 export interface KnowledgePost {
   id: string;
+  created_at?: string;
   title: string;
   summary: string;
   source_url: string;
