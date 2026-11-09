@@ -26,7 +26,7 @@ export const MobilePhotoFan: React.FC<{ photos: FanPhoto[] }> = ({ photos }) => 
         return (
           <Link
             key={photo.src}
-            to="/explore"
+            to="/community"
             aria-label={`Explore the community: ${photo.alt}`}
             className="fan-card absolute left-1/2 top-2 w-[34%] sm:w-[30%]"
             style={

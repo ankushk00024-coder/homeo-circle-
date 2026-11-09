@@ -2,10 +2,6 @@
   "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/explore",
-      "destination": "/explore/index.html"
-    },
-    {
       "source": "/about",
       "destination": "/about/index.html"
     },
@@ -107,6 +103,13 @@
           "value": "noindex, nofollow"
         }
       ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/explore",
+      "destination": "/community",
+      "permanent": true
     }
   ]
 }

@@ -24,7 +24,6 @@ const PrivacyPage = lazy(() => import('./pages/public/PrivacyPage').then((m) => 
 const TermsPage = lazy(() => import('./pages/public/TermsPage').then((m) => ({ default: m.TermsPage })));
 const ApplyPage = lazy(() => import('./pages/public/ApplyPage').then((m) => ({ default: m.ApplyPage })));
 const ApplicationStatusPage = lazy(() => import('./pages/public/ApplicationStatusPage').then((m) => ({ default: m.ApplicationStatusPage })));
-const ExplorePage = lazy(() => import('./pages/public/ExplorePage').then((m) => ({ default: m.ExplorePage })));
 const ResetPasswordPage = lazy(() => import('./pages/public/ResetPasswordPage').then((m) => ({ default: m.ResetPasswordPage })));
 
 // Member pages (lazy)
@@ -85,15 +84,6 @@ const PageFallback: React.FC = () => (
     </div>
   </div>
 );
-
-// Signed-in members skip the public Explore preview and go straight to the
-// community. The home page (/) stays open to everyone.
-const VisitorsOnly: React.FC<{ children: React.ReactElement }> = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
-  if (loading) return <PageFallback />;
-  if (isAuthenticated) return <Navigate to="/community" replace />;
-  return children;
-};
 
 // Public Layout Wrapper
 const PublicLayout: React.FC = () => (
@@ -165,7 +155,7 @@ export function App() {
           {/* Public Routes */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/explore" element={<VisitorsOnly><ExplorePage /></VisitorsOnly>} />
+            <Route path="/explore" element={<Navigate to="/community" replace />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/eligibility" element={<EligibilityPage />} />
             <Route path="/community-rules" element={<CommunityRulesPage />} />
@@ -178,8 +168,7 @@ export function App() {
           </Route>
 
           {/* Community routes: any signed-in member (verification not required).
-              Visitors are sent to sign in and brought back afterwards; the
-              public /explore page is the preview for logged-out visitors. */}
+              Visitors are sent to sign in and brought back afterwards. */}
           <Route element={
             <ProtectedRoute>
               <MemberLayout />

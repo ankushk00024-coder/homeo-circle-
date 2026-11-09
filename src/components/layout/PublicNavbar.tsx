@@ -18,7 +18,7 @@ export const PublicNavbar: React.FC = () => {
   }, []);
 
   const navLinks = [
-    { label: 'Community', path: isAuthenticated ? '/community' : '/explore' },
+    { label: 'Community', path: '/community' },
     { label: 'About', path: '/about' },
   ];
 

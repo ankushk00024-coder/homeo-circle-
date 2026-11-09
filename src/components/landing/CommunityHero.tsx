@@ -124,7 +124,7 @@ export const CommunityHero: React.FC = () => {
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
-              to="/explore"
+              to="/community"
               className="group inline-flex items-center gap-3 rounded-2xl bg-white px-5 py-3 text-[15px] sm:px-8 sm:py-4 sm:text-lg font-semibold text-brand-navy shadow-card ring-1 ring-[#DCE8F1] transition duration-300 hover:-translate-y-0.5 hover:ring-brand-teal/40 hover:shadow-card-hover active:scale-[.98]"
             >
               Explore the community
@@ -146,7 +146,7 @@ export const CommunityHero: React.FC = () => {
               style={{ animationDelay: `${photo.delay}ms` }}
             >
               <Link
-                to="/explore"
+                to="/community"
                 aria-label={`Explore the community: ${photo.alt}`}
                 className="photo-card"
                 style={{ '--tilt': `${photo.tilt}deg` } as React.CSSProperties}

@@ -28,20 +28,20 @@
         "Students: BHMS students and interns verified by their college.",
         "Discuss clinical cases, connect with doctors, find mentors, join webinars and CMEs, and read homeopathy research."
       ],
-      "links": [["/apply?role=doctor", "Join as a doctor"], ["/apply?role=student", "Join as a student"], ["/explore", "Explore the community"], ["/about", "About Homeo India"]]
-    },
-    {
-      "path": "/explore",
-      "title": "Explore Homeopathic Doctors & Students in India | Homeo India",
-      "description": "Find verified homeopathic doctors and BHMS students from every corner of India. Search by name, specialty or city and join the Homeo India community.",
-      "changefreq": "daily",
-      "priority": 0.9,
-      "h1": "Find your people.",
-      "content": [
-        "Verified homeopaths and students from every corner of India.",
-        "Search by name, speciality or city, then join to connect, discuss cases and find mentors."
-      ],
-      "links": [["/apply", "Join Homeo India"], ["/", "Home"]]
+      "links": [
+        [
+          "/apply?role=doctor",
+          "Join as a doctor"
+        ],
+        [
+          "/apply?role=student",
+          "Join as a student"
+        ],
+        [
+          "/about",
+          "About Homeo India"
+        ]
+      ]
     },
     {
       "path": "/about",
@@ -55,7 +55,20 @@
         "Every member is verified: doctors by their degree, students by their college.",
         "Members discuss cases, find mentors, attend CMEs and share research."
       ],
-      "links": [["/eligibility", "Who can join"], ["/community-rules", "Community rules"], ["/apply", "Join Homeo India"]]
+      "links": [
+        [
+          "/eligibility",
+          "Who can join"
+        ],
+        [
+          "/community-rules",
+          "Community rules"
+        ],
+        [
+          "/apply",
+          "Join Homeo India"
+        ]
+      ]
     },
     {
       "path": "/eligibility",
@@ -68,7 +81,16 @@
         "Doctors: BHMS, MD (Hom) and DHMS practitioners. Upload your degree certificate to get verified.",
         "Students: BHMS students and interns. Add your college name to get verified."
       ],
-      "links": [["/apply?role=doctor", "Join as a doctor"], ["/apply?role=student", "Join as a student"]]
+      "links": [
+        [
+          "/apply?role=doctor",
+          "Join as a doctor"
+        ],
+        [
+          "/apply?role=student",
+          "Join as a student"
+        ]
+      ]
     },
     {
       "path": "/apply",
@@ -81,7 +103,16 @@
         "Choose doctor or student, fill a short form and our team will verify you.",
         "Doctors upload their degree certificate. Students add their college name."
       ],
-      "links": [["/login", "Sign in"], ["/eligibility", "Who can join"]]
+      "links": [
+        [
+          "/login",
+          "Sign in"
+        ],
+        [
+          "/eligibility",
+          "Who can join"
+        ]
+      ]
     },
     {
       "path": "/community-rules",
@@ -90,8 +121,15 @@
       "changefreq": "yearly",
       "priority": 0.4,
       "h1": "Community rules",
-      "content": ["Be respectful, keep patient details private and share knowledge responsibly."],
-      "links": [["/about", "About Homeo India"]]
+      "content": [
+        "Be respectful, keep patient details private and share knowledge responsibly."
+      ],
+      "links": [
+        [
+          "/about",
+          "About Homeo India"
+        ]
+      ]
     },
     {
       "path": "/privacy",
@@ -100,8 +138,15 @@
       "changefreq": "yearly",
       "priority": 0.3,
       "h1": "Privacy policy",
-      "content": ["How Homeo India collects, uses and protects your personal information."],
-      "links": [["/terms", "Terms of service"]]
+      "content": [
+        "How Homeo India collects, uses and protects your personal information."
+      ],
+      "links": [
+        [
+          "/terms",
+          "Terms of service"
+        ]
+      ]
     },
     {
       "path": "/terms",
@@ -110,8 +155,15 @@
       "changefreq": "yearly",
       "priority": 0.3,
       "h1": "Terms of service",
-      "content": ["The terms that apply when you use Homeo India."],
-      "links": [["/privacy", "Privacy policy"]]
+      "content": [
+        "The terms that apply when you use Homeo India."
+      ],
+      "links": [
+        [
+          "/privacy",
+          "Privacy policy"
+        ]
+      ]
     },
     {
       "path": "/login",
@@ -120,9 +172,29 @@
       "changefreq": "yearly",
       "priority": 0.3,
       "h1": "Sign in to Homeo India",
-      "content": ["Sign in with your email or Google account."],
-      "links": [["/apply", "Create an account"]]
+      "content": [
+        "Sign in with your email or Google account."
+      ],
+      "links": [
+        [
+          "/apply",
+          "Create an account"
+        ]
+      ]
     }
   ],
-  "privatePaths": ["/admin", "/dashboard", "/profile", "/settings", "/community", "/members", "/students", "/events", "/knowledge", "/opportunities", "/application-status", "/reset-password"]
+  "privatePaths": [
+    "/admin",
+    "/dashboard",
+    "/profile",
+    "/settings",
+    "/community",
+    "/members",
+    "/students",
+    "/events",
+    "/knowledge",
+    "/opportunities",
+    "/application-status",
+    "/reset-password"
+  ]
 }
