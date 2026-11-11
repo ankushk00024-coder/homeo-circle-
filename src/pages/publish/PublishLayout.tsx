@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, NavLink, Outlet, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, Navigate, useLocation } from 'react-router-dom';
 import { MessageSquare, BookOpen, CalendarDays, LogOut, ArrowLeft, Loader2, PenSquare, ShieldAlert, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { BrandLogo } from '../../components/common/BrandLogo';
@@ -128,40 +128,54 @@ export const PublishHome: React.FC = () => {
 };
 
 /**
- * Shown when a publisher signs in some other way (e.g. Google). Publishing
- * needs the account's email + password, so they can create a password here,
- * then sign in again with it.
+ * Shown when a publisher signed in another way (e.g. Google). Publishing needs
+ * the account's password, so they type it here (or create one) and are signed
+ * in with it straight away — no extra sign-in page.
  */
 const PasswordGate: React.FC = () => {
-  const { currentUser, logout, updatePassword } = useAuth();
-  const navigate = useNavigate();
+  const { currentUser, updatePassword } = useAuth();
+  const email = currentUser?.email || '';
+  const [mode, setMode] = React.useState<'enter' | 'create'>('enter');
   const [pw, setPw] = React.useState('');
   const [pw2, setPw2] = React.useState('');
   const [show, setShow] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  const goToSignIn = async (message?: string) => {
-    const email = currentUser?.email;
-    // Fully end this (Google) session before asking for the password.
-    try { await supabase?.auth.signOut(); } catch { /* signed out locally below */ }
-    logout();
-    navigate('/login', { replace: true, state: { from: { pathname: '/publish' }, email, notice: message } });
+  // Replaces the Google session with a password session for the same account.
+  const signInWithPassword = async (password: string) => {
+    if (!supabase) return 'Sign-in is not available.';
+    const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+    if (!err) return null;
+    return /invalid/i.test(err.message) ? 'That password is not right. Try again, or create a new password.' : err.message;
   };
 
-  const save = async (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    if (mode === 'enter') {
+      if (!pw) return setError('Please type your password.');
+      setBusy(true);
+      const msg = await signInWithPassword(pw);
+      setBusy(false);
+      if (msg) setError(msg);
+      return;
+    }
     if (pw.length < 8) return setError('Use at least 8 characters.');
     if (pw !== pw2) return setError('The two passwords do not match.');
     setBusy(true);
     const res = await updatePassword(pw);
+    // "same password" just means it is already set: sign in with it.
+    if (!res.success && !/different from the old password/i.test(res.error || '')) {
+      setBusy(false);
+      return setError(res.error || 'Could not save the password.');
+    }
+    const msg = await signInWithPassword(pw);
     setBusy(false);
-    if (!res.success) return setError(res.error || 'Could not save the password.');
-    await goToSignIn('Password saved. Sign in with your email and new password to open the Publishing panel.');
+    if (msg) setError(msg);
   };
 
-  const input = 'w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20';
+  const input = 'w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20';
   return (
     <div className="flex min-h-screen items-center justify-center bg-brand-paper p-4">
       <div className="w-full max-w-md space-y-5 rounded-2xl border border-slate-200 bg-white p-7 shadow-card">
@@ -169,30 +183,38 @@ const PasswordGate: React.FC = () => {
           <KeyRound className="h-7 w-7" />
         </div>
         <div className="text-center">
-          <h1 className="text-xl font-bold text-brand-navy">Sign in with your password</h1>
+          <h1 className="text-xl font-bold text-brand-navy">Enter your password to publish</h1>
           <p className="mt-1.5 text-sm text-slate-600">
-            The Publishing panel only opens when you sign in with your email and password.
-            You signed in another way (for example with Google).
+            The Publishing panel needs your account password. Signing in with Google is not enough.
           </p>
         </div>
-        <form onSubmit={save} noValidate className="space-y-3 rounded-xl bg-slate-50 p-4">
-          <p className="text-sm font-semibold text-brand-navy">Create or change your password</p>
-          <p className="text-xs text-slate-500">For {currentUser?.email}</p>
+        <div className="grid grid-cols-2 rounded-xl bg-slate-100 p-1 text-sm font-semibold">
+          {(['enter', 'create'] as const).map((m) => (
+            <button key={m} type="button" onClick={() => { setMode(m); setError(null); }}
+              className={`rounded-lg py-2 transition ${mode === m ? 'bg-white text-brand-navy shadow-sm' : 'text-slate-500'}`}>
+              {m === 'enter' ? 'I have a password' : 'Create a new password'}
+            </button>
+          ))}
+        </div>
+        <form onSubmit={submit} noValidate className="space-y-3">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-600">{email}</div>
           <div className="relative">
-            <input type={show ? 'text' : 'password'} className={input} value={pw} onChange={(e) => setPw(e.target.value)} placeholder="New password (8+ characters)" autoComplete="new-password" />
+            <input type={show ? 'text' : 'password'} className={input} value={pw} onChange={(e) => setPw(e.target.value)}
+              placeholder={mode === 'enter' ? 'Your password' : 'New password (8+ characters)'}
+              autoComplete={mode === 'enter' ? 'current-password' : 'new-password'} autoFocus />
             <button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600" aria-label={show ? 'Hide password' : 'Show password'}>
               {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
-          <input type={show ? 'text' : 'password'} className={input} value={pw2} onChange={(e) => setPw2(e.target.value)} placeholder="Type it again" autoComplete="new-password" />
+          {mode === 'create' && (
+            <input type={show ? 'text' : 'password'} className={input} value={pw2} onChange={(e) => setPw2(e.target.value)} placeholder="Type it again" autoComplete="new-password" />
+          )}
           {error && <p role="alert" className="text-sm text-rose-600">{error}</p>}
           <button type="submit" disabled={busy} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-700 py-2.5 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-60">
-            {busy && <Loader2 className="h-4 w-4 animate-spin" />} Save password and sign in again
+            {busy && <Loader2 className="h-4 w-4 animate-spin" />}
+            {mode === 'enter' ? 'Open Publishing panel' : 'Save password and open panel'}
           </button>
         </form>
-        <button type="button" onClick={() => { void goToSignIn(); }} className="w-full rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-brand-navy hover:bg-slate-50">
-          I already have a password — sign in with it
-        </button>
         <Link to="/community" className="block text-center text-sm text-slate-500 hover:text-brand-navy">Back to the community</Link>
       </div>
     </div>

@@ -180,6 +180,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [loading, setLoading] = useState(true);
+  // Bumps on every sign-in, so checks that depend on HOW someone signed in re-run.
+  const [authVersion, setAuthVersion] = useState(0);
   // While signUp() runs, ignore Supabase's automatic SIGNED_IN event so a new
   // account is NOT logged in: the product flow is sign up → log in.
   const signingUpRef = useRef(false);
@@ -243,6 +245,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const { data: { session: current } } = await client.auth.getSession();
           if (current?.user?.id !== user.id) return;
           setCurrentUser(profile);
+          setAuthVersion((v) => v + 1);
           localStorage.setItem('homeocircle_current_user', JSON.stringify(profile));
         } catch (err) {
           console.error('Error fetching profile on auth state change:', err);
@@ -539,7 +542,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     check(0);
     return () => { active = false; };
-  }, [currentUserId]);
+  }, [currentUserId, authVersion]);
   const isPublisher = publisherAccess === 'ok';
   const isDoctor = Boolean(currentUser && (currentUser.role === 'doctor' || currentUser.role === 'member'));
   const isStudent = Boolean(currentUser && currentUser.role === 'student');
