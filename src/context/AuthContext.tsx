@@ -238,6 +238,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setTimeout(async () => {
         try {
           const profile = await resolveOrCreateProfile(client, user);
+          // The person may have signed out while the profile was loading
+          // (e.g. right after changing their password): don't sign them back in.
+          const { data: { session: current } } = await client.auth.getSession();
+          if (current?.user?.id !== user.id) return;
           setCurrentUser(profile);
           localStorage.setItem('homeocircle_current_user', JSON.stringify(profile));
         } catch (err) {
@@ -518,9 +522,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setPublisherAccess('none');
       return;
     }
-    supabase.rpc('publisher_access').then(({ data, error }) => {
-      if (active) setPublisherAccess(!error && (data === 'ok' || data === 'password_required') ? data : 'none');
-    });
+    const client = supabase;
+    const check = async (attempt: number) => {
+      // Only ask once this browser really holds the login token.
+      const { data: { session } } = await client.auth.getSession();
+      if (!active) return;
+      if (session?.user?.id !== currentUserId) {
+        if (attempt < 3) setTimeout(() => check(attempt + 1), 600);
+        else setPublisherAccess('none');
+        return;
+      }
+      const { data, error } = await client.rpc('publisher_access');
+      if (!active) return;
+      if (error && attempt < 3) { setTimeout(() => check(attempt + 1), 600); return; }
+      setPublisherAccess(!error && (data === 'ok' || data === 'password_required') ? data : 'none');
+    };
+    check(0);
     return () => { active = false; };
   }, [currentUserId]);
   const isPublisher = publisherAccess === 'ok';

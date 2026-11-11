@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, Navigate, useLocation, useNavigate } from 'react
 import { MessageSquare, BookOpen, CalendarDays, LogOut, ArrowLeft, Loader2, PenSquare, ShieldAlert, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { BrandLogo } from '../../components/common/BrandLogo';
+import { supabase } from '../../lib/supabase';
 
 const tabs = [
   { to: '/publish/discussions', label: 'Discussions', icon: MessageSquare },
@@ -23,7 +24,7 @@ export const PublishLayout: React.FC = () => {
   // isPublisher is fetched just after sign-in; give it a moment.
   React.useEffect(() => {
     if (loading) return;
-    const t = setTimeout(() => setChecking(false), isPublisher || isAdmin || publisherAccess !== 'none' ? 0 : 1500);
+    const t = setTimeout(() => setChecking(false), isPublisher || isAdmin || publisherAccess !== 'none' ? 0 : 3500);
     return () => clearTimeout(t);
   }, [loading, isPublisher, isAdmin, publisherAccess]);
 
@@ -140,9 +141,12 @@ const PasswordGate: React.FC = () => {
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  const goToSignIn = (message?: string) => {
+  const goToSignIn = async (message?: string) => {
+    const email = currentUser?.email;
+    // Fully end this (Google) session before asking for the password.
+    try { await supabase?.auth.signOut(); } catch { /* signed out locally below */ }
     logout();
-    navigate('/login', { replace: true, state: { from: { pathname: '/publish' }, email: currentUser?.email, notice: message } });
+    navigate('/login', { replace: true, state: { from: { pathname: '/publish' }, email, notice: message } });
   };
 
   const save = async (e: React.FormEvent) => {
@@ -154,7 +158,7 @@ const PasswordGate: React.FC = () => {
     const res = await updatePassword(pw);
     setBusy(false);
     if (!res.success) return setError(res.error || 'Could not save the password.');
-    goToSignIn('Password saved. Sign in with your email and new password to open the Publishing panel.');
+    await goToSignIn('Password saved. Sign in with your email and new password to open the Publishing panel.');
   };
 
   const input = 'w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20';
@@ -186,7 +190,7 @@ const PasswordGate: React.FC = () => {
             {busy && <Loader2 className="h-4 w-4 animate-spin" />} Save password and sign in again
           </button>
         </form>
-        <button type="button" onClick={() => goToSignIn()} className="w-full rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-brand-navy hover:bg-slate-50">
+        <button type="button" onClick={() => { void goToSignIn(); }} className="w-full rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-brand-navy hover:bg-slate-50">
           I already have a password — sign in with it
         </button>
         <Link to="/community" className="block text-center text-sm text-slate-500 hover:text-brand-navy">Back to the community</Link>
