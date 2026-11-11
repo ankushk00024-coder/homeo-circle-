@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link, NavLink, Outlet, Navigate, useLocation } from 'react-router-dom';
-import { MessageSquare, BookOpen, CalendarDays, LogOut, ArrowLeft, Loader2, PenSquare, ShieldAlert } from 'lucide-react';
+import { Link, NavLink, Outlet, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { MessageSquare, BookOpen, CalendarDays, LogOut, ArrowLeft, Loader2, PenSquare, ShieldAlert, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { BrandLogo } from '../../components/common/BrandLogo';
 
@@ -16,18 +16,18 @@ const tabs = [
  * what this person posted.
  */
 export const PublishLayout: React.FC = () => {
-  const { currentUser, isAuthenticated, isPublisher, isAdmin, loading, logout } = useAuth();
+  const { currentUser, isAuthenticated, isPublisher, publisherAccess, isAdmin, loading, logout } = useAuth();
   const location = useLocation();
   const [checking, setChecking] = React.useState(true);
 
   // isPublisher is fetched just after sign-in; give it a moment.
   React.useEffect(() => {
     if (loading) return;
-    const t = setTimeout(() => setChecking(false), isPublisher || isAdmin ? 0 : 1500);
+    const t = setTimeout(() => setChecking(false), isPublisher || isAdmin || publisherAccess !== 'none' ? 0 : 1500);
     return () => clearTimeout(t);
-  }, [loading, isPublisher, isAdmin]);
+  }, [loading, isPublisher, isAdmin, publisherAccess]);
 
-  if (loading || (checking && !isPublisher && !isAdmin && isAuthenticated)) {
+  if (loading || (checking && !isPublisher && !isAdmin && publisherAccess === 'none' && isAuthenticated)) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-brand-paper">
         <Loader2 className="h-7 w-7 animate-spin text-teal-600" />
@@ -35,6 +35,7 @@ export const PublishLayout: React.FC = () => {
     );
   }
   if (!isAuthenticated) return <Navigate to="/login" state={{ from: location }} replace />;
+  if (!isAdmin && publisherAccess === 'password_required') return <PasswordGate />;
   if (!isPublisher && !isAdmin) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-brand-paper p-4">
@@ -120,6 +121,75 @@ export const PublishHome: React.FC = () => {
             <p className="mt-1 text-sm leading-relaxed text-slate-500">{text}</p>
           </Link>
         ))}
+      </div>
+    </div>
+  );
+};
+
+/**
+ * Shown when a publisher signs in some other way (e.g. Google). Publishing
+ * needs the account's email + password, so they can create a password here,
+ * then sign in again with it.
+ */
+const PasswordGate: React.FC = () => {
+  const { currentUser, logout, updatePassword } = useAuth();
+  const navigate = useNavigate();
+  const [pw, setPw] = React.useState('');
+  const [pw2, setPw2] = React.useState('');
+  const [show, setShow] = React.useState(false);
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const goToSignIn = (message?: string) => {
+    logout();
+    navigate('/login', { replace: true, state: { from: { pathname: '/publish' }, email: currentUser?.email, notice: message } });
+  };
+
+  const save = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (pw.length < 8) return setError('Use at least 8 characters.');
+    if (pw !== pw2) return setError('The two passwords do not match.');
+    setBusy(true);
+    const res = await updatePassword(pw);
+    setBusy(false);
+    if (!res.success) return setError(res.error || 'Could not save the password.');
+    goToSignIn('Password saved. Sign in with your email and new password to open the Publishing panel.');
+  };
+
+  const input = 'w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20';
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-brand-paper p-4">
+      <div className="w-full max-w-md space-y-5 rounded-2xl border border-slate-200 bg-white p-7 shadow-card">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-teal-100 bg-teal-50 text-teal-700">
+          <KeyRound className="h-7 w-7" />
+        </div>
+        <div className="text-center">
+          <h1 className="text-xl font-bold text-brand-navy">Sign in with your password</h1>
+          <p className="mt-1.5 text-sm text-slate-600">
+            The Publishing panel only opens when you sign in with your email and password.
+            You signed in another way (for example with Google).
+          </p>
+        </div>
+        <form onSubmit={save} noValidate className="space-y-3 rounded-xl bg-slate-50 p-4">
+          <p className="text-sm font-semibold text-brand-navy">Create or change your password</p>
+          <p className="text-xs text-slate-500">For {currentUser?.email}</p>
+          <div className="relative">
+            <input type={show ? 'text' : 'password'} className={input} value={pw} onChange={(e) => setPw(e.target.value)} placeholder="New password (8+ characters)" autoComplete="new-password" />
+            <button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600" aria-label={show ? 'Hide password' : 'Show password'}>
+              {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
+          <input type={show ? 'text' : 'password'} className={input} value={pw2} onChange={(e) => setPw2(e.target.value)} placeholder="Type it again" autoComplete="new-password" />
+          {error && <p role="alert" className="text-sm text-rose-600">{error}</p>}
+          <button type="submit" disabled={busy} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-700 py-2.5 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-60">
+            {busy && <Loader2 className="h-4 w-4 animate-spin" />} Save password and sign in again
+          </button>
+        </form>
+        <button type="button" onClick={() => goToSignIn()} className="w-full rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-brand-navy hover:bg-slate-50">
+          I already have a password — sign in with it
+        </button>
+        <Link to="/community" className="block text-center text-sm text-slate-500 hover:text-brand-navy">Back to the community</Link>
       </div>
     </div>
   );

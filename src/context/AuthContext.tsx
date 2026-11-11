@@ -13,6 +13,8 @@ interface AuthContextType {
   isAdmin: boolean;
   /** Posting-only helper: can use the Publishing panel (/publish). */
   isPublisher: boolean;
+  /** 'ok' = can publish; 'password_required' = publisher signed in without their password; 'none'. */
+  publisherAccess: 'ok' | 'password_required' | 'none';
   isDoctor: boolean;
   isStudent: boolean;
   isResearcher: boolean;
@@ -507,19 +509,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Publisher is stored only in user_roles (it never changes the member's own
   // role or type), so ask the database once per signed-in account.
-  const [isPublisher, setIsPublisher] = useState(false);
+  // Publishing also needs an email + password sign-in (checked by the database).
+  const [publisherAccess, setPublisherAccess] = useState<'ok' | 'password_required' | 'none'>('none');
   const currentUserId = currentUser?.id;
   useEffect(() => {
     let active = true;
     if (!currentUserId || !isSupabaseConfigured || !supabase) {
-      setIsPublisher(false);
+      setPublisherAccess('none');
       return;
     }
-    supabase.rpc('is_publisher').then(({ data, error }) => {
-      if (active) setIsPublisher(!error && data === true);
+    supabase.rpc('publisher_access').then(({ data, error }) => {
+      if (active) setPublisherAccess(!error && (data === 'ok' || data === 'password_required') ? data : 'none');
     });
     return () => { active = false; };
   }, [currentUserId]);
+  const isPublisher = publisherAccess === 'ok';
   const isDoctor = Boolean(currentUser && (currentUser.role === 'doctor' || currentUser.role === 'member'));
   const isStudent = Boolean(currentUser && currentUser.role === 'student');
   const isResearcher = Boolean(currentUser && currentUser.role === 'researcher');
@@ -539,6 +543,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isVerifiedMember,
         isAdmin,
         isPublisher,
+        publisherAccess,
         isDoctor,
         isStudent,
         isResearcher,

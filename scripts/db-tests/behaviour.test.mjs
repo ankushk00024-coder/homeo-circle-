@@ -8,16 +8,16 @@ const db = globalThis.__db;
 const dir = process.env.MIGRATIONS_DIR || new URL('../../supabase/migrations/', import.meta.url).pathname;
 let pass = 0, fail = 0;
 const check = (label, cond, detail = '') => { if (cond) { pass++; console.log(`  PASS ${label}`); } else { fail++; console.log(`  FAIL ${label} ${detail}`); } };
-const asUser = async (uid, role = 'authenticated') => {
+const asUser = async (uid, role = 'authenticated', extra = {}) => {
   await db.exec(`reset role;`);
-  await db.query(`select set_config('request.jwt.claims', $1, false)`, [JSON.stringify(uid ? { sub: uid, role } : { role })]);
+  await db.query(`select set_config('request.jwt.claims', $1, false)`, [JSON.stringify(uid ? { sub: uid, role, ...extra } : { role })]);
   await db.exec(`set role ${role};`);
 };
 const asPostgres = async () => { await db.exec(`reset role;`); await db.query(`select set_config('request.jwt.claims', '', false)`); };
 const attempt = async (sql, params = []) => { try { const r = await db.query(sql, params); return { ok: true, rows: r.rows, n: r.affectedRows }; } catch (e) { return { ok: false, err: e.message }; } };
 
 // Idempotency: re-run the last two migrations
-for (const f of ['20261028000000_schema_harmonization.sql', '20261029000000_launch_fixes.sql', '20261030000000_connection_requests.sql', '20261031000000_verify_sets_account_type.sql', '20261106000000_research_files_and_admin_transfer.sql', '20261108000000_security_hardening.sql', '20261109000000_publisher_role.sql']) {
+for (const f of ['20261028000000_schema_harmonization.sql', '20261029000000_launch_fixes.sql', '20261030000000_connection_requests.sql', '20261031000000_verify_sets_account_type.sql', '20261106000000_research_files_and_admin_transfer.sql', '20261108000000_security_hardening.sql', '20261109000000_publisher_role.sql', '20261111000000_publisher_password_login.sql']) {
   try { await db.exec(fs.readFileSync(path.join(dir, f), 'utf8')); check(`re-run ${f}`, true); } catch (e) { check(`re-run ${f}`, false, e.message); }
 }
 
@@ -234,6 +234,8 @@ check('role changes are written to the audit log', (await db.query(`select count
 
 
 console.log('\nPUBLISHER (posting-only helper)');
+const PW = { amr: [{ method: 'password', timestamp: 1 }] };
+const GOOGLE = { amr: [{ method: 'oauth', timestamp: 1 }] };
 await asPostgres();
 const pubId = (await signup('helper@t.in', { full_name: 'Content Helper' })).rows[0].id;
 await asUser(ids.doctor);
@@ -244,7 +246,7 @@ const addPub = await attempt(`select * from public.add_publisher(' HELPER@t.in '
 check('admin adds a publisher by email', addPub.ok && addPub.rows[0]?.name === 'Content Helper', JSON.stringify(addPub.rows?.[0] ?? addPub.err));
 check('admin sees publisher list', (await attempt(`select * from public.list_publishers()`)).rows?.length === 1);
 check('unknown email refused', !(await attempt(`select * from public.add_publisher('nobody@t.in')`)).ok);
-await asUser(pubId);
+await asUser(pubId, 'authenticated', PW);
 check('publisher is not an admin', (await attempt(`select public.is_admin() a`)).rows[0].a === false);
 check('publisher can post a discussion (even unverified)', (await attempt(`insert into public.posts (author_id, title, body, category_id) values ($1,'From helper','B','general')`, [pubId])).ok);
 const pe = await attempt(`insert into public.events (title, summary, organizer, speaker, date_badge_day, date_badge_month, time_display, start_at, location, registration_url, status) values ('Pub CME','s','o','sp','2','FEB','t', now() + interval '5 days','online','/events','draft') returning id, created_by, status`);
@@ -263,8 +265,22 @@ check('publisher can delete own event', (await attempt(`delete from public.event
 check('publisher can delete own research', (await attempt(`delete from public.knowledge_posts where id=$1`, [pk.rows[0].id])).n === 1);
 await asUser(adminId);
 check('admin removes the publisher', (await attempt(`select public.remove_publisher($1)`, [pubId])).ok);
-await asUser(pubId);
+await asUser(pubId, 'authenticated', PW);
 check('removed publisher can no longer post events', !(await attempt(`insert into public.events (title, summary, organizer, speaker, date_badge_day, date_badge_month, time_display, start_at, location, registration_url) values ('x','s','o','sp','2','FEB','t', now(),'online','/events')`)).ok);
+
+
+console.log('\nPUBLISHER NEEDS PASSWORD SIGN-IN');
+await asUser(adminId);
+await attempt(`select * from public.add_publisher('helper@t.in')`);
+await asUser(pubId, 'authenticated', GOOGLE);
+check('Google sign-in: publisher_access says password required', (await attempt(`select public.publisher_access() a`)).rows[0].a === 'password_required');
+check('Google sign-in cannot post events', !(await attempt(`insert into public.events (title, summary, organizer, speaker, date_badge_day, date_badge_month, time_display, start_at, location, registration_url) values ('x','s','o','sp','2','FEB','t', now(),'online','/events')`)).ok);
+check('Google sign-in cannot post research', !(await attempt(`insert into public.knowledge_posts (title, summary, journal, source_url, content_type, limitations, created_by) values ('x','S','J','https://x','Clinical Trial','L',$1)`, [pubId])).ok);
+await asUser(pubId, 'authenticated', PW);
+check('password sign-in: publisher_access ok', (await attempt(`select public.publisher_access() a`)).rows[0].a === 'ok');
+check('password sign-in can post events', (await attempt(`insert into public.events (title, summary, organizer, speaker, date_badge_day, date_badge_month, time_display, start_at, location, registration_url) values ('x','s','o','sp','2','FEB','t', now(),'online','/events')`)).ok);
+await asUser(ids.doctor, 'authenticated', PW);
+check('non-publisher: publisher_access none', (await attempt(`select public.publisher_access() a`)).rows[0].a === 'none');
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

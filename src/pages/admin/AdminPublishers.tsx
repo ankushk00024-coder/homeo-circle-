@@ -68,7 +68,7 @@ export const AdminPublishers: React.FC = () => {
       <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
         <form onSubmit={add} noValidate className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
           <h2 className="flex items-center gap-2 text-sm font-bold text-brand-navy"><UserPlus className="h-4 w-4 text-teal-700" /> Add a publisher</h2>
-          <p className="text-xs text-slate-500">They must sign up on the website first. Then enter the email they signed up with.</p>
+          <p className="text-xs text-slate-500">They must have an account on the website. To post they must sign in with that email and a password; signing in with Google only gives normal member access.</p>
           <div className="flex flex-col gap-2 sm:flex-row">
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="helper@gmail.com"
               className="flex-1 rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20" />
@@ -82,7 +82,7 @@ export const AdminPublishers: React.FC = () => {
 
         <div className="space-y-2 rounded-2xl border border-teal-100 bg-teal-50/60 p-5">
           <h2 className="flex items-center gap-2 text-sm font-bold text-brand-navy"><PenSquare className="h-4 w-4 text-teal-700" /> Publishing panel link</h2>
-          <p className="text-xs text-slate-600">Send this to your publishers. They sign in and post from there.</p>
+          <p className="text-xs text-slate-600">Send this to your publishers. They sign in with their email and password, then post from there. If they have no password yet, the panel lets them create one.</p>
           <div className="flex items-center gap-2 rounded-xl border border-teal-200 bg-white px-3 py-2">
             <span className="truncate text-xs font-medium text-brand-navy">{panelUrl}</span>
             <button type="button" aria-label="Copy link" className="ml-auto text-teal-700 hover:text-teal-900"

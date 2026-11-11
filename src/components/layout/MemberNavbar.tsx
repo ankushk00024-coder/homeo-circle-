@@ -25,7 +25,8 @@ import {
 } from 'lucide-react';
 
 export const MemberNavbar: React.FC = () => {
-  const { currentUser, logout, isAdmin, isPublisher, role } = useAuth();
+  const { currentUser, logout, isAdmin, publisherAccess, role } = useAuth();
+  const isPublisher = publisherAccess !== 'none';
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);

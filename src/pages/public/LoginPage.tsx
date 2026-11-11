@@ -36,7 +36,9 @@ export const LoginPage: React.FC = () => {
 
   // Form states
   const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
+  // The Publishing panel can send people here with their email and a message.
+  const navState = (location.state as { email?: string; notice?: string } | null) || null;
+  const [email, setEmail] = useState(navState?.email || '');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -47,8 +49,8 @@ export const LoginPage: React.FC = () => {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resetSuccess, setResetSuccess] = useState(false);
-  const [confirmationNotice, setConfirmationNotice] = useState<string | null>(null);
-  const [noticeTitle, setNoticeTitle] = useState('Account created');
+  const [confirmationNotice, setConfirmationNotice] = useState<string | null>(navState?.notice || null);
+  const [noticeTitle, setNoticeTitle] = useState(navState?.notice ? 'Password saved' : 'Account created');
   const [showDemoAccounts, setShowDemoAccounts] = useState(false);
 
   // Determine post-login destination
