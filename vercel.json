@@ -107,6 +107,72 @@
   ],
   "redirects": [
     {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "homeo-circle-kappa.vercel.app"
+        }
+      ],
+      "destination": "https://www.homeoindia.org/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "homeo-circle-a-b539.vercel.app"
+        }
+      ],
+      "destination": "https://www.homeoindia.org/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "homeo-india-a-b539.vercel.app"
+        }
+      ],
+      "destination": "https://www.homeoindia.org/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "homeo-circle-pi.vercel.app"
+        }
+      ],
+      "destination": "https://www.homeoindia.org/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "homeo-india.vercel.app"
+        }
+      ],
+      "destination": "https://www.homeoindia.org/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "homeoindia.org"
+        }
+      ],
+      "destination": "https://www.homeoindia.org/:path*",
+      "permanent": true
+    },
+    {
       "source": "/explore",
       "destination": "/community",
       "permanent": true

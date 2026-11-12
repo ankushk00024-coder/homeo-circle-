@@ -313,7 +313,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.session) {
         // Email confirmation is off, so Supabase signed the user in. End that
         // session: the user logs in explicitly on the sign-in page next.
-        await supabase.auth.signOut();
+        await supabase.auth.signOut({ scope: 'local' });
         setCurrentUser(null);
         return { success: true, needsEmailConfirmation: false };
       }
@@ -456,7 +456,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    */
   const logout = () => {
     if (isSupabaseConfigured && supabase) {
-      supabase.auth.signOut().catch(console.error);
+      // Sign out on this device only, so other devices stay signed in.
+      supabase.auth.signOut({ scope: 'local' }).catch(console.error);
     }
     setCurrentUser(null);
     localStorage.removeItem('homeocircle_current_user');
