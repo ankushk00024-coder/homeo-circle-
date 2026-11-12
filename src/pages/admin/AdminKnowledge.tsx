@@ -15,6 +15,8 @@ export const AdminKnowledge: React.FC = () => {
   // Form
   const [title, setTitle] = useState('');
   const [journal, setJournal] = useState('');
+  const [authors, setAuthors] = useState('');
+  const [affiliation, setAffiliation] = useState('');
   const [contentType, setContentType] = useState<'Clinical Trial' | 'Systematic Review' | 'Observational Study' | 'Materia Medica Analysis'>('Clinical Trial');
   const [sourceUrl, setSourceUrl] = useState('');
   const [summary, setSummary] = useState('');
@@ -59,6 +61,8 @@ export const AdminKnowledge: React.FC = () => {
       const newPost = await dataService.createKnowledgePost({
         title: title.trim(),
         journal: journal.trim() || 'Homeo India',
+        author_name: authors.trim() || undefined,
+        author_affiliation: affiliation.trim() || undefined,
         content_type: contentType,
         source_url: normalizeUrl(sourceUrl) || attachmentUrl || '',
         summary: summary.trim(),
@@ -81,6 +85,8 @@ export const AdminKnowledge: React.FC = () => {
       setSummary('');
       setSourceUrl('');
       setJournal('');
+      setAuthors('');
+      setAffiliation('');
       setLimitations('');
       photos.forEach((p) => URL.revokeObjectURL(p.preview));
       setPhotos([]);
@@ -192,6 +198,19 @@ export const AdminKnowledge: React.FC = () => {
                   placeholder="e.g. Observational Study on Multi-Centric Psoriasis Cohorts in India"
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl outline-none"
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Authors</label>
+                  <input type="text" placeholder="e.g. Dr. A. Sharma, Dr. R. Iyer et al." value={authors} maxLength={300}
+                    onChange={(e) => setAuthors(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-xl outline-none" />
+                </div>
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Institution</label>
+                  <input type="text" placeholder="e.g. CCRH, New Delhi" value={affiliation} maxLength={300}
+                    onChange={(e) => setAffiliation(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-xl outline-none" />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">

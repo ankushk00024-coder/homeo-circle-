@@ -175,6 +175,13 @@ export const KnowledgePage: React.FC = () => {
                 <h2 className="text-base font-bold text-brand-navy leading-snug">
                   {post.title}
                 </h2>
+                {(post.author_name || post.author_affiliation) && (
+                  <p className="text-xs text-slate-600">
+                    <span className="font-semibold text-slate-700">{post.author_name}</span>
+                    {post.author_name && post.author_affiliation ? ' · ' : ''}
+                    {post.author_affiliation}
+                  </p>
+                )}
                 <p className="text-xs font-semibold text-slate-500">
                   Published in: <span className="italic text-slate-700">{post.journal}</span>
                 </p>

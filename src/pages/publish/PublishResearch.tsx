@@ -16,6 +16,8 @@ export const PublishResearch: React.FC = () => {
   const [title, setTitle] = useState('');
   const [summary, setSummary] = useState('');
   const [journal, setJournal] = useState('');
+  const [authors, setAuthors] = useState('');
+  const [affiliation, setAffiliation] = useState('');
   const [contentType, setContentType] = useState<(typeof TYPES)[number]>('Clinical Trial');
   const [link, setLink] = useState('');
   const [limitations, setLimitations] = useState('');
@@ -48,6 +50,8 @@ export const PublishResearch: React.FC = () => {
         title: title.trim(),
         summary: summary.trim(),
         journal: journal.trim() || 'Homeo India',
+        author_name: authors.trim() || undefined,
+        author_affiliation: affiliation.trim() || undefined,
         content_type: contentType,
         source_url: normalizeUrl(link) || attachmentUrl || '',
         limitations: limitations.trim() || 'See the full paper for methods and limitations.',
@@ -56,7 +60,7 @@ export const PublishResearch: React.FC = () => {
         created_by: currentUser.id,
       });
       photos.forEach((p) => URL.revokeObjectURL(p.preview));
-      setTitle(''); setSummary(''); setJournal(''); setLink(''); setLimitations(''); setPhotos([]); setPdf(null);
+      setTitle(''); setSummary(''); setJournal(''); setAuthors(''); setAffiliation(''); setLink(''); setLimitations(''); setPhotos([]); setPdf(null);
       toast.success('Research posted. It is live on the Research page.');
       await load();
     } catch (err) {
@@ -77,6 +81,14 @@ export const PublishResearch: React.FC = () => {
           <Field label="Summary" required>
             <textarea className={`${inputClass} min-h-[8rem]`} value={summary} maxLength={20000} onChange={(e) => setSummary(e.target.value)} placeholder="What was studied, how, and what was found." />
           </Field>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Authors" hint="(as on the paper)">
+              <input className={inputClass} value={authors} maxLength={300} onChange={(e) => setAuthors(e.target.value)} placeholder="e.g. Dr. A. Sharma, Dr. R. Iyer et al." />
+            </Field>
+            <Field label="Institution" hint="(optional)">
+              <input className={inputClass} value={affiliation} maxLength={300} onChange={(e) => setAffiliation(e.target.value)} placeholder="e.g. CCRH, New Delhi" />
+            </Field>
+          </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Journal or source" hint="(optional)">
               <input className={inputClass} value={journal} maxLength={300} onChange={(e) => setJournal(e.target.value)} placeholder="e.g. Indian Journal of Research in Homoeopathy" />
@@ -112,6 +124,7 @@ export const PublishResearch: React.FC = () => {
         render={(k) => (
           <>
             <p className="font-semibold text-brand-navy">{k.title}</p>
+            {k.author_name && <p className="text-xs text-slate-500">{k.author_name}{k.author_affiliation ? ` · ${k.author_affiliation}` : ''}</p>}
             <p className="mt-0.5 line-clamp-1 text-sm text-slate-500">{k.summary}</p>
             <p className="mt-1 flex flex-wrap items-center gap-x-3 text-xs text-slate-400">
               <span>{k.content_type}</span>
