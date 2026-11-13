@@ -1,3 +1,5 @@
+import { MemberBadge } from '../../components/common/MemberBadge';
+import { badgeFor } from '../../lib/membership';
 import { safeHref } from '../../lib/safeUrl';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
@@ -214,13 +216,9 @@ export const MemberProfilePage: React.FC = () => {
                 <h1 className="text-xl sm:text-2xl font-serif font-bold text-brand-navy">
                   {member.full_name}
                 </h1>
-                <span className="bg-teal-50 text-teal-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-teal-200 flex items-center gap-1 uppercase tracking-wider">
-                  <ShieldCheck className="w-3 h-3 text-teal-600" />
-                  <span>{member.status === 'verified' ? 'Verified Member' : 'Pending Verification'}</span>
-                </span>
-                <span className="bg-slate-100 text-slate-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full capitalize">
-                  {member.role === 'student' ? 'Student' : member.role === 'researcher' ? 'Researcher' : 'Doctor'}
-                </span>
+                {badgeFor(member) ? <MemberBadge profile={member} size="md" /> : (
+                  <span className="bg-slate-100 text-slate-600 text-[11px] font-bold px-2.5 py-0.5 rounded-full">Not verified yet</span>
+                )}
               </div>
 
               <p className="text-xs sm:text-sm text-slate-600 font-medium">
@@ -230,9 +228,9 @@ export const MemberProfilePage: React.FC = () => {
               </p>
 
               <p className="text-xs text-brand-teal font-semibold">
-                {member.role === 'student'
-                  ? member.institution || 'Recognized Homoeopathic Medical College'
-                  : member.specialization || 'Clinical Practice'}
+                {['student', 'intern'].includes(member.account_type || member.role)
+                  ? member.institution || member.clinic_institution || ''
+                  : member.specialization ? `Area of interest: ${member.specialization} (self-reported)` : ''}
               </p>
             </div>
           </div>
@@ -331,12 +329,12 @@ export const MemberProfilePage: React.FC = () => {
             <ShieldCheck className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
             <div>
               <span className="text-slate-400 text-[11px] block uppercase font-bold">
-                {member.role === 'student' ? 'Academic Standing' : 'Statutory Register'}
+                {['student', 'intern'].includes(member.account_type || member.role) ? 'Academic standing' : 'Professional registration'}
               </span>
               <span className="font-semibold text-brand-navy block">
-                {member.role === 'student'
-                  ? member.course_year || 'Enrolled Student'
-                  : member.registration_authority || 'National Commission for Homoeopathy'}
+                {['student', 'intern'].includes(member.account_type || member.role)
+                  ? member.course_year || (member.account_type === 'intern' ? 'Intern' : 'Student')
+                  : badgeFor(member)?.detail || 'Not verified'}
               </span>
             </div>
           </div>

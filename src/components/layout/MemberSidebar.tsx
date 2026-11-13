@@ -23,7 +23,7 @@ export const MemberSidebar: React.FC = () => {
     { label: 'Discussions', path: '/community', icon: MessageSquare },
     { label: 'Doctors', path: '/members', icon: Users },
     { label: 'Student Corner', path: '/students', icon: GraduationCap },
-    { label: 'Events & CMEs', path: '/events', icon: Calendar },
+    { label: 'Academic Events', path: '/events', icon: Calendar },
     { label: 'Research', path: '/knowledge', icon: BookOpen },
   ];
 
@@ -60,7 +60,7 @@ export const MemberSidebar: React.FC = () => {
               <span>Join Homeo India</span>
             </div>
             <p className="text-[11px] text-slate-500 leading-relaxed">
-              Connect with clinical mentors, discuss cases, and register for accredited events.
+              Connect with mentors, discuss cases and join academic events.
             </p>
             <div className="flex flex-col gap-1.5 pt-1">
               <Link 

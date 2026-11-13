@@ -1,3 +1,4 @@
+import { ResearchLicenceFields, Licence, pdfAllowed } from '../../components/common/ResearchLicenceFields';
 import React, { useCallback, useEffect, useState } from 'react';
 import { BookOpen, FileText } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -23,6 +24,9 @@ export const PublishResearch: React.FC = () => {
   const [limitations, setLimitations] = useState('');
   const [photos, setPhotos] = useState<PickedPhoto[]>([]);
   const [pdf, setPdf] = useState<File | null>(null);
+  const [licence, setLicence] = useState<Licence>('summary_link');
+  const [notice, setNotice] = useState('');
+  const [pubDate, setPubDate] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mine, setMine] = useState<KnowledgePost[]>([]);
@@ -41,6 +45,7 @@ export const PublishResearch: React.FC = () => {
     setError(null);
     if (!title.trim()) return setError('Please add a title.');
     if (!summary.trim()) return setError('Please add a summary.');
+    if (pdf && !pdfAllowed(licence)) return setError('A full-text PDF can only be attached if it is open access, shared with permission or your own work. Remove the PDF or change the copyright basis.');
     setBusy(true);
     try {
       const imageUrls: string[] = [];
@@ -58,9 +63,12 @@ export const PublishResearch: React.FC = () => {
         image_urls: imageUrls,
         attachment_url: attachmentUrl,
         created_by: currentUser.id,
+        licence,
+        copyright_notice: notice,
+        publication_date: pubDate,
       });
       photos.forEach((p) => URL.revokeObjectURL(p.preview));
-      setTitle(''); setSummary(''); setJournal(''); setAuthors(''); setAffiliation(''); setLink(''); setLimitations(''); setPhotos([]); setPdf(null);
+      setTitle(''); setSummary(''); setJournal(''); setAuthors(''); setAffiliation(''); setLink(''); setLimitations(''); setPhotos([]); setPdf(null); setLicence('summary_link'); setNotice(''); setPubDate('');
       toast.success('Research posted. It is live on the Research page.');
       await load();
     } catch (err) {
@@ -105,6 +113,7 @@ export const PublishResearch: React.FC = () => {
           <Field label="Limitations" hint="(optional)">
             <textarea className={`${inputClass} min-h-[5rem]`} value={limitations} maxLength={5000} onChange={(e) => setLimitations(e.target.value)} placeholder="Sample size, design limits, etc." />
           </Field>
+          <ResearchLicenceFields licence={licence} setLicence={setLicence} notice={notice} setNotice={setNotice} pubDate={pubDate} setPubDate={setPubDate} inputClass={inputClass} />
           <Field label="Photos" hint="(optional)">
             <PhotoPicker photos={photos} max={6} onChange={setPhotos} />
           </Field>

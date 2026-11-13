@@ -49,6 +49,7 @@ export const DiscussionsPage: React.FC = () => {
   // New/Edit post state
   const [postTitle, setPostTitle] = useState('');
   const postCategory = 'general';
+  const [noPatientData, setNoPatientData] = useState(false);
   const [postBody, setPostBody] = useState('');
   const [postSource, setPostSource] = useState('');
   const [posting, setPosting] = useState(false);
@@ -173,6 +174,10 @@ export const DiscussionsPage: React.FC = () => {
       setPostError('Please provide details for your discussion.');
       return;
     }
+    if (!noPatientData) {
+      setPostError('Please confirm the post contains no information that could identify a patient.');
+      return;
+    }
 
     setPosting(true);
     try {
@@ -205,6 +210,7 @@ export const DiscussionsPage: React.FC = () => {
 
       postPhotos.forEach((p) => URL.revokeObjectURL(p.preview));
       setPostPhotos([]);
+      setNoPatientData(false);
       setComposerOpen(false);
         await loadPosts();
     } catch (err: any) {
@@ -535,9 +541,13 @@ export const DiscussionsPage: React.FC = () => {
                   value={postBody}
                   maxLength={20000}
                   onChange={(e) => setPostBody(e.target.value)}
-                  placeholder="Write your question or case…"
+                  placeholder="Write your question or case… Remove names, contact details, ID numbers, exact dates and anything else that could identify a patient."
                   className="w-full p-3.5 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 outline-none leading-relaxed"
                 />
+                <label className="mt-2 flex items-start gap-2 rounded-lg bg-amber-50 p-2.5 text-[11.5px] text-amber-900 ring-1 ring-amber-200">
+                  <input type="checkbox" checked={noPatientData} onChange={(e) => setNoPatientData(e.target.checked)} className="mt-0.5 rounded text-amber-600" />
+                  <span>This post and its photos contain no information that could identify a patient. Clinical discussions are educational only — see the <a href="/clinical-disclaimer" className="underline">Clinical Disclaimer</a>.</span>
+                </label>
               </div>
 
               <div>
@@ -647,10 +657,16 @@ export const DiscussionsPage: React.FC = () => {
                     onChange={(e) => setReportReason(e.target.value as any)}
                     className="w-full p-2 border border-slate-200 rounded-lg outline-none bg-white"
                   >
-                    <option value="patient_privacy">Patient Identifiers / Privacy Violation (DISHA)</option>
-                    <option value="misleading_clinical_claim">Misleading or Miracle Clinical Claim</option>
-                    <option value="unsolicited_promotion">Commercial Spam / Unsolicited Promotion</option>
-                    <option value="harassment">Unprofessional Conduct or Harassment</option>
+                    <option value="patient_privacy">Patient-identifiable information / privacy violation</option>
+                    <option value="misleading_clinical_claim">Misleading clinical claim (e.g. promising a cure)</option>
+                    <option value="impersonation">Impersonation or fake qualification / registration</option>
+                    <option value="unverified_credentials">Misleading professional title</option>
+                    <option value="copyright">Copyright infringement</option>
+                    <option value="harassment">Harassment, threats or abusive language</option>
+                    <option value="unsolicited_promotion">Spam or unauthorised advertising</option>
+                    <option value="confidential_info">Confidential information shared without permission</option>
+                    <option value="illegal">Illegal or defamatory content</option>
+                    <option value="other">Something else</option>
                   </select>
                 </div>
 

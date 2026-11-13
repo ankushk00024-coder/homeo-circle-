@@ -94,7 +94,7 @@ export const AdminSettings: React.FC = () => {
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Configure role-based onboarding gates, statutory verification requirements, and broadcast announcements.
+            Configure onboarding settings and broadcast announcements.
           </p>
         </div>
 
@@ -137,7 +137,7 @@ export const AdminSettings: React.FC = () => {
             <span>Role-Based Verification Gates</span>
           </h2>
           <span className="text-[11px] font-semibold text-slate-400">
-            Admins decide which roles require statutory gazette checks
+            Admins decide which categories need document checks
           </span>
         </div>
 
@@ -269,7 +269,7 @@ export const AdminSettings: React.FC = () => {
           </p>
           <pre className="p-3 bg-slate-900 text-teal-300 rounded-xl text-[11px] font-mono overflow-x-auto">
 {`-- Atomic elevation with concurrency advisory lock:
-CALL public.provision_first_super_admin('admin@homeoindia.in');`}
+CALL public.provision_first_super_admin('you@example.com');`}
           </pre>
         </div>
 

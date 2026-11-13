@@ -65,7 +65,7 @@ export const AdminPosts: React.FC = () => {
   const initiateAction = (type: 'hide' | 'restore' | 'delete', post: Post) => {
     let defaultReason = '';
     if (type === 'hide') {
-      defaultReason = 'Breach of clinical case de-identification guidelines (DISHA)';
+      defaultReason = 'Breach of the patient de-identification rule (Community Guidelines)';
     } else if (type === 'delete') {
       defaultReason = 'Direct violation of Community Safety Guidelines or spam';
     } else {
@@ -156,7 +156,7 @@ export const AdminPosts: React.FC = () => {
               Community Posts Moderation
             </h1>
             <span className="text-[11px] font-semibold text-sky-800 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-200">
-              DISHA & Patient Privacy
+              Patient Privacy
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">

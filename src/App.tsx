@@ -11,6 +11,7 @@ import { MemberSidebar } from './components/layout/MemberSidebar';
 import { AdminSidebar } from './components/layout/AdminSidebar';
 import { Footer } from './components/layout/Footer';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
+import { PolicyConsentGate } from './components/common/PolicyConsentGate';
 
 // First-paint pages load eagerly; everything else is split into its own chunk.
 import { LandingPage } from './pages/public/LandingPage';
@@ -19,9 +20,16 @@ import { LoginPage } from './pages/public/LoginPage';
 // Public pages (lazy)
 const AboutPage = lazy(() => import('./pages/public/AboutPage').then((m) => ({ default: m.AboutPage })));
 const EligibilityPage = lazy(() => import('./pages/public/EligibilityPage').then((m) => ({ default: m.EligibilityPage })));
-const CommunityRulesPage = lazy(() => import('./pages/public/CommunityRulesPage').then((m) => ({ default: m.CommunityRulesPage })));
-const PrivacyPage = lazy(() => import('./pages/public/PrivacyPage').then((m) => ({ default: m.PrivacyPage })));
-const TermsPage = lazy(() => import('./pages/public/TermsPage').then((m) => ({ default: m.TermsPage })));
+const CommunityRulesPage = lazy(() => import('./pages/legal/CommunityGuidelinesPage').then((m) => ({ default: m.CommunityGuidelinesPage })));
+const PrivacyPage = lazy(() => import('./pages/legal/PrivacyPolicyPage').then((m) => ({ default: m.PrivacyPolicyPage })));
+const TermsPage = lazy(() => import('./pages/legal/TermsPage').then((m) => ({ default: m.TermsPage })));
+const VerificationPolicyPage = lazy(() => import('./pages/legal/VerificationPolicyPage').then((m) => ({ default: m.VerificationPolicyPage })));
+const CopyrightPolicyPage = lazy(() => import('./pages/legal/OtherPoliciesPages').then((m) => ({ default: m.CopyrightPolicyPage })));
+const ClinicalDisclaimerPage = lazy(() => import('./pages/legal/OtherPoliciesPages').then((m) => ({ default: m.ClinicalDisclaimerPage })));
+const GrievancePolicyPage = lazy(() => import('./pages/legal/OtherPoliciesPages').then((m) => ({ default: m.GrievancePolicyPage })));
+const CookiePolicyPage = lazy(() => import('./pages/legal/OtherPoliciesPages').then((m) => ({ default: m.CookiePolicyPage })));
+const LegalHubPage = lazy(() => import('./pages/legal/LegalHubPage').then((m) => ({ default: m.LegalHubPage })));
+const ContactPage = lazy(() => import('./pages/legal/ContactPage').then((m) => ({ default: m.ContactPage })));
 const ApplyPage = lazy(() => import('./pages/public/ApplyPage').then((m) => ({ default: m.ApplyPage })));
 const ApplicationStatusPage = lazy(() => import('./pages/public/ApplicationStatusPage').then((m) => ({ default: m.ApplicationStatusPage })));
 const ResetPasswordPage = lazy(() => import('./pages/public/ResetPasswordPage').then((m) => ({ default: m.ResetPasswordPage })));
@@ -51,6 +59,7 @@ const AdminNotifications = lazy(() => import('./pages/admin/AdminNotifications')
 const AdminEvents = lazy(() => import('./pages/admin/AdminEvents').then((m) => ({ default: m.AdminEvents })));
 const AdminOpportunities = lazy(() => import('./pages/admin/AdminOpportunities').then((m) => ({ default: m.AdminOpportunities })));
 const AdminKnowledge = lazy(() => import('./pages/admin/AdminKnowledge').then((m) => ({ default: m.AdminKnowledge })));
+const AdminCompliance = lazy(() => import('./pages/admin/AdminCompliance').then((m) => ({ default: m.AdminCompliance })));
 const AdminPublishers = lazy(() => import('./pages/admin/AdminPublishers').then((m) => ({ default: m.AdminPublishers })));
 const PublishLayout = lazy(() => import('./pages/publish/PublishLayout').then((m) => ({ default: m.PublishLayout })));
 const PublishHome = lazy(() => import('./pages/publish/PublishLayout').then((m) => ({ default: m.PublishHome })));
@@ -157,6 +166,7 @@ export function App() {
       <BrowserRouter>
         <ScrollToTop />
         <RouteSeo />
+        <PolicyConsentGate />
         <Routes>
           {/* Public Routes */}
           <Route element={<PublicLayout />}>
@@ -167,6 +177,13 @@ export function App() {
             <Route path="/community-rules" element={<CommunityRulesPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/terms" element={<TermsPage />} />
+            <Route path="/verification-policy" element={<VerificationPolicyPage />} />
+            <Route path="/copyright" element={<CopyrightPolicyPage />} />
+            <Route path="/clinical-disclaimer" element={<ClinicalDisclaimerPage />} />
+            <Route path="/grievance-policy" element={<GrievancePolicyPage />} />
+            <Route path="/cookies" element={<CookiePolicyPage />} />
+            <Route path="/legal" element={<LegalHubPage />} />
+            <Route path="/contact" element={<ContactPage />} />
             <Route path="/apply" element={<ApplyPage />} />
             <Route path="/application-status" element={<ApplicationStatusPage />} />
             <Route path="/login" element={<LoginPage />} />
@@ -227,6 +244,7 @@ export function App() {
             <Route path="/admin/opportunities" element={<AdminOpportunities />} />
             <Route path="/admin/knowledge" element={<AdminKnowledge />} />
             <Route path="/admin/publishers" element={<AdminPublishers />} />
+            <Route path="/admin/compliance" element={<AdminCompliance />} />
             <Route path="/admin/categories" element={<AdminCategories />} />
             <Route path="/admin/notifications" element={<AdminNotifications />} />
             <Route path="/admin/settings" element={<AdminSettings />} />

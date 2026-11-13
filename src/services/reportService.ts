@@ -3,7 +3,7 @@ import { Report } from '../types';
 
 export const reportService = {
   /**
-   * Submits a content safety / DISHA compliance report.
+   * Submits a content safety report.
    */
   async submitReport(reportData: Partial<Report>): Promise<Report> {
     const client = getRequiredSupabase();

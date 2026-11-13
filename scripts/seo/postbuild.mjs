@@ -30,7 +30,7 @@ const organization = {
   url: `${SITE}/`,
   logo: { '@type': 'ImageObject', url: `${SITE}/icon-512.png`, width: 512, height: 512 },
   description: seo.organization.description,
-  email: seo.organization.email,
+  ...(seo.organization.email ? { email: seo.organization.email } : {}),
   areaServed: { '@type': 'Country', name: 'India' },
   ...(seo.organization.sameAs.length ? { sameAs: seo.organization.sameAs } : {}),
 };

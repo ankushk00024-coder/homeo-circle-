@@ -8,7 +8,7 @@ import { useToast } from '../../components/feedback/ToastProvider';
 import type { Event } from '../../types';
 import { Card, Field, FormError, MyItems, PageHeader, PhotoPicker, PickedPhoto, SubmitButton, errorText, inputClass } from './PublishUi';
 
-const FORMATS = ['Webinar', 'State Chapter CME', 'Workshop', 'Conference', 'Study Circle'] as const;
+const FORMATS = ['Webinar', 'Workshop', 'Conference', 'Study Circle', 'State Chapter Meeting'] as const;
 type Format = (typeof FORMATS)[number];
 
 /** "18:30" → "6:30 PM" */

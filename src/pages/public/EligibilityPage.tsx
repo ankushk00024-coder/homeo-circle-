@@ -1,118 +1,44 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShieldCheck, GraduationCap, Building2, Clock, CheckCircle2, FileQuestion, ArrowRight } from 'lucide-react';
+import { ArrowRight, Info } from 'lucide-react';
+import { MEMBERSHIP_CATEGORIES, INDEPENDENCE_DISCLAIMER } from '../../lib/membership';
 
-export const EligibilityPage: React.FC = () => {
-  const recognizedBoards = [
-    'National Commission for Homoeopathy (Central Register)',
-    'Maharashtra Council of Homoeopathy, Mumbai',
-    'Delhi Homoeopathic Board, New Delhi',
-    'Karnataka Board of Homoeopathic System of Medicine, Bengaluru',
-    'Council of Homoeopathic System of Medicine, Gujarat',
-    'Homoeopathic Medicine Board, Uttar Pradesh',
-    'West Bengal Council of Homoeopathy, Kolkata',
-    'Kerala State Medical Council (Homoeopathy)',
-    'Telangana State Homoeopathic Board, Hyderabad',
-    'Tamil Nadu Homoeopathy Medical Council, Chennai',
-    'Other Statutory State Homoeopathy Boards established under Indian Law'
-  ];
-
-  return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
-      {/* Title */}
-      <div className="text-center space-y-4">
-        <span className="text-xs font-bold text-teal-700 tracking-wider uppercase">
-          Credential Requirements
-        </span>
-        <h1 className="text-4xl font-serif font-bold text-brand-navy">
-          Practitioner Eligibility Guidelines
-        </h1>
-        <p className="text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
-          Homeo India is exclusively restricted to certified homoeopaths licensed to practice under the laws of the Republic of India.
-        </p>
-      </div>
-
-      {/* Recognized Qualifications */}
-      <div className="bg-white rounded-2xl p-7 border border-slate-200/80 shadow-card space-y-4">
-        <div className="flex items-center gap-3 text-brand-navy font-bold text-lg">
-          <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center">
-            <GraduationCap className="w-5 h-5" />
-          </div>
-          <h2>Recognized Medical Qualifications</h2>
-        </div>
-        <p className="text-xs text-slate-600 leading-relaxed">
-          Applicants must hold a degree included in the Second Schedule of the Homoeopathy Central Council Act, 1973 or recognized under the National Commission for Homoeopathy Act, 2020:
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-          <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-            <span className="text-xs font-bold text-teal-800 block">BHMS</span>
-            <span className="text-xs text-slate-500">Bachelor of Homoeopathic Medicine and Surgery (5½ year degree program)</span>
-          </div>
-          <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-            <span className="text-xs font-bold text-teal-800 block">MD (Hom)</span>
-            <span className="text-xs text-slate-500">Doctor of Medicine in Homoeopathy (Postgraduate specialization)</span>
-          </div>
-          <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-            <span className="text-xs font-bold text-teal-800 block">DHMS / LCEH</span>
-            <span className="text-xs text-slate-500">Recognized historical diplomas registered prior to prevailing statutory cutoff dates</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Eligible Registration Authorities */}
-      <div className="bg-white rounded-2xl p-7 border border-slate-200/80 shadow-card space-y-4">
-        <div className="flex items-center gap-3 text-brand-navy font-bold text-lg">
-          <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center">
-            <Building2 className="w-5 h-5" />
-          </div>
-          <h2>Statutory Registers & Authorities</h2>
-        </div>
-        <p className="text-xs text-slate-600 leading-relaxed">
-          Your active registration number must be verifiable in one of the following gazettes:
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-          {recognizedBoards.map((board) => (
-            <div key={board} className="flex items-center gap-2 p-2.5 rounded-lg bg-slate-50 text-xs text-slate-700 border border-slate-100">
-              <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 flex-shrink-0" />
-              <span>{board}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Review Timelines & Appeals */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-card space-y-3">
-          <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
-            <Clock className="w-5 h-5" />
-          </div>
-          <h3 className="text-sm font-bold text-brand-navy">Review Timelines</h3>
-          <p className="text-xs text-slate-600 leading-relaxed">
-            Applications are typically reviewed within <strong>24 to 48 business hours</strong>. Reviewers inspect state portal databases. You can track your status in real-time on your personal status dashboard.
-          </p>
-        </div>
-
-        <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-card space-y-3">
-          <div className="w-9 h-9 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center">
-            <FileQuestion className="w-5 h-5" />
-          </div>
-          <h3 className="text-sm font-bold text-brand-navy">Appeals & Discrepancies</h3>
-          <p className="text-xs text-slate-600 leading-relaxed">
-            If your registration was recently renewed or contains typographical differences in official gazettes, our review committee will request a copy of your valid renewal slip or gazette notification before making a final determination.
-          </p>
-        </div>
-      </div>
-
-      {/* Apply CTA */}
-      <div className="text-center pt-2">
-        <Link
-          to="/apply?role=doctor"
-          className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-teal-700 text-white text-sm font-semibold hover:bg-teal-800 shadow transition"
-        >
-          <span>Begin Practitioner Application</span>
-          <ArrowRight className="w-4 h-4" />
-        </Link>
-      </div>
+export const EligibilityPage: React.FC = () => (
+  <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+    <div className="text-center space-y-4">
+      <span className="text-xs font-bold text-teal-700 tracking-wider uppercase">Membership</span>
+      <h1 className="text-4xl font-serif font-bold text-brand-navy">Who can join Homeo India</h1>
+      <p className="text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
+        Homeo India is open to people aged 18 or over in five categories. Each is verified differently, and each has its own badge.
+      </p>
     </div>
-  );
-};
+
+    <div className="grid gap-4 sm:grid-cols-2">
+      {MEMBERSHIP_CATEGORIES.map((c) => (
+        <div key={c.value} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-card space-y-3">
+          <h2 className="text-lg font-bold text-brand-navy">{c.label}</h2>
+          <p className="text-sm text-slate-600">{c.who}</p>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wide text-slate-400">What you'll need</p>
+            <ul className="mt-1 list-disc pl-5 text-sm text-slate-600 space-y-0.5">{c.needs.map((n) => <li key={n}>{n}</li>)}</ul>
+          </div>
+          <p className="text-xs text-slate-500">Badge: <strong className="text-brand-navy">{c.badge}</strong></p>
+          <Link to={`/apply?role=${c.value}`} className="inline-flex items-center gap-1.5 text-sm font-semibold text-teal-700 hover:underline">Apply as {c.short.toLowerCase()} <ArrowRight className="h-4 w-4" /></Link>
+        </div>
+      ))}
+    </div>
+
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 space-y-3 text-sm text-slate-600 leading-relaxed">
+      <p className="flex items-start gap-2 font-semibold text-brand-navy"><Info className="mt-0.5 h-4 w-4 shrink-0 text-teal-700" />Important</p>
+      <ul className="list-disc pl-5 space-y-1.5">
+        <li>Under the National Commission for Homoeopathy Act, 2020, practising homoeopathy generally requires enrolment in a State Register or the National Register. Homeo India does not decide who may practise.</li>
+        <li>Having a degree or diploma does not by itself mean a person is currently registered. We do not assume that any qualification — including older diplomas — automatically gives a right to current registration.</li>
+        <li>Students and interns join in their own categories and are never asked to claim that they are registered practitioners.</li>
+        <li>The "Verified Registered Practitioner" badge is shown only after a member's registration has been checked against registration records.</li>
+      </ul>
+      <p>See the <Link to="/verification-policy" className="text-teal-700 underline">Verification Policy</Link> for details.</p>
+    </div>
+
+    <p className="text-center text-xs text-slate-500">{INDEPENDENCE_DISCLAIMER}</p>
+  </div>
+);

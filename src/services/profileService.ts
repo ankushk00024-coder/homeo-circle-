@@ -1,7 +1,7 @@
 import { supabase, isSupabaseConfigured, getRequiredSupabase } from './supabaseClient';
 import { UserProfile } from '../types';
 
-const SAFE_PUBLIC_COLUMNS = 'id, full_name, display_name, avatar_url, avatar_path, role, account_type, status, verification_status, qualification, experience_years, specialization, state, city, clinic_institution, bio, interests, created_at, updated_at';
+const SAFE_PUBLIC_COLUMNS = 'id, full_name, display_name, avatar_url, avatar_path, role, account_type, status, verification_status, qualification_verified, registration_status, qualification, experience_years, specialization, state, city, clinic_institution, bio, interests, created_at, updated_at';
 
 export const profileService = {
   /**
@@ -83,7 +83,7 @@ export const profileService = {
       if (roleFilter && roleFilter !== 'All') {
         q = q.eq('account_type', roleFilter.toLowerCase());
       } else if (!includeUntyped) {
-        q = q.in('account_type', ['doctor', 'student', 'researcher']);
+        q = q.in('account_type', ['doctor', 'student', 'intern', 'graduate', 'researcher']);
       }
 
       return q.order('created_at', { ascending: false }).limit(100);

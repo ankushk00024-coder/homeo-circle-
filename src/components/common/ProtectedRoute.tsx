@@ -15,7 +15,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requireAdmin = false,
   requireVerified = false
 }) => {
-  const { isAuthenticated, isVerifiedMember, isAdmin, status, loading: authLoading } = useAuth();
+  const { isAuthenticated, isVerifiedMember, isAdmin: isFullAdmin, staffRoles, status, loading: authLoading } = useAuth();
+  // Staff with a limited admin role may open the admin panel; each page's
+  // data is still protected by the database rules for that role.
+  const isAdmin = isFullAdmin || staffRoles.some((r) => ['super_admin', 'verification_admin', 'moderator', 'event_manager', 'research_reviewer'].includes(r));
   const location = useLocation();
 
   const [backendAdminVerified, setBackendAdminVerified] = useState<boolean | null>(null);
@@ -51,7 +54,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           .from('user_roles')
           .select('role')
           .eq('user_id', user.id)
-          .in('role', ['admin', 'super_admin']);
+          .in('role', ['admin', 'super_admin', 'verification_admin', 'moderator', 'event_manager', 'research_reviewer']);
 
         if (rolesError) {
           // If user_roles table RLS restricts select, fallback to is_admin RPC
@@ -100,8 +103,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           </div>
           <h2 className="text-xl font-bold text-brand-navy">Account suspended</h2>
           <p className="text-sm text-slate-600 leading-relaxed">
-            Your access to the community is paused. If you think this is a mistake, contact support@homeoindia.in.
+            Your access to the community is paused. If you think this is a mistake, you can appeal.
           </p>
+          <Link to="/contact?type=appeal" className="block text-sm font-semibold text-teal-700 underline">Appeal this decision</Link>
           <Link to="/" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-navy text-white text-sm font-semibold hover:bg-slate-800 transition">
             Back to homepage
           </Link>

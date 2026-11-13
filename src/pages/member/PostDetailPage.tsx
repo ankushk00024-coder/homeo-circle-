@@ -505,10 +505,16 @@ export const PostDetailPage: React.FC = () => {
                     onChange={(e) => setReportReason(e.target.value as any)}
                     className="w-full p-2 border border-slate-200 rounded-lg outline-none bg-white"
                   >
-                    <option value="patient_privacy">Patient Identifiers / Privacy Violation (DISHA)</option>
-                    <option value="misleading_clinical_claim">Misleading or Miracle Clinical Claim</option>
-                    <option value="unsolicited_promotion">Commercial Spam / Unsolicited Promotion</option>
-                    <option value="harassment">Unprofessional Conduct</option>
+                    <option value="patient_privacy">Patient-identifiable information / privacy violation</option>
+                    <option value="misleading_clinical_claim">Misleading clinical claim (e.g. promising a cure)</option>
+                    <option value="impersonation">Impersonation or fake qualification / registration</option>
+                    <option value="unverified_credentials">Misleading professional title</option>
+                    <option value="copyright">Copyright infringement</option>
+                    <option value="harassment">Harassment, threats or abusive language</option>
+                    <option value="unsolicited_promotion">Spam or unauthorised advertising</option>
+                    <option value="confidential_info">Confidential information shared without permission</option>
+                    <option value="illegal">Illegal or defamatory content</option>
+                    <option value="other">Something else</option>
                   </select>
                 </div>
 

@@ -1,3 +1,4 @@
+import { LICENCE_LABELS } from '../../components/common/ResearchLicenceFields';
 import { safeHref } from '../../lib/safeUrl';
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -106,6 +107,10 @@ export const KnowledgePage: React.FC = () => {
           <h1 className="text-2xl font-serif font-bold text-brand-navy">
             Research
           </h1>
+          <p className="mt-1 text-xs text-slate-500">
+            Summaries and links shared by members. Items are not endorsed or clinically validated.{' '}
+            <a href="/contact?type=copyright" className="text-teal-700 underline">Report a copyright issue</a>
+          </p>
         </div>
 
         {isAdmin && (
@@ -184,6 +189,11 @@ export const KnowledgePage: React.FC = () => {
                 )}
                 <p className="text-xs font-semibold text-slate-500">
                   Published in: <span className="italic text-slate-700">{post.journal}</span>
+                  {post.publication_date ? <span className="font-normal"> · {post.publication_date}</span> : null}
+                </p>
+                <p className="text-[11px] text-slate-400">
+                  {post.licence ? LICENCE_LABELS[post.licence] : LICENCE_LABELS.summary_link}
+                  {post.copyright_notice ? ` · ${post.copyright_notice}` : ''}
                 </p>
               </div>
 

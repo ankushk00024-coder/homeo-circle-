@@ -1,3 +1,4 @@
+import { safeHref } from '../../lib/safeUrl';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -186,8 +187,9 @@ export const EventsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-serif font-bold text-brand-navy">
-            Events & CMEs
+            Academic Events, Webinars and Workshops
           </h1>
+          <p className="mt-1 text-xs text-slate-500">Events carry CME or other credits only where an event says its accreditation is confirmed. Attending does not create any registration or licensing rights.</p>
         </div>
       </div>
 
@@ -254,7 +256,7 @@ export const EventsPage: React.FC = () => {
           </h3>
           <p className="text-xs text-slate-500">
             {activeTab === 'My Registered Events' 
-              ? 'Browse the All tab to find upcoming CME webinars and save your seat.' 
+              ? 'Browse the All tab to find upcoming webinars and save your seat.' 
               : 'Check back soon for new webinar announcements.'}
           </p>
         </div>
@@ -393,6 +395,16 @@ export const EventsPage: React.FC = () => {
                   <span className="text-slate-500">Organizer:</span>
                   <span className="font-semibold text-brand-navy">{activeEventModal.organizer}</span>
                 </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-slate-500">Accreditation:</span>
+                  <span className="font-semibold text-brand-navy text-right">{activeEventModal.accreditation_status === 'accredited' ? activeEventModal.accreditation_details : 'Not accredited — no CME credits'}</span>
+                </div>
+                {activeEventModal.certificate_info && (
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-slate-500">Certificate:</span>
+                    <span className="font-semibold text-brand-navy text-right">{activeEventModal.certificate_info}</span>
+                  </div>
+                )}
               </div>
 
               {/* Verified link or meeting room info */}
@@ -402,17 +414,18 @@ export const EventsPage: React.FC = () => {
                     <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" />
                     <span>Your Seat is Confirmed</span>
                   </div>
-                  <p className="text-[11px] text-teal-800">
-                    Meeting link: <a href="https://meet.homeoindia.in/cme-hall-1" target="_blank" rel="noopener noreferrer" className="font-semibold underline inline-flex items-center gap-0.5">https://meet.homeoindia.in/cme-hall-1 <ExternalLink className="w-3 h-3" /></a>
-                  </p>
-                  <p className="text-[10px] text-teal-700">
-                    The video room opens 15 minutes before scheduled start time. Verification token is attached to your registered account.
-                  </p>
+                  {safeHref(activeEventModal.meeting_link || activeEventModal.registration_url) ? (
+                    <p className="text-[11px] text-teal-800">
+                      Link from the organiser: <a href={safeHref(activeEventModal.meeting_link || activeEventModal.registration_url)} target="_blank" rel="noopener noreferrer" className="font-semibold underline inline-flex items-center gap-0.5 break-all">{activeEventModal.meeting_link || activeEventModal.registration_url} <ExternalLink className="w-3 h-3" /></a>
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-teal-800">The organiser will share joining details with registered members.</p>
+                  )}
                 </div>
               ) : (
                 <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 text-xs flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                  <span>Session link and CME certificate credentials become accessible upon registration.</span>
+                  <span>Register to save your seat. Joining details come from the organiser.</span>
                 </div>
               )}
             </div>

@@ -15,6 +15,8 @@ interface AuthContextType {
   isPublisher: boolean;
   /** 'ok' = can publish; 'password_required' = publisher signed in without their password; 'none'. */
   publisherAccess: 'ok' | 'password_required' | 'none';
+  /** Staff roles from user_roles (verification_admin, moderator, event_manager, research_reviewer, …). */
+  staffRoles: string[];
   isDoctor: boolean;
   isStudent: boolean;
   isResearcher: boolean;
@@ -550,6 +552,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     check(0);
     return () => { active = false; };
   }, [currentUserId, authVersion]);
+
+  const [staffRoles, setStaffRoles] = useState<string[]>([]);
+  useEffect(() => {
+    let active = true;
+    if (!currentUserId || !isSupabaseConfigured || !supabase) { setStaffRoles([]); return; }
+    supabase.from('user_roles').select('role').eq('user_id', currentUserId).then(({ data }) => {
+      if (active) setStaffRoles((data || []).map((r: { role: string }) => r.role));
+    });
+    return () => { active = false; };
+  }, [currentUserId, authVersion]);
   const isPublisher = publisherAccess === 'ok';
   const isDoctor = Boolean(currentUser && (currentUser.role === 'doctor' || currentUser.role === 'member'));
   const isStudent = Boolean(currentUser && currentUser.role === 'student');
@@ -571,6 +583,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAdmin,
         isPublisher,
         publisherAccess,
+        staffRoles,
         isDoctor,
         isStudent,
         isResearcher,

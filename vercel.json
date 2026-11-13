@@ -30,6 +30,34 @@
       "destination": "/login/index.html"
     },
     {
+      "source": "/legal",
+      "destination": "/legal/index.html"
+    },
+    {
+      "source": "/verification-policy",
+      "destination": "/verification-policy/index.html"
+    },
+    {
+      "source": "/copyright",
+      "destination": "/copyright/index.html"
+    },
+    {
+      "source": "/clinical-disclaimer",
+      "destination": "/clinical-disclaimer/index.html"
+    },
+    {
+      "source": "/grievance-policy",
+      "destination": "/grievance-policy/index.html"
+    },
+    {
+      "source": "/cookies",
+      "destination": "/cookies/index.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

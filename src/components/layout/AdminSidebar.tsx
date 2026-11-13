@@ -20,6 +20,7 @@ import {
   Settings, 
   History,
   PenSquare,
+  ShieldCheck,
   ArrowLeft, 
   LogOut,
   Menu,
@@ -27,7 +28,8 @@ import {
 } from 'lucide-react';
 
 export const AdminSidebar: React.FC = () => {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, isAdmin, staffRoles } = useAuth();
+  const isSuper = staffRoles.includes('super_admin');
   const location = useLocation();
   const [pendingCount, setPendingCount] = useState<number>(0);
   const [openReportsCount, setOpenReportsCount] = useState<number>(0);
@@ -70,14 +72,31 @@ export const AdminSidebar: React.FC = () => {
     { label: 'Students', path: '/admin/students', icon: GraduationCap },
     { label: 'Community Posts', path: '/admin/posts', icon: MessageSquare },
     { label: 'Comments & Reports', path: '/admin/reports', icon: Flag, badge: openReportsCount },
-    { label: 'Events & CMEs', path: '/admin/events', icon: Calendar },
+    { label: 'Academic Events', path: '/admin/events', icon: Calendar },
     { label: 'Research', path: '/admin/knowledge', icon: BookOpen },
     { label: 'Publishers', path: '/admin/publishers', icon: PenSquare },
+    { label: 'Privacy, Complaints & Roles', path: '/admin/compliance', icon: ShieldCheck },
     { label: 'Categories', path: '/admin/categories', icon: Tag },
     { label: 'Notifications', path: '/admin/notifications', icon: Bell },
     { label: 'Platform Settings', path: '/admin/settings', icon: Settings },
     { label: 'Audit Logs', path: '/admin/audit-logs', icon: History },
   ];
+
+  // Least privilege: limited staff roles only see their own sections.
+  const SECTION_ROLES: Record<string, string[]> = {
+    '/admin/applications': ['verification_admin'],
+    '/admin/posts': ['moderator'],
+    '/admin/reports': ['moderator'],
+    '/admin/events': ['event_manager'],
+    '/admin/knowledge': ['research_reviewer'],
+  };
+  const canSee = (path: string) => {
+    if (path === '/admin/compliance' || path === '/admin/audit-logs' || path === '/admin/settings') return isSuper || (isAdmin && path !== '/admin/compliance');
+    if (path === '/admin/applications') return isSuper || staffRoles.includes('verification_admin');
+    if (isAdmin) return true;
+    if (path === '/admin') return true;
+    return (SECTION_ROLES[path] || []).some((r) => staffRoles.includes(r));
+  };
 
   const sidebarContent = (
     <div className="flex flex-col h-full bg-brand-navy text-slate-200">
@@ -112,7 +131,7 @@ export const AdminSidebar: React.FC = () => {
 
       {/* Navigation List */}
       <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto custom-scrollbar">
-        {navItems.map((item) => (
+        {navItems.filter((item) => canSee(item.path)).map((item) => (
           <NavLink
             key={item.path}
             to={item.path}

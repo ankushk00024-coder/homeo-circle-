@@ -1,3 +1,4 @@
+import { MemberBadge } from '../../components/common/MemberBadge';
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -281,6 +282,7 @@ export const MembersPage: React.FC = () => {
                         >
                           {member.full_name}
                         </Link>
+                        <MemberBadge profile={member} className="mt-1" />
                         <p className="text-[11px] text-[#5A6E85] font-medium mt-0.5">
                           {[member.qualification, member.experience_years ? `${member.experience_years} yrs exp` : null]
                             .filter((x) => x && x !== 'Not specified')

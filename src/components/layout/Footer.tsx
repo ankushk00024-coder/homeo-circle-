@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { BrandLogo } from '../common/BrandLogo';
-import { ArrowRight } from 'lucide-react';
+import { INDEPENDENCE_DISCLAIMER } from '../../lib/membership';
 
 export const Footer: React.FC = () => {
-  const [email, setEmail] = useState('');
 
   const platform = [
     { label: 'Community', path: '/community' },
@@ -14,16 +13,18 @@ export const Footer: React.FC = () => {
 
   const about = [
     { label: 'Our Mission', path: '/about' },
-    { label: 'How Verification Works', path: '/about#verification' },
+    { label: 'How Verification Works', path: '/verification-policy' },
     { label: 'Eligibility', path: '/eligibility' },
     { label: 'Contact', path: '/contact' },
   ];
 
   const legal = [
+    { label: 'Legal & Policies', path: '/legal' },
     { label: 'Privacy Policy', path: '/privacy' },
+    { label: 'Terms of Use', path: '/terms' },
     { label: 'Community Guidelines', path: '/community-rules' },
-    { label: 'Terms of Service', path: '/terms' },
-    { label: 'FAQ', path: '/faq' },
+    { label: 'Clinical Disclaimer', path: '/clinical-disclaimer' },
+    { label: 'Complaints & Grievances', path: '/grievance-policy' },
   ];
 
   return (
@@ -35,27 +36,8 @@ export const Footer: React.FC = () => {
           <div className="md:col-span-2 space-y-5">
             <BrandLogo size="md" />
             <p className="text-xs text-[#3E556E] leading-relaxed max-w-xs font-normal">
-              India's trusted members-only professional community exclusively for registered homoeopathic practitioners.
+              An independent academic and professional community connecting homoeopathic practitioners, students, interns and researchers across India.
             </p>
-            {/* Newsletter subscribe */}
-            <div className="space-y-2">
-              <p className="text-xs font-bold text-[#122238]">Subscribe for updates</p>
-              <div className="flex items-center gap-0 rounded-xl overflow-hidden border border-[#D0E2EF] bg-white max-w-xs shadow-2xs">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Your email address"
-                  className="flex-1 px-4 py-2.5 text-xs bg-transparent text-[#122238] placeholder:text-[#8AA3B8] outline-none"
-                />
-                <button
-                  className="px-3.5 py-2.5 bg-[#0D817B] hover:bg-[#096e69] text-white flex items-center justify-center transition"
-                  aria-label="Subscribe"
-                >
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
           </div>
 
           {/* Platform */}
@@ -105,7 +87,7 @@ export const Footer: React.FC = () => {
         {/* Bottom bar */}
         <div className="mt-12 pt-6 border-t border-[#D0E2EF]/70 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#5A738E] font-medium">
           <p>© {new Date().getFullYear()} Homeo India. All rights reserved.</p>
-          <p className="text-center">India's verified professional homoeopathic community.</p>
+          <p className="text-center sm:text-right max-w-xl">{INDEPENDENCE_DISCLAIMER}</p>
         </div>
       </div>
     </footer>

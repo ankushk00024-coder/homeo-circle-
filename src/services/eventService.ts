@@ -12,7 +12,7 @@ export const eventService = {
 
     if (formatFilter && formatFilter !== 'All' && formatFilter !== 'My Registered Events') {
       if (formatFilter === 'State Chapters') {
-        query = query.eq('format', 'State Chapter CME');
+        query = query.in('format', ['State Chapter Meeting', 'State Chapter CME']);
       } else {
         query = query.ilike('format', `%${formatFilter.replace(/s$/, '')}%`);
       }

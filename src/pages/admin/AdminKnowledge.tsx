@@ -1,3 +1,4 @@
+import { ResearchLicenceFields, Licence, pdfAllowed } from '../../components/common/ResearchLicenceFields';
 import { normalizeUrl } from '../../lib/safeUrl';
 import React, { useState, useEffect } from 'react';
 import { dataService } from '../../lib/supabase';
@@ -24,6 +25,9 @@ export const AdminKnowledge: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [photos, setPhotos] = useState<{ file: File; preview: string }[]>([]);
   const [pdf, setPdf] = useState<File | null>(null);
+  const [licence, setLicence] = useState<Licence>('summary_link');
+  const [notice, setNotice] = useState('');
+  const [pubDate, setPubDate] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const toast = useToast();
 
@@ -50,6 +54,7 @@ export const AdminKnowledge: React.FC = () => {
     setFormError(null);
     if (!title.trim()) return setFormError('Please add a title (top of this form).');
     if (!summary.trim()) return setFormError('Please add a summary.');
+    if (pdf && !pdfAllowed(licence)) return setFormError('A full-text PDF needs an open-access, permission or original-work basis.');
     setSubmitting(true);
 
     try {
@@ -69,7 +74,10 @@ export const AdminKnowledge: React.FC = () => {
         limitations: limitations.trim() || 'See the full paper for methods and limitations.',
         image_urls: imageUrls,
         attachment_url: attachmentUrl,
-        created_by: currentUser.id
+        created_by: currentUser.id,
+        licence,
+        copyright_notice: notice,
+        publication_date: pubDate
       });
 
       await dataService.addAuditLog({
@@ -91,6 +99,9 @@ export const AdminKnowledge: React.FC = () => {
       photos.forEach((p) => URL.revokeObjectURL(p.preview));
       setPhotos([]);
       setPdf(null);
+      setLicence('summary_link');
+      setNotice('');
+      setPubDate('');
       setCreateModalOpen(false);
       toast.success('Research published. It is live on the Research page.');
       await loadData();
@@ -274,6 +285,9 @@ export const AdminKnowledge: React.FC = () => {
                   className="w-full p-2.5 border border-slate-200 rounded-xl outline-none text-amber-900 bg-amber-50/50"
                 />
               </div>
+
+              <ResearchLicenceFields licence={licence} setLicence={setLicence} notice={notice} setNotice={setNotice} pubDate={pubDate} setPubDate={setPubDate}
+                inputClass="w-full px-3 py-2 border border-slate-200 rounded-xl outline-none bg-white" labelClass="block font-semibold text-slate-700 mb-1" />
 
               {/* Images (up to 6) */}
               <div className="space-y-2">

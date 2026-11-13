@@ -80,7 +80,7 @@ export const AdminNotifications: React.FC = () => {
           </span>
         </div>
         <p className="text-xs text-slate-500 mt-1">
-          Send urgent regulatory alerts, statutory compliance advisories, or CME announcements to member notification inboxes.
+          Send announcements and event reminders to member notification inboxes.
         </p>
       </div>
 

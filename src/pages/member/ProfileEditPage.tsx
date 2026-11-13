@@ -19,6 +19,7 @@ import {
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from '../../components/feedback/ToastProvider';
 import { AccountTypeSelect } from '../../components/common/AccountTypeSelect';
+import { PrivacyCenter } from '../../components/common/PrivacyCenter';
 
 export const ProfileEditPage: React.FC = () => {
   const { currentUser, updateCurrentUser, logout } = useAuth();
@@ -654,7 +655,7 @@ export const ProfileEditPage: React.FC = () => {
 
         <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100">
           <span className="text-xs text-slate-400">
-            Complies with DISHA & NCH India professional privacy standards.
+            Your mobile number and email are hidden unless you choose to show them.
           </span>
           <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
             {returnTo && (
@@ -682,10 +683,12 @@ export const ProfileEditPage: React.FC = () => {
         <AccountTypeSelect />
       </div>
 
-      {/* Sign out & account deletion */}
-      <div className="bg-white rounded-2xl p-6 border border-rose-100 shadow-card space-y-3">
-        <h2 className="text-sm font-bold text-rose-800">Account</h2>
-        <p className="text-xs text-slate-600">Sign out, or ask us to permanently delete your account and data.</p>
+      <PrivacyCenter />
+
+      {/* Sign out */}
+      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-card space-y-3">
+        <h2 className="text-sm font-bold text-brand-navy">Account</h2>
+        <p className="text-xs text-slate-600">Sign out on this device. To delete your account, use "Delete my account and data" above.</p>
         <div className="flex flex-wrap gap-2">
         <button
           type="button"
@@ -693,13 +696,6 @@ export const ProfileEditPage: React.FC = () => {
           className="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold border border-slate-200 transition"
         >
           Sign out
-        </button>
-        <button
-          type="button"
-          onClick={() => toast.info('To delete your account, email dpo@homeoindia.in from your registered email. We respond within 30 days.')}
-          className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-semibold border border-rose-200 transition"
-        >
-          Request account deletion
         </button>
         </div>
       </div>

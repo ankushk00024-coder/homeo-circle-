@@ -41,8 +41,8 @@ const communityFeatures = [
   },
   {
     img: '/images/events-cme.svg',
-    title: 'Events, CMEs & Webinars',
-    desc: 'Conferences, study circles and CMEs.',
+    title: 'Academic Events & Webinars',
+    desc: 'Webinars, workshops and study circles.',
     link: '/events',
     linkLabel: 'View upcoming events',
     badge: 'Continuous Learning',
@@ -50,20 +50,23 @@ const communityFeatures = [
 ];
 
 const whoCanJoin = [
-  { role: 'Doctors', desc: 'BHMS, MD (Hom) and DHMS practitioners.', cta: 'Join as Doctor', icon: Stethoscope, applyRole: 'doctor' },
-  { role: 'Students', desc: 'BHMS students and interns.', cta: 'Join as Student', icon: GraduationCap, applyRole: 'student' },
+  { role: 'Registered Practitioners', desc: 'Registered with a State or Central register.', cta: 'Join as practitioner', icon: Stethoscope, applyRole: 'doctor' },
+  { role: 'BHMS Students', desc: 'Currently enrolled in a BHMS course.', cta: 'Join as student', icon: GraduationCap, applyRole: 'student' },
+  { role: 'Interns', desc: 'Doing the compulsory internship.', cta: 'Join as intern', icon: GraduationCap, applyRole: 'intern' },
+  { role: 'Qualified Graduates', desc: 'Qualified; registration not yet complete.', cta: 'Join as graduate', icon: Stethoscope, applyRole: 'graduate' },
+  { role: 'Academics & Researchers', desc: 'Teaching or research in homoeopathy.', cta: 'Join as academic', icon: GraduationCap, applyRole: 'researcher' },
 ];
 
 const steps = [
   {
     icon: FileCheck2,
     title: 'Apply',
-    desc: 'Fill a short form. Doctors upload their degree; students add their college.',
+    desc: 'Choose your category and upload the proof it needs.',
   },
   {
     icon: ShieldCheck,
     title: 'Get verified',
-    desc: 'Our team reviews your details and approves your profile.',
+    desc: 'Our team reviews it. Practitioner status is shown only after registration records are checked.',
   },
   {
     icon: BadgeCheck,
@@ -180,7 +183,7 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading center eyebrow="Who can join" title="Pick your path" />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8 max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 max-w-4xl mx-auto">
             {whoCanJoin.map((item, idx) => (
               <Reveal key={item.role} delay={idx * 100}>
                 <Link

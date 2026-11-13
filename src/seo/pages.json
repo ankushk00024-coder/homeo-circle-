@@ -8,8 +8,8 @@
   "ogImageHeight": 630,
   "keywords": "homeopathy India, homoeopathy, homeopathic doctors India, BHMS students, MD Homeopathy, homeopathy community, homoeopathic practitioners, homeopathy CME, homeopathy research, Homeo India",
   "organization": {
-    "description": "Homeo India is India's verified online community for homeopathic doctors and BHMS students — a place to discuss cases, find mentors, join CMEs and share homeopathy research.",
-    "email": "support@homeoindia.in",
+    "description": "Homeo India is an independent academic and professional community connecting homoeopathic practitioners, students, interns and researchers across India.",
+    "email": "",
     "areaServed": "IN",
     "sameAs": []
   },
@@ -17,43 +17,47 @@
     {
       "path": "/",
       "title": "Homeo India — India's Community for Homeopathic Doctors & BHMS Students",
-      "description": "Join Homeo India, the verified community for homeopathic doctors and BHMS students across India. Discuss cases, find mentors, join CMEs and share homeopathy research.",
+      "description": "An independent academic and professional community connecting homoeopathic practitioners, students, interns and researchers across India. Discuss cases, find mentors, join webinars and share research.",
       "changefreq": "daily",
       "priority": 1.0,
       "h1": "Every homeopath needs a home.",
       "content": [
-        "Homeo India is India's verified community for homeopathic doctors and BHMS students.",
+        "Homeo India is an independent academic and professional community connecting homoeopathic practitioners, students, interns and researchers across India.",
         "Behind every good homeopath are a hundred others who helped. Be one of the hundred.",
-        "Doctors: BHMS, MD (Hom) and DHMS practitioners verified by their degree.",
-        "Students: BHMS students and interns verified by their college.",
-        "Discuss clinical cases, connect with doctors, find mentors, join webinars and CMEs, and read homeopathy research."
+        "Membership categories: Registered Practitioner, BHMS Student, Intern, Qualified Graduate and Academic / Research Member.",
+        "Registered-practitioner status is shown only after checking applicable professional registration records.",
+        "Homeo India is not a government authority, statutory medical council, licensing body or medical registration authority."
       ],
       "links": [
         [
-          "/apply?role=doctor",
-          "Join as a doctor"
+          "/apply",
+          "Join Homeo India"
         ],
         [
-          "/apply?role=student",
-          "Join as a student"
+          "/eligibility",
+          "Who can join"
         ],
         [
           "/about",
           "About Homeo India"
+        ],
+        [
+          "/legal",
+          "Legal & Policies"
         ]
       ]
     },
     {
       "path": "/about",
       "title": "About Homeo India — Our Mission for Indian Homeopathy",
-      "description": "Homeo India brings India's homeopathic doctors and students together to learn, share cases and grow. Read about our mission and how verification works.",
+      "description": "Homeo India is an independent platform for academic learning, professional networking and knowledge sharing in homoeopathy. Read how verification works.",
       "changefreq": "monthly",
       "priority": 0.7,
       "h1": "About Homeo India",
       "content": [
-        "Homeo India is a professional community for homeopathy in India.",
-        "Every member is verified: doctors by their degree, students by their college.",
-        "Members discuss cases, find mentors, attend CMEs and share research."
+        "HomeoIndia is an independent platform created to facilitate academic learning, professional networking, educational discussions and knowledge sharing within the homoeopathic community.",
+        "HomeoIndia reviews the academic and professional information submitted by members. Registered-practitioner status is displayed only after checking applicable professional registration records.",
+        "HomeoIndia is not a government authority, statutory medical council, licensing body or medical registration authority."
       ],
       "links": [
         [
@@ -73,35 +77,34 @@
     {
       "path": "/eligibility",
       "title": "Who Can Join Homeo India — Homeopathic Doctors & BHMS Students",
-      "description": "Homeo India is open to BHMS, MD (Hom) and DHMS doctors and to BHMS students and interns in India. See what you need to join and get verified.",
+      "description": "Homeo India is open to registered practitioners, BHMS students, interns, qualified graduates and academic members aged 18+. See what each category needs.",
       "changefreq": "monthly",
       "priority": 0.7,
       "h1": "Who can join Homeo India",
       "content": [
-        "Doctors: BHMS, MD (Hom) and DHMS practitioners. Upload your degree certificate to get verified.",
-        "Students: BHMS students and interns. Add your college name to get verified."
+        "Five membership categories: Registered Practitioner, BHMS Student, Intern, Qualified Graduate (registration pending) and Academic / Research Member.",
+        "Each category is verified differently. A degree does not by itself mean a person is registered to practise."
       ],
       "links": [
         [
-          "/apply?role=doctor",
-          "Join as a doctor"
+          "/apply",
+          "Join Homeo India"
         ],
         [
-          "/apply?role=student",
-          "Join as a student"
+          "/verification-policy",
+          "Verification Policy"
         ]
       ]
     },
     {
       "path": "/apply",
       "title": "Join Homeo India — Sign Up as a Homeopathic Doctor or Student",
-      "description": "Create your free Homeo India account and get verified as a homeopathic doctor or BHMS student. It takes a few minutes.",
+      "description": "Create your free Homeo India account and apply in the category that fits you: practitioner, student, intern, graduate or academic.",
       "changefreq": "monthly",
       "priority": 0.8,
       "h1": "Join Homeo India",
       "content": [
-        "Choose doctor or student, fill a short form and our team will verify you.",
-        "Doctors upload their degree certificate. Students add their college name."
+        "Choose your membership category, fill a short form and upload the proof it needs. Our team reviews every application."
       ],
       "links": [
         [
@@ -116,11 +119,11 @@
     },
     {
       "path": "/community-rules",
-      "title": "Community Rules | Homeo India",
-      "description": "The rules that keep Homeo India a safe, respectful and patient-private space for homeopathic doctors and students.",
+      "title": "Community Guidelines | Homeo India",
+      "description": "How to take part in Homeo India respectfully and safely, including clinical discussion rules, patient confidentiality and moderation.",
       "changefreq": "yearly",
       "priority": 0.4,
-      "h1": "Community rules",
+      "h1": "Community Guidelines",
       "content": [
         "Be respectful, keep patient details private and share knowledge responsibly."
       ],
@@ -134,7 +137,7 @@
     {
       "path": "/privacy",
       "title": "Privacy Policy | Homeo India",
-      "description": "How Homeo India collects, uses and protects the personal information of its members.",
+      "description": "What personal data Homeo India collects, why, who processes it, how long it is kept and how to exercise your rights.",
       "changefreq": "yearly",
       "priority": 0.3,
       "h1": "Privacy policy",
@@ -150,11 +153,11 @@
     },
     {
       "path": "/terms",
-      "title": "Terms of Service | Homeo India",
+      "title": "Terms of Use | Homeo India",
       "description": "The terms that apply when you use Homeo India, the community for homeopathic doctors and students in India.",
       "changefreq": "yearly",
       "priority": 0.3,
-      "h1": "Terms of service",
+      "h1": "Terms of Use",
       "content": [
         "The terms that apply when you use Homeo India."
       ],
@@ -179,6 +182,125 @@
         [
           "/apply",
           "Create an account"
+        ]
+      ]
+    },
+    {
+      "path": "/legal",
+      "title": "Legal & Policies | Homeo India",
+      "description": "All Homeo India policies: privacy, terms, community guidelines, verification, copyright, clinical disclaimer, complaints and cookies.",
+      "changefreq": "yearly",
+      "priority": 0.3,
+      "h1": "Legal & Policies",
+      "content": [
+        "All Homeo India policies: privacy, terms, community guidelines, verification, copyright, clinical disclaimer, complaints and cookies."
+      ],
+      "links": [
+        [
+          "/legal",
+          "Legal & Policies"
+        ]
+      ]
+    },
+    {
+      "path": "/verification-policy",
+      "title": "Verification Policy | Homeo India",
+      "description": "How Homeo India verifies each membership category and what each badge means.",
+      "changefreq": "yearly",
+      "priority": 0.3,
+      "h1": "Verification Policy",
+      "content": [
+        "How Homeo India verifies each membership category and what each badge means."
+      ],
+      "links": [
+        [
+          "/legal",
+          "Legal & Policies"
+        ]
+      ]
+    },
+    {
+      "path": "/copyright",
+      "title": "Copyright Policy | Homeo India",
+      "description": "What may be shared in the Homeo India Research Library and how to report copyright infringement.",
+      "changefreq": "yearly",
+      "priority": 0.3,
+      "h1": "Copyright Policy",
+      "content": [
+        "What may be shared in the Homeo India Research Library and how to report copyright infringement."
+      ],
+      "links": [
+        [
+          "/legal",
+          "Legal & Policies"
+        ]
+      ]
+    },
+    {
+      "path": "/clinical-disclaimer",
+      "title": "Clinical Discussion Disclaimer | Homeo India",
+      "description": "Clinical discussions on Homeo India are educational only. No consultations and no emergency help.",
+      "changefreq": "yearly",
+      "priority": 0.3,
+      "h1": "Clinical Discussion Disclaimer",
+      "content": [
+        "Clinical discussions on Homeo India are educational only. No consultations and no emergency help."
+      ],
+      "links": [
+        [
+          "/legal",
+          "Legal & Policies"
+        ]
+      ]
+    },
+    {
+      "path": "/grievance-policy",
+      "title": "Grievance & Complaint Policy | Homeo India",
+      "description": "How to raise a complaint, privacy request, copyright notice or appeal with Homeo India.",
+      "changefreq": "yearly",
+      "priority": 0.3,
+      "h1": "Grievance & Complaint Policy",
+      "content": [
+        "How to raise a complaint, privacy request, copyright notice or appeal with Homeo India."
+      ],
+      "links": [
+        [
+          "/legal",
+          "Legal & Policies"
+        ]
+      ]
+    },
+    {
+      "path": "/cookies",
+      "title": "Cookie & Storage Policy | Homeo India",
+      "description": "Homeo India uses no tracking cookies — only the storage needed to keep you signed in.",
+      "changefreq": "yearly",
+      "priority": 0.3,
+      "h1": "Cookie & Storage Policy",
+      "content": [
+        "Homeo India uses no tracking cookies — only the storage needed to keep you signed in."
+      ],
+      "links": [
+        [
+          "/legal",
+          "Legal & Policies"
+        ]
+      ]
+    },
+    {
+      "path": "/contact",
+      "title": "Contact & Complaints | Homeo India",
+      "description": "Contact Homeo India about complaints, privacy, copyright or appeals.",
+      "changefreq": "yearly",
+      "priority": 0.3,
+      "h1": "Contact & complaints",
+      "content": [
+        "Contact Homeo India about complaints, privacy, copyright or appeals."
+      ],
+      "links": [
+        [
+          "/legal",
+          "Legal & Policies"
         ]
       ]
     }

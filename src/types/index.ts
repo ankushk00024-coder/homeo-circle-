@@ -276,7 +276,7 @@ export interface Event {
   time_display: string;
   start_at: string;
   end_at?: string;
-  format: 'Webinar' | 'Conference' | 'Workshop' | 'Study Circle' | 'State Chapter CME';
+  format: 'Webinar' | 'Conference' | 'Workshop' | 'Study Circle' | 'State Chapter Meeting' | 'State Chapter CME';
   location: string;
   registration_url: string;
   source_url?: string;
@@ -284,6 +284,9 @@ export interface Event {
   attendees_count: number;
   image_url?: string;
   meeting_link?: string;
+  accreditation_status?: 'not_accredited' | 'accredited';
+  accreditation_details?: string;
+  certificate_info?: string;
   created_by?: string;
 }
 
@@ -329,6 +332,9 @@ export interface KnowledgePost {
   created_by?: string;
   author_name?: string;
   author_affiliation?: string;
+  licence?: 'summary_link' | 'open_access' | 'permission' | 'original';
+  copyright_notice?: string;
+  publication_date?: string;
   doi?: string;
   /** Up to 6 image URLs and an optional PDF of the paper ('research-files' bucket). */
   image_urls?: string[];
@@ -343,7 +349,7 @@ export interface Report {
   target_type: 'post' | 'comment' | 'member';
   target_id: string;
   target_title: string;
-  reason: 'patient_privacy' | 'misleading_clinical_claim' | 'unsolicited_promotion' | 'harassment' | 'unverified_credentials';
+  reason: 'patient_privacy' | 'misleading_clinical_claim' | 'unsolicited_promotion' | 'harassment' | 'unverified_credentials' | 'impersonation' | 'copyright' | 'confidential_info' | 'illegal' | 'other';
   note?: string;
   status: 'open' | 'under_review' | 'resolved' | 'dismissed';
   created_at: string;

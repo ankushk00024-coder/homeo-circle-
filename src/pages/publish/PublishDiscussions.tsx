@@ -15,6 +15,7 @@ export const PublishDiscussions: React.FC = () => {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [link, setLink] = useState('');
+  const [noPatientData, setNoPatientData] = useState(false);
   const [photos, setPhotos] = useState<PickedPhoto[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +35,7 @@ export const PublishDiscussions: React.FC = () => {
     setError(null);
     if (!title.trim()) return setError('Please add a title.');
     if (!body.trim()) return setError('Please write the discussion.');
+    if (!noPatientData) return setError('Please confirm the post contains no information that could identify a patient.');
     setBusy(true);
     try {
       const imageUrls: string[] = [];
@@ -46,7 +48,7 @@ export const PublishDiscussions: React.FC = () => {
         image_urls: imageUrls,
       }, currentUser);
       photos.forEach((p) => URL.revokeObjectURL(p.preview));
-      setTitle(''); setBody(''); setLink(''); setPhotos([]);
+      setTitle(''); setBody(''); setLink(''); setPhotos([]); setNoPatientData(false);
       toast.success('Discussion posted. It is live in the community feed.');
       await load();
     } catch (err) {
@@ -74,6 +76,10 @@ export const PublishDiscussions: React.FC = () => {
           <Field label="Link" hint="(optional)">
             <input className={inputClass} value={link} maxLength={2048} onChange={(e) => setLink(e.target.value)} placeholder="https://…" />
           </Field>
+          <label className="flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">
+            <input type="checkbox" checked={noPatientData} onChange={(e) => setNoPatientData(e.target.checked)} className="mt-1 rounded text-amber-600" />
+            <span>This post and its photos contain no information that could identify a patient.</span>
+          </label>
           <FormError message={error} />
           <div className="flex justify-end"><SubmitButton busy={busy} label="Post discussion" /></div>
         </form>

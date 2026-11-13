@@ -88,7 +88,7 @@ export const AdminContent: React.FC = () => {
           Content Moderation & Reports Queue
         </h1>
         <p className="text-xs text-slate-500 mt-0.5">
-          Enforce patient de-identification (DISHA compliance), academic standards, and member safety.
+          Enforce patient de-identification, academic standards and member safety under the Community Guidelines.
         </p>
       </div>
 

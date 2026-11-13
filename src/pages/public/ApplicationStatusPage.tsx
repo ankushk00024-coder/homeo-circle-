@@ -245,7 +245,7 @@ export const ApplicationStatusPage: React.FC = () => {
               </span>
               <p className="text-xs font-bold text-brand-navy">Application Received</p>
               <p className="text-xs text-slate-500">
-                Credentials submitted with statutory consent declaration.
+                Details submitted with your declaration and consent.
               </p>
             </div>
 
