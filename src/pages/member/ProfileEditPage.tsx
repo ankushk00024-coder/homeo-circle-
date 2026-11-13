@@ -28,9 +28,9 @@ export const ProfileEditPage: React.FC = () => {
 
   // The verified account type decides which fields show. It is changed only
   // through the verification form (picker at the bottom), never by Save.
+  const rawType = currentUser?.account_type || currentUser?.role;
   const category: 'doctor' | 'student' | 'researcher' =
-    currentUser?.account_type ||
-    (currentUser?.role === 'student' ? 'student' : currentUser?.role === 'researcher' ? 'researcher' : 'doctor');
+    rawType === 'student' || rawType === 'intern' ? 'student' : rawType === 'researcher' ? 'researcher' : 'doctor';
 
   const isDoctor = category === 'doctor';
   const isStudent = category === 'student';

@@ -12,6 +12,8 @@ export interface SignUpParams {
   specialization?: string;
   registrationNumber?: string;
   registrationAuthority?: string;
+  /** Consents ticked on the sign-up form; recorded server-side with the policy version. */
+  consents?: { privacyVersion: string; termsVersion: string; age18Plus: boolean; marketing: boolean };
 }
 
 export const authService = {

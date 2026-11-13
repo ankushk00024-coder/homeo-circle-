@@ -332,7 +332,8 @@ export const dataService = {
     reviewerName: string, 
     decisionReason?: string, 
     verificationSource?: string,
-    internalNotes?: string
+    internalNotes?: string,
+    registration?: { verified: boolean; validUntil?: string }
   ): Promise<PractitionerApplication> {
     return applicationService.reviewApplication(
       appId, 
@@ -340,7 +341,8 @@ export const dataService = {
       reviewerName, 
       decisionReason, 
       verificationSource,
-      internalNotes
+      internalNotes,
+      registration
     );
   },
 

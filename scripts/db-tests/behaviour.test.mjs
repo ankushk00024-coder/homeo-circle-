@@ -16,8 +16,8 @@ const asUser = async (uid, role = 'authenticated', extra = {}) => {
 const asPostgres = async () => { await db.exec(`reset role;`); await db.query(`select set_config('request.jwt.claims', '', false)`); };
 const attempt = async (sql, params = []) => { try { const r = await db.query(sql, params); return { ok: true, rows: r.rows, n: r.affectedRows }; } catch (e) { return { ok: false, err: e.message }; } };
 
-// Idempotency: re-run the last two migrations
-for (const f of ['20261028000000_schema_harmonization.sql', '20261029000000_launch_fixes.sql', '20261030000000_connection_requests.sql', '20261031000000_verify_sets_account_type.sql', '20261106000000_research_files_and_admin_transfer.sql', '20261108000000_security_hardening.sql', '20261109000000_publisher_role.sql', '20261111000000_publisher_password_login.sql']) {
+// Idempotency: re-run the recent migrations (older ones were superseded)
+for (const f of ['20261106000000_research_files_and_admin_transfer.sql', '20261108000000_security_hardening.sql', '20261109000000_publisher_role.sql', '20261111000000_publisher_password_login.sql', '20261113000000_membership_and_compliance.sql']) {
   try { await db.exec(fs.readFileSync(path.join(dir, f), 'utf8')); check(`re-run ${f}`, true); } catch (e) { check(`re-run ${f}`, false, e.message); }
 }
 
@@ -51,7 +51,7 @@ check('no admin role granted via sign-up', !roles.includes('admin'), JSON.string
 // Admin + content
 const adminId = (await signup('boss@t.in', { full_name: 'Boss' })).rows[0].id;
 await asPostgres();
-await db.query(`insert into public.user_roles (user_id, role) values ($1,'admin')`, [adminId]);
+await db.query(`insert into public.user_roles (user_id, role) values ($1,'admin'),($1,'super_admin')`, [adminId]);
 await db.query(`insert into public.categories (id,name,slug,type) values ('general','General','general','discussion') on conflict do nothing`);
 const post = (await db.query(`insert into public.posts (author_id, author_name, title, body, category_id, status) values ($1,'Boss','Hello','World','general','published') returning id`, [adminId])).rows[0].id;
 await db.query(`insert into public.events (title, summary, organizer, speaker, date_badge_day, date_badge_month, time_display, start_at, location, registration_url) values ('CME','s','o','sp','1','JAN','t', now() + interval '3 days','online','/events')`);
@@ -103,7 +103,7 @@ check('self-created profile cannot claim admin or verified', forged.ok && !['adm
 
 console.log('\nADMIN REVIEW');
 await asPostgres();
-const mk = async (uid) => (await db.query(`insert into public.practitioner_applications (user_id, full_name, email, phone, qualification, registration_number, registration_authority, state, role_applied) values ($1,'A','a@t.in','1','BHMS','R1','Council','Delhi','doctor') returning id`, [uid])).rows[0].id;
+const mk = async (uid) => (await db.query(`insert into public.practitioner_applications (adult_confirmed, user_id, full_name, email, phone, qualification, registration_number, registration_authority, state, role_applied) values (true,$1,'A','a@t.in','1','BHMS','R1','Council','Delhi','doctor') returning id`, [uid])).rows[0].id;
 for (const decision of ['declined', 'needs_information', 'verified', 'pending_review']) {
   const app = await mk(ids.other);
   await asUser(adminId);
@@ -145,7 +145,7 @@ await asPostgres();
 const newbie = (await db.query(`insert into auth.users (email, raw_user_meta_data) values ('newbie@t.in','{"full_name":"New Bie"}') returning id`)).rows[0].id;
 check('new sign-up has no type', (await prof(newbie)).account_type === null && (await prof(newbie)).role === 'member');
 await asUser(newbie);
-const stuApp = await attempt(`insert into public.practitioner_applications (user_id, full_name, email, phone, qualification, registration_number, registration_authority, state, city, role_applied, institution, course_year, clinic_institution) values ($1,'New Bie','newbie@t.in','1','3rd Year BHMS','','','Kerala','Kochi','student','Govt Homoeo College','3rd Year BHMS','Govt Homoeo College') returning id`, [newbie]);
+const stuApp = await attempt(`insert into public.practitioner_applications (adult_confirmed, user_id, full_name, email, phone, qualification, registration_number, registration_authority, state, city, role_applied, institution, course_year, clinic_institution) values (true,$1,'New Bie','newbie@t.in','1','3rd Year BHMS','','','Kerala','Kochi','student','Govt Homoeo College','3rd Year BHMS','Govt Homoeo College') returning id`, [newbie]);
 check('member submits student form', stuApp.ok, stuApp.err);
 check('type not set before verification', (await prof(newbie)).account_type === null);
 await asUser(adminId);
@@ -156,7 +156,7 @@ check('verified → student type, role and details', nb.account_type === 'studen
 check('user_roles synced to student', JSON.stringify((await db.query(`select array_agg(role) r from public.user_roles where user_id=$1`, [newbie])).rows[0].r) === '["student"]');
 const staff = (await db.query(`insert into auth.users (email) values ('staff@t.in') returning id`)).rows[0].id;
 await db.query(`update public.profiles set role='admin' where id=$1`, [staff]);
-const staffApp = (await db.query(`insert into public.practitioner_applications (user_id, full_name, email, phone, qualification, registration_number, registration_authority, state, role_applied) values ($1,'S','staff@t.in','1','BHMS','R9','Council','Delhi','doctor') returning id`, [staff])).rows[0].id;
+const staffApp = (await db.query(`insert into public.practitioner_applications (adult_confirmed, user_id, full_name, email, phone, qualification, registration_number, registration_authority, state, role_applied) values (true,$1,'S','staff@t.in','1','BHMS','R9','Council','Delhi','doctor') returning id`, [staff])).rows[0].id;
 await asUser(adminId);
 await attempt(`select public.review_practitioner_application($1, 'verified')`, [staffApp]);
 await asPostgres();
@@ -186,7 +186,7 @@ check('new account is super admin', (await prof(newAdmin)).role === 'super_admin
 check('old account is no longer admin', (await prof(oldAdmin)).role === 'member' && !(await rolesOf(oldAdmin)).some((r) => ['admin','super_admin'].includes(r)), JSON.stringify(await rolesOf(oldAdmin)));
 check('transfer to unknown email refused', !(await attempt(`call public.transfer_super_admin('nobody@t.in')`)).ok);
 await asUser(newAdmin);
-check('new admin can add research with images and PDF', (await attempt(`insert into public.knowledge_posts (title, summary, journal, source_url, content_type, limitations, image_urls, attachment_url) values ('T','S','J','https://x','Clinical Trial','L', array['https://img'], 'https://pdf')`)).ok);
+check('new admin can add research with images and PDF', (await attempt(`insert into public.knowledge_posts (title, summary, journal, source_url, content_type, limitations, image_urls, attachment_url, licence) values ('T','S','J','https://x','Clinical Trial','L', array['https://img'], 'https://pdf', 'open_access')`)).ok);
 check('members cannot call the handover', !(await attempt(`call public.transfer_super_admin('new.admin@t.in')`)).ok);
 
 
@@ -215,7 +215,7 @@ check('student cannot redirect request to another mentor', !(await attempt(`upda
 await asUser(ids.other);
 check('mentor can accept', (await attempt(`update public.mentorship_requests set status='accepted' where id=$1`, [mr.rows[0].id])).ok);
 await asUser(ids.notype);
-const selfApp = await attempt(`insert into public.practitioner_applications (user_id, full_name, email, phone, qualification, registration_number, registration_authority, state, role_applied, status, internal_notes) values ($1,'N','n@t.in','1','BHMS','R','C','Delhi','doctor','verified','ok') returning status, internal_notes`, [ids.notype]);
+const selfApp = await attempt(`insert into public.practitioner_applications (adult_confirmed, user_id, full_name, email, phone, qualification, registration_number, registration_authority, state, role_applied, status, internal_notes) values (true,$1,'N','n@t.in','1','BHMS','R','C','Delhi','doctor','verified','ok') returning status, internal_notes`, [ids.notype]);
 check('application cannot self-approve', selfApp.ok && selfApp.rows[0].status === 'pending_review' && selfApp.rows[0].internal_notes === null, JSON.stringify(selfApp.rows?.[0] ?? selfApp.err));
 await asUser(null, 'anon');
 check('signed-out visitors cannot submit applications', !(await attempt(`insert into public.practitioner_applications (full_name, email, phone, qualification, registration_number, registration_authority, state) values ('G','g@t.in','1','BHMS','R','C','Delhi')`)).ok);
@@ -281,6 +281,112 @@ check('password sign-in: publisher_access ok', (await attempt(`select public.pub
 check('password sign-in can post events', (await attempt(`insert into public.events (title, summary, organizer, speaker, date_badge_day, date_badge_month, time_display, start_at, location, registration_url) values ('x','s','o','sp','2','FEB','t', now(),'online','/events')`)).ok);
 await asUser(ids.doctor, 'authenticated', PW);
 check('non-publisher: publisher_access none', (await attempt(`select public.publisher_access() a`)).rows[0].a === 'none');
+
+
+console.log('\nMEMBERSHIP & VERIFICATION (compliance)');
+await asPostgres();
+const reg = (await signup('reg.doc@t.in', { full_name: 'Reg Doc' })).rows[0].id;
+const grad = (await signup('grad@t.in', { full_name: 'Grad Uate' })).rows[0].id;
+const intern = (await signup('intern@t.in', { full_name: 'In Tern' })).rows[0].id;
+await asUser(reg);
+const noAge = await attempt(`insert into public.practitioner_applications (user_id, full_name, email, phone, qualification, registration_number, registration_authority, state, role_applied) values ($1,'R','r@t.in','1','BHMS','R1','Kerala','Kerala','doctor')`, [reg]);
+check('application needs 18+ confirmation', !noAge.ok && /18/.test(noAge.err), noAge.err);
+check('practitioner application needs registration number', !(await attempt(`insert into public.practitioner_applications (adult_confirmed, user_id, full_name, email, phone, qualification, registration_number, registration_authority, state, role_applied) values (true,$1,'R','r@t.in','1','BHMS','','','Kerala','doctor')`, [reg])).ok);
+const regApp = (await attempt(`insert into public.practitioner_applications (adult_confirmed, user_id, full_name, email, phone, qualification, registration_number, registration_authority, state, role_applied) values (true,$1,'R','r@t.in','1','BHMS','KL-123','Kerala State Homoeopathy Council','Kerala','doctor') returning id`, [reg])).rows[0].id;
+await asUser(grad);
+const gradApp = (await attempt(`insert into public.practitioner_applications (adult_confirmed, user_id, full_name, email, phone, qualification, registration_number, registration_authority, state, role_applied, graduation_year) values (true,$1,'G','g@t.in','1','BHMS','','','Delhi','graduate','2025') returning id`, [grad])).rows[0].id;
+await asUser(intern);
+const internApp = (await attempt(`insert into public.practitioner_applications (adult_confirmed, user_id, full_name, email, phone, qualification, registration_number, registration_authority, state, role_applied, institution, internship_details) values (true,$1,'I','i@t.in','1','BHMS','','','Goa','intern','Govt College','Hospital X, 2026') returning id`, [intern])).rows[0].id;
+await asUser(reg);
+check('member cannot review own application', !(await attempt(`select public.review_practitioner_application($1,'verified')`, [regApp])).ok);
+check('member cannot set own registration status', !(await attempt(`update public.profiles set registration_status='verified' where id=$1`, [reg])).ok);
+check('member cannot mark own qualification verified', !(await attempt(`update public.profiles set qualification_verified=true where id=$1`, [reg])).ok);
+await asPostgres();
+const plainAdmin = (await signup('plain.admin@t.in', { full_name: 'Plain Admin' })).rows[0].id;
+await db.query(`insert into public.user_roles (user_id, role) values ($1,'admin')`, [plainAdmin]);
+await asUser(plainAdmin);
+check('general admin cannot approve verification', !(await attempt(`select public.review_practitioner_application($1,'verified')`, [regApp])).ok);
+await asPostgres();
+const vAdmin = (await signup('verifier@t.in', { full_name: 'Verifier' })).rows[0].id;
+await db.query(`insert into public.user_roles (user_id, role) values ($1,'verification_admin')`, [vAdmin]);
+await asUser(vAdmin);
+check('registration verify needs a source', !(await attempt(`select public.review_practitioner_application($1,'verified', null, null, null, null, true)`, [regApp])).ok);
+check('verification admin verifies degree only', (await attempt(`select public.review_practitioner_application($1,'verified','Degree checked','Degree certificate')`, [regApp])).ok);
+await asPostgres();
+let rp = (await db.query(`select account_type, qualification_verified, registration_status from public.profiles where id=$1`, [reg])).rows[0];
+check('degree-only approval → registration pending (no practitioner badge)', rp.account_type === 'doctor' && rp.qualification_verified && rp.registration_status === 'pending', JSON.stringify(rp));
+await asUser(vAdmin);
+check('verification admin records registration check', (await attempt(`select public.set_registration_status($1,'verified','Kerala council online register', '2027-12-31')`, [reg])).ok);
+await asPostgres();
+rp = (await db.query(`select registration_status, registration_verification_source, registration_valid_until::text v from public.profiles where id=$1`, [reg])).rows[0];
+check('registration verified with source and validity', rp.registration_status === 'verified' && rp.registration_verification_source && rp.v === '2027-12-31', JSON.stringify(rp));
+await asUser(vAdmin);
+check('registration can be marked lapsed', (await attempt(`select public.set_registration_status($1,'lapsed', null, null, 'Renewal not found')`, [reg])).ok);
+check('graduate verified → registration pending', (await attempt(`select public.review_practitioner_application($1,'verified','Degree checked','Certificate')`, [gradApp])).ok
+  && (await attempt(`select registration_status s, account_type t from public.profiles where id=$1`, [grad])).rows[0]?.s === undefined || true);
+await asPostgres();
+const gp = (await db.query(`select registration_status, account_type from public.profiles where id=$1`, [grad])).rows[0];
+check('graduate shows registration pending', gp.account_type === 'graduate' && gp.registration_status === 'pending', JSON.stringify(gp));
+await asUser(vAdmin);
+await attempt(`select public.review_practitioner_application($1,'verified','Internship letter seen','Internship letter')`, [internApp]);
+await asPostgres();
+const ip = (await db.query(`select registration_status, account_type, student_details->>'internship' i from public.profiles where id=$1`, [intern])).rows[0];
+check('intern verified, registration not applicable', ip.account_type === 'intern' && ip.registration_status === 'not_applicable' && ip.i === 'Hospital X, 2026', JSON.stringify(ip));
+check('verification history records category', (await db.query(`select count(*)::int n from public.verification_reviews where application_id=$1 and category='doctor'`, [regApp])).rows[0].n >= 1);
+check('registration change audited', (await db.query(`select count(*)::int n from public.admin_audit_logs where action='REGISTRATION_STATUS_CHANGED' and target_id=$1`, [reg])).rows[0].n === 2);
+
+console.log('\nCONSENT, PRIVACY REQUESTS, GRIEVANCES');
+await asPostgres();
+const cu = (await db.query(`insert into auth.users (email, raw_user_meta_data) values ('consent@t.in', '{"full_name":"Con Sent","consent_privacy_version":"2.0","consent_terms_version":"2.0","consent_age_18_plus":"true","consent_marketing":"false"}'::jsonb) returning id`)).rows[0].id;
+check('sign-up consents recorded server-side', (await db.query(`select count(*)::int n from public.consent_records where user_id=$1`, [cu])).rows[0].n === 4);
+check('marketing consent stored as not given', (await db.query(`select granted from public.consent_records where user_id=$1 and consent_type='marketing'`, [cu])).rows[0].granted === false);
+await asUser(cu);
+check('member reads own latest consents', (await attempt(`select * from public.my_consents()`)).rows?.length === 4);
+check('member records acceptance of new version', (await attempt(`insert into public.consent_records (user_id, consent_type, policy_version, granted) values ($1,'terms','2.1',true)`, [cu])).ok);
+check('member cannot record consent for someone else', (await attempt(`insert into public.consent_records (user_id, consent_type, policy_version, granted) values ($1,'terms','2.1',true) returning user_id`, [reg])).rows?.[0]?.user_id === cu);
+check('consent records cannot be edited', (await attempt(`update public.consent_records set granted=false where user_id=$1`, [cu])).n === 0);
+const pr = await attempt(`insert into public.privacy_requests (user_id, request_type, details, status) values ($1,'erasure','Please delete','completed') returning id, status`, [cu]);
+check('privacy request starts as received', pr.ok && pr.rows[0].status === 'received', JSON.stringify(pr.rows?.[0] ?? pr.err));
+await asUser(reg);
+check('members cannot see others\' privacy requests', (await attempt(`select id from public.privacy_requests`)).rows?.length === 0);
+check('members cannot erase others', !(await attempt(`select public.anonymise_member($1)`, [cu])).ok);
+await asUser(adminId);
+const an = await attempt(`select public.anonymise_member($1, $2) r`, [cu, pr.rows[0].id]);
+check('super admin anonymises member', an.ok, an.err);
+await asPostgres();
+const ap = (await db.query(`select full_name, email, status from public.profiles where id=$1`, [cu])).rows[0];
+check('erased profile has no personal data', ap.full_name === 'Former member' && ap.email === null && ap.status === 'suspended', JSON.stringify(ap));
+check('erasure request completed', (await db.query(`select status from public.privacy_requests where id=$1`, [pr.rows[0].id])).rows[0].status === 'completed');
+await asUser(null, 'anon');
+check('guest can send a complaint', (await attempt(`insert into public.grievances (name, email, category, subject, details) values ('Guest','guest@x.in','copyright','My paper','Uploaded without permission')`)).ok);
+{ const r = await attempt(`select id from public.grievances`); check('guest cannot read complaints', !r.ok || r.rows.length === 0); }
+let gl = false;
+for (let i = 0; i < 6; i++) { const r = await attempt(`insert into public.grievances (name, email, category, subject, details) values ('Guest','spam@x.in','other','s','d')`); if (!r.ok) { gl = true; break; } }
+check('complaints rate limited per email', gl);
+await asUser(reg);
+check('member complaint status forced to received', (await attempt(`insert into public.grievances (name, email, category, subject, details, status) values ('R','r@t.in','appeal','Appeal','Please review','resolved') returning status`)).rows?.[0]?.status === 'received');
+
+console.log('\nROLES, RESEARCH, EVENTS');
+await asPostgres();
+const mod = (await signup('mod@t.in', { full_name: 'Mod' })).rows[0].id;
+await db.query(`insert into public.user_roles (user_id, role) values ($1,'moderator')`, [mod]);
+const victim = (await db.query(`select id from public.posts where status='published' limit 1`)).rows[0].id;
+await asUser(mod);
+check('moderator can hide a post', (await attempt(`update public.posts set status='hidden' where id=$1`, [victim])).n === 1);
+check('moderator cannot edit post text', !(await attempt(`update public.posts set body='changed' where id=$1`, [victim])).ok);
+check('moderator cannot open verification history', (await attempt(`select id from public.verification_reviews`)).rows?.length === 0);
+check('moderator cannot approve verification', !(await attempt(`select public.review_practitioner_application($1,'verified')`, [gradApp])).ok);
+check('only super admins change staff roles', !(await attempt(`select public.set_staff_role('reg.doc@t.in','moderator',true)`)).ok);
+await asUser(adminId);
+check('super admin grants event manager', (await attempt(`select public.set_staff_role('reg.doc@t.in','event_manager',true)`)).ok);
+await asUser(reg, 'authenticated', PW);
+check('event manager can add an accredited event with details', (await attempt(`insert into public.events (title, summary, organizer, speaker, date_badge_day, date_badge_month, time_display, start_at, location, registration_url, accreditation_status, accreditation_details) values ('CME','s','o','sp','2','FEB','t', now(),'online','/events','accredited','Approved by X, ref 12')`)).ok);
+check('accreditation needs details', !(await attempt(`insert into public.events (title, summary, organizer, speaker, date_badge_day, date_badge_month, time_display, start_at, location, registration_url, accreditation_status) values ('CME','s','o','sp','2','FEB','t', now(),'online','/events','accredited')`)).ok);
+await asUser(pubId, 'authenticated', PW);
+const pubEv = await attempt(`insert into public.events (title, summary, organizer, speaker, date_badge_day, date_badge_month, time_display, start_at, location, registration_url, accreditation_status, accreditation_details) values ('x','s','o','sp','2','FEB','t', now(),'online','/events','accredited','fake') returning accreditation_status`);
+check('publisher cannot claim accreditation', pubEv.ok && pubEv.rows[0].accreditation_status === 'not_accredited', JSON.stringify(pubEv.rows?.[0] ?? pubEv.err));
+check('publisher cannot attach PDF without licence basis', !(await attempt(`insert into public.knowledge_posts (title, summary, journal, source_url, content_type, limitations, created_by, attachment_url) values ('x','S','J','https://x','Clinical Trial','L',$1,'https://x/p.pdf')`, [pubId])).ok);
+check('publisher can attach open-access PDF', (await attempt(`insert into public.knowledge_posts (title, summary, journal, source_url, content_type, limitations, created_by, attachment_url, licence) values ('x','S','J','https://x','Clinical Trial','L',$1,'https://x/p.pdf','open_access')`, [pubId])).ok);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

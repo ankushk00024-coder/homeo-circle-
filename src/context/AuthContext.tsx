@@ -297,7 +297,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             clinic_institution: params.clinicInstitution,
             specialization: params.specialization,
             registration_number: params.registrationNumber,
-            registration_authority: params.registrationAuthority
+            registration_authority: params.registrationAuthority,
+            ...(params.consents ? {
+              consent_privacy_version: params.consents.privacyVersion,
+              consent_terms_version: params.consents.termsVersion,
+              consent_age_18_plus: params.consents.age18Plus ? 'true' : 'false',
+              consent_marketing: params.consents.marketing ? 'true' : 'false',
+            } : {})
           }
         }
       });

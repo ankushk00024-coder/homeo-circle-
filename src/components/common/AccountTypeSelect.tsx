@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Stethoscope, GraduationCap, Microscope, Loader2, Check, ArrowRight, Clock } from 'lucide-react';
+import { Stethoscope, GraduationCap, Microscope, Loader2, Check, ArrowRight, Clock, Hospital, Award } from 'lucide-react';
+import { MEMBERSHIP_CATEGORIES } from '../../lib/membership';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../feedback/ToastProvider';
 import { dataService } from '../../lib/supabase';
 import { AccountType, PractitionerApplication } from '../../types';
 
-export const ACCOUNT_TYPE_OPTIONS: { value: AccountType; label: string; hint: string; icon: React.ElementType }[] = [
-  { value: 'doctor', label: 'Doctor / Practitioner', hint: 'BHMS, MD (Hom), DHMS — registered clinicians', icon: Stethoscope },
-  { value: 'student', label: 'Student / Intern', hint: 'BHMS students and clinical interns', icon: GraduationCap },
-];
+const CATEGORY_ICONS: Record<AccountType, React.ElementType> = {
+  doctor: Stethoscope, student: GraduationCap, intern: Hospital, graduate: Award, researcher: Microscope,
+};
+export const ACCOUNT_TYPE_OPTIONS: { value: AccountType; label: string; hint: string; icon: React.ElementType }[] =
+  MEMBERSHIP_CATEGORIES.map((c) => ({ value: c.value, label: c.label, hint: c.who, icon: CATEGORY_ICONS[c.value] }));
 
 const ADMIN_ROLES = ['admin', 'super_admin', 'moderator'];
 const OPEN_STATUSES = ['pending_review', 'submitted', 'needs_information', 'pending'];
 
 /** Current account type of a profile (null = not chosen yet). */
 export const accountTypeOf = (role?: string | null, accountType?: string | null): AccountType | null => {
-  if (accountType === 'doctor' || accountType === 'student' || accountType === 'researcher') return accountType;
-  if (role === 'doctor' || role === 'student' || role === 'researcher') return role;
+  const known = MEMBERSHIP_CATEGORIES.map((c) => c.value) as string[];
+  if (accountType && known.includes(accountType)) return accountType as AccountType;
+  if (role && known.includes(role)) return role as AccountType;
   return null;
 };
 

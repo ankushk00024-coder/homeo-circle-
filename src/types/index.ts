@@ -5,11 +5,16 @@ export type UserRole =
   | 'doctor' 
   | 'student' 
   | 'researcher' 
+  | 'intern'
+  | 'graduate'
   | 'moderator' 
   | 'admin' 
   | 'super_admin';
 
-export type AccountType = 'doctor' | 'student' | 'researcher';
+/** doctor = Registered Practitioner, student = BHMS Student, intern = Intern,
+ *  graduate = Qualified Graduate (registration pending), researcher = Academic member. */
+export type AccountType = 'doctor' | 'student' | 'intern' | 'graduate' | 'researcher';
+export type RegistrationStatus = 'not_applicable' | 'pending' | 'verified' | 'lapsed' | 'expired' | 'rejected';
 
 export type ApplicationStatus = 
   | 'draft' 
@@ -53,6 +58,10 @@ export interface UserProfile {
   phone?: string;
   registration_number?: string;
   registration_authority?: string;
+  qualification_verified?: boolean;
+  registration_status?: RegistrationStatus;
+  registration_verified_at?: string;
+  registration_valid_until?: string;
   state: string;
   city?: string;
   clinic_institution?: string;
@@ -99,7 +108,12 @@ export interface PractitionerApplication {
   full_name: string;
   email: string;
   phone: string;
-  role_applied: AccountType; // 'doctor' | 'student' | 'researcher'
+  role_applied: AccountType;
+  internship_details?: string;
+  graduation_year?: string;
+  registration_status_declared?: string;
+  academic_role?: string;
+  adult_confirmed?: boolean;
   qualification: string;
   registration_number?: string;
   registration_authority?: string;

@@ -28,6 +28,11 @@ export const applicationService = {
       institution: appData.institution,
       course_year: appData.course_year,
       mentorship_needs: appData.mentorship_needs,
+      internship_details: appData.internship_details,
+      graduation_year: appData.graduation_year,
+      registration_status_declared: appData.registration_status_declared,
+      academic_role: appData.academic_role,
+      adult_confirmed: appData.adult_confirmed === true,
       research_interests: appData.research_interests,
       publications: appData.publications,
       consent_at: appData.consent_at || new Date().toISOString(),
@@ -153,41 +158,22 @@ export const applicationService = {
     reviewerName: string,
     decisionReason?: string,
     verificationSource?: string,
-    internalNotes?: string
+    internalNotes?: string,
+    registration?: { verified: boolean; validUntil?: string }
   ): Promise<PractitionerApplication> {
     const client = getRequiredSupabase();
+    void reviewerName; // the database records the signed-in reviewer itself
 
-    // Secure practitioner-review flow routed through protected server-side Edge Function.
-    // If Edge Function is not deployed (returns 404 / NOT_FOUND), fallback to direct DB RPC
-    let edgeSuccess = false;
-    try {
-      const { data: edgeData, error: edgeError } = await client.functions.invoke('review-application', {
-        body: {
-          application_id: appId,
-          new_status: status,
-          decision_reason: decisionReason || null,
-          verification_source: verificationSource || null,
-          internal_notes: internalNotes || null
-        }
-      });
-
-      if (!edgeError && edgeData) {
-        edgeSuccess = true;
-      } else if (edgeError) {
-        console.warn('Edge Function review-application invocation unsuccessful, falling back to direct review_practitioner_application RPC:', edgeError);
-      }
-    } catch (edgeCallErr) {
-      console.warn('Edge Function invocation caught error, attempting DB RPC:', edgeCallErr);
-    }
-
-    if (!edgeSuccess) {
-      // Direct call to stored procedure review_practitioner_application (protected by is_admin())
+    {
+      // The database checks the reviewer is verification staff and records history.
       const { error: rpcError } = await client.rpc('review_practitioner_application', {
         p_application_id: appId,
         p_new_status: status,
         p_decision_reason: decisionReason || null,
         p_verification_source: verificationSource || null,
-        p_internal_notes: internalNotes || null
+        p_internal_notes: internalNotes || null,
+        p_registration_verified: registration?.verified === true,
+        p_registration_valid_until: registration?.validUntil || null
       });
 
       if (rpcError) {

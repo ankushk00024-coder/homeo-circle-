@@ -35,8 +35,11 @@ export const AdminApplications: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Verification decision form state
-  const [verificationSource, setVerificationSource] = useState('NCH Central Register / State Gazette');
-  const [decisionReason, setDecisionReason] = useState('Registration number and degree verified against official council gazette.');
+  const [verificationSource, setVerificationSource] = useState('');
+  const [decisionReason, setDecisionReason] = useState('');
+  // Registration is a separate check from the degree (Registered Practitioner only).
+  const [registrationChecked, setRegistrationChecked] = useState(false);
+  const [registrationValidUntil, setRegistrationValidUntil] = useState('');
   const [internalNotes, setInternalNotes] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -78,11 +81,10 @@ export const AdminApplications: React.FC = () => {
     setSelectedApp(app);
     setInternalNotes('');
     setFeedback(null);
-    if (app.status === 'verified') {
-      setDecisionReason('Credentials confirmed in good standing against statutory register.');
-    } else {
-      setDecisionReason('Registration number and degree verified against official council gazette.');
-    }
+    setDecisionReason('');
+    setVerificationSource('');
+    setRegistrationChecked(false);
+    setRegistrationValidUntil('');
 
     setLoadingReviews(true);
     try {
@@ -103,8 +105,12 @@ export const AdminApplications: React.FC = () => {
     let description = `Are you sure you want to change status to "${status.replace('_', ' ')}"?`;
 
     if (status === 'verified') {
-      title = 'Approve Practitioner Application?';
-      description = `This will officially grant ${selectedApp.full_name} the "Verified Practitioner" credential badge and member directory listing.`;
+      title = 'Approve this membership?';
+      description = selectedApp.role_applied === 'doctor'
+        ? (registrationChecked
+            ? `${selectedApp.full_name} will get the "Verified Registered Practitioner" badge. You confirm the registration was checked against: ${verificationSource || '(no source given)'}.`
+            : `${selectedApp.full_name} will be shown as "Qualification Verified — Registration Pending". Tick "Registration checked" only after checking registration records.`)
+        : `${selectedApp.full_name} will be verified as a ${selectedApp.role_applied} member. This category is never shown as a registered practitioner.`;
     } else if (status === 'declined' || status === 'rejected') {
       title = 'Decline Practitioner Application?';
       description = `The applicant will receive your decision reason. Internal reviewer notes will remain strictly private.`;
@@ -124,6 +130,11 @@ export const AdminApplications: React.FC = () => {
   const executeDecision = async () => {
     if (!selectedApp || !confirmModal) return;
     const targetStatus = confirmModal.status;
+    if (targetStatus === 'verified' && registrationChecked && !verificationSource.trim()) {
+      setConfirmModal(null);
+      setFeedback({ type: 'error', message: 'Enter where you checked the registration (verification source) before recording it as verified.' });
+      return;
+    }
     setConfirmModal(null);
     setIsProcessing(true);
     setFeedback(null);
@@ -136,7 +147,10 @@ export const AdminApplications: React.FC = () => {
         reviewerName,
         decisionReason,
         verificationSource,
-        internalNotes
+        internalNotes,
+        selectedApp.role_applied === 'doctor' && targetStatus === 'verified'
+          ? { verified: registrationChecked, validUntil: registrationValidUntil || undefined }
+          : undefined
       );
 
       setFeedback({
@@ -151,7 +165,7 @@ export const AdminApplications: React.FC = () => {
       setFeedback({
         type: 'error',
         message: `Failed to record decision for ${selectedApp.full_name}.`,
-        details: err?.message || 'Check if Edge Function review-application is deployed and caller holds admin role.'
+        details: err?.message || 'Only super admins and verification admins can review applications.'
       });
     } finally {
       setIsProcessing(false);
@@ -188,7 +202,7 @@ export const AdminApplications: React.FC = () => {
               Practitioner Verification
             </h1>
             <span className="text-[11px] font-semibold text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200">
-              Statutory Gazette Audit
+              Verification queue
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
@@ -440,7 +454,7 @@ export const AdminApplications: React.FC = () => {
               </div>
               <div>
                 <span className="text-slate-400 text-[10px] block font-semibold uppercase">
-                  {selectedApp.role_applied === 'student' ? 'College' : selectedApp.role_applied === 'researcher' ? 'Institution' : 'Clinic / Hospital'}
+                  {selectedApp.role_applied === 'student' || selectedApp.role_applied === 'intern' ? 'College' : selectedApp.role_applied === 'researcher' ? 'Institution' : 'Clinic / Hospital'}
                 </span>
                 <span className="text-slate-700">{selectedApp.clinic_institution || selectedApp.institution || '—'}</span>
               </div>
@@ -450,9 +464,31 @@ export const AdminApplications: React.FC = () => {
               </div>
             </div>
 
-            {selectedApp.role_applied === 'doctor' && !selectedApp.document_url && (
+            {/* Category-specific details submitted by the applicant */}
+            <div className="grid grid-cols-2 gap-3 text-xs p-3 bg-slate-50 rounded-xl border border-slate-200">
+              {selectedApp.role_applied === 'doctor' && (<>
+                <div><span className="text-slate-400 text-[10px] block font-semibold uppercase">Registration number</span><span className="font-mono text-slate-800">{selectedApp.registration_number || '—'}</span></div>
+                <div><span className="text-slate-400 text-[10px] block font-semibold uppercase">Registered with</span><span className="text-slate-800">{selectedApp.registration_authority || '—'}</span></div>
+              </>)}
+              {selectedApp.role_applied === 'graduate' && (<>
+                <div><span className="text-slate-400 text-[10px] block font-semibold uppercase">Year of passing</span><span className="text-slate-800">{selectedApp.graduation_year || '—'}</span></div>
+                <div><span className="text-slate-400 text-[10px] block font-semibold uppercase">Registration status (declared)</span><span className="text-slate-800">{selectedApp.registration_status_declared || '—'}</span></div>
+              </>)}
+              {selectedApp.role_applied === 'student' && (
+                <div><span className="text-slate-400 text-[10px] block font-semibold uppercase">Year of study</span><span className="text-slate-800">{selectedApp.course_year || '—'}</span></div>
+              )}
+              {selectedApp.role_applied === 'intern' && (
+                <div className="col-span-2"><span className="text-slate-400 text-[10px] block font-semibold uppercase">Internship</span><span className="text-slate-800">{selectedApp.internship_details || '—'}</span></div>
+              )}
+              {selectedApp.role_applied === 'researcher' && (
+                <div className="col-span-2"><span className="text-slate-400 text-[10px] block font-semibold uppercase">Academic role</span><span className="text-slate-800">{selectedApp.academic_role || '—'}</span></div>
+              )}
+              <div><span className="text-slate-400 text-[10px] block font-semibold uppercase">18+ confirmed</span><span className="text-slate-800">{selectedApp.adult_confirmed ? 'Yes' : 'Not recorded (older application)'}</span></div>
+            </div>
+
+            {!selectedApp.document_url && (
               <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800">
-                No degree certificate was uploaded with this application.
+                No supporting document was uploaded with this application. Do not verify on a declaration alone.
               </div>
             )}
 
@@ -464,7 +500,7 @@ export const AdminApplications: React.FC = () => {
                     <FileText className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
-                    <span className="font-semibold text-brand-navy block">Degree certificate</span>
+                    <span className="font-semibold text-brand-navy block">Supporting document</span>
                     <span className="text-[10px] text-slate-500 font-mono truncate max-w-sm block">
                       {selectedApp.document_url}
                     </span>
@@ -529,16 +565,34 @@ export const AdminApplications: React.FC = () => {
             <div className="space-y-3 text-xs pt-2 border-t border-slate-100">
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">
-                  Verification Source / Record Consulted *
+                  Verification source / record consulted *
                 </label>
+                <p className="text-[10.5px] text-slate-500 mb-1">Write exactly what you checked (e.g. the council's online register page and date). Do not write a source you did not check.</p>
                 <input
                   type="text"
                   value={verificationSource}
                   onChange={(e) => setVerificationSource(e.target.value)}
-                  placeholder="e.g. Maharashtra Council of Homoeopathy Gazette 2024 / NCH Central Register"
+                  placeholder="e.g. State register website, searched 13 Nov 2026"
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-700/20 focus:border-teal-700"
                 />
               </div>
+
+              {selectedApp.role_applied === 'doctor' && (
+                <div className="p-3 rounded-xl border border-emerald-200 bg-emerald-50/60 space-y-2">
+                  <label className="flex items-start gap-2 cursor-pointer">
+                    <input type="checkbox" checked={registrationChecked} onChange={(e) => setRegistrationChecked(e.target.checked)} className="mt-0.5 rounded text-emerald-600" />
+                    <span className="font-semibold text-emerald-900">Registration checked against registration records
+                      <span className="block font-normal text-emerald-800/80">Tick only if you confirmed this registration number with the registering authority's records. Otherwise the member is shown as "Qualification Verified — Registration Pending".</span>
+                    </span>
+                  </label>
+                  {registrationChecked && (
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">Registration valid until (if shown)</label>
+                      <input type="date" value={registrationValidUntil} onChange={(e) => setRegistrationValidUntil(e.target.value)} className="px-3 py-1.5 border border-slate-200 rounded-lg" />
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">

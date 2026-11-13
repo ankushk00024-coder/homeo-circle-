@@ -1,3 +1,4 @@
+import { CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION } from '../../legal/config';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -41,6 +42,10 @@ export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState(navState?.email || '');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  // Sign-up acknowledgements (marketing is optional and unticked by default)
+  const [ackAge, setAckAge] = useState(false);
+  const [ackPolicies, setAckPolicies] = useState(false);
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -151,12 +156,20 @@ export const LoginPage: React.FC = () => {
       setError('Please enter your full name.');
       return;
     }
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long.');
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long.');
       return;
     }
     if (password !== confirmPassword) {
       setError('Passwords do not match. Please re-enter your password.');
+      return;
+    }
+    if (!ackAge) {
+      setError('Homeo India is open to people aged 18 or over.');
+      return;
+    }
+    if (!ackPolicies) {
+      setError('Please accept the Terms of Use and confirm you have read the Privacy Policy.');
       return;
     }
 
@@ -165,7 +178,8 @@ export const LoginPage: React.FC = () => {
       const result = await signUp({
         email: email.trim(),
         password,
-        fullName: fullName.trim()
+        fullName: fullName.trim(),
+        consents: { privacyVersion: CURRENT_PRIVACY_VERSION, termsVersion: CURRENT_TERMS_VERSION, age18Plus: ackAge, marketing: marketingOptIn }
       });
 
       if (!result.success) {
@@ -520,7 +534,7 @@ export const LoginPage: React.FC = () => {
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
-                    minLength={6}
+                    minLength={8}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
@@ -546,7 +560,7 @@ export const LoginPage: React.FC = () => {
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     required
-                    minLength={6}
+                    minLength={8}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="••••••••••••"
@@ -564,11 +578,20 @@ export const LoginPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="text-[11px] text-slate-500 leading-snug">
-                By joining, you agree to the{' '}
-                <Link to="/terms" className="text-teal-700 hover:underline">Terms of Service</Link>{' '}
-                and{' '}
-                <Link to="/privacy" className="text-teal-700 hover:underline">Privacy Policy</Link>.
+              <div className="space-y-2">
+                <label className="flex items-start gap-2.5 text-[11.5px] text-slate-600 leading-snug cursor-pointer">
+                  <input type="checkbox" checked={ackAge} onChange={(e) => setAckAge(e.target.checked)} className="mt-0.5 rounded text-teal-600" />
+                  <span>I am 18 years of age or older. <span className="text-rose-500">*</span></span>
+                </label>
+                <label className="flex items-start gap-2.5 text-[11.5px] text-slate-600 leading-snug cursor-pointer">
+                  <input type="checkbox" checked={ackPolicies} onChange={(e) => setAckPolicies(e.target.checked)} className="mt-0.5 rounded text-teal-600" />
+                  <span>I accept the <Link to="/terms" className="text-teal-700 hover:underline">Terms of Use</Link> and confirm I have read the <Link to="/privacy" className="text-teal-700 hover:underline">Privacy Policy</Link>. <span className="text-rose-500">*</span></span>
+                </label>
+                <label className="flex items-start gap-2.5 text-[11.5px] text-slate-600 leading-snug cursor-pointer">
+                  <input type="checkbox" checked={marketingOptIn} onChange={(e) => setMarketingOptIn(e.target.checked)} className="mt-0.5 rounded text-teal-600" />
+                  <span>Optional: email me about Homeo India events and updates. You can change this any time.</span>
+                </label>
+                <p className="text-[11px] text-slate-400 leading-snug">If you continue with Google, Google shares your name, email and profile photo with us. See the Privacy Policy.</p>
               </div>
 
               <button
