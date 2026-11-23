@@ -1,0 +1,69 @@
+{
+  "updated": "2026-11-23",
+  "items": [
+    {
+      "q": "What is Homeo India?",
+      "a": "Homeo India (homeoindia.org) is an independent online academic and professional community for homoeopathy in India. It connects registered homoeopathic practitioners, BHMS students, interns, qualified graduates and academics so they can discuss de-identified clinical cases, find mentors, join academic events and share research."
+    },
+    {
+      "q": "Who can join Homeo India?",
+      "a": "Anyone aged 18 or over in one of five categories: Registered Practitioner, BHMS Student, Intern, Qualified Graduate (registration pending) and Academic / Research Member. Each category has its own application form and proof document."
+    },
+    {
+      "q": "Is Homeo India free to join?",
+      "a": "Yes. Creating an account and applying for membership are free. Homeo India does not show advertising."
+    },
+    {
+      "q": "How does Homeo India verify members?",
+      "a": "Members apply in a category and upload proof, such as a registration certificate, a student ID or bonafide certificate, an internship letter or an institution ID. A person on the verification team reviews each application. For Registered Practitioners, the registration number and registering authority are checked against registration records, and the source of that check is recorded."
+    },
+    {
+      "q": "Does a verified badge mean someone is a registered practitioner?",
+      "a": "Only the \"Verified Registered Practitioner\" badge means that. It is shown after a member's professional registration has been checked. Other badges — Student Member, Intern Member, Academic Member and \"Qualification Verified — Registration Pending\" — do not mean the person is registered to practise."
+    },
+    {
+      "q": "Is Homeo India a government body or homoeopathy council?",
+      "a": "No. Homeo India is an independent platform. It is not a government authority, statutory medical council, licensing body or medical registration authority, and membership does not grant any registration or licence to practise."
+    },
+    {
+      "q": "Can BHMS students and interns join Homeo India?",
+      "a": "Yes. BHMS students join as Student Members (college, year of study and a student ID or bonafide certificate) and interns join as Intern Members (internship hospital, period and internship proof). They are never asked to claim that they are registered practitioners."
+    },
+    {
+      "q": "Can patients get medical advice on Homeo India?",
+      "a": "No. Homeo India is a professional and academic community, not a patient consultation service, and it provides no emergency help. Clinical discussions between members are for education only. In an emergency in India, call 112."
+    },
+    {
+      "q": "What are the rules for clinical case discussions?",
+      "a": "Cases must be fully de-identified: no names, contact details, ID numbers, exact dates or identifying photographs. Discussions are educational, students and interns must not give independent clinical advice, and misleading claims such as promised cures are not allowed."
+    },
+    {
+      "q": "Do Homeo India events give CME credits?",
+      "a": "Only when an event page shows a confirmed accreditation with the accrediting body and reference. Otherwise events are academic webinars, workshops and study circles without CME credits, and attending an event does not create any registration or licensing rights."
+    },
+    {
+      "q": "What is in the Homeo India Research Library?",
+      "a": "Summaries of homoeopathy research with citations — authors, journal or source, publication date and a link or DOI. Full-text PDFs are shared only when they are open access, shared with permission or the contributor's own work. Items are not endorsed or clinically validated by Homeo India."
+    },
+    {
+      "q": "How does Homeo India protect personal data and documents?",
+      "a": "Traffic is encrypted with HTTPS, database rules limit what each account can see, and verification documents are kept in private storage that only the member and the verification team can open. Mobile numbers and email addresses are not shown to other members. Details are in the Privacy Policy."
+    },
+    {
+      "q": "How do I delete my Homeo India account?",
+      "a": "Signed-in members go to Edit Profile → Privacy & your data and choose \"Delete my account and data\". The team then erases or anonymises the data, except records the law requires to be kept, and confirms when it is done."
+    },
+    {
+      "q": "How do I report a post or make a complaint?",
+      "a": "Use the Report button on any post, comment or profile, or the Contact & complaints form at homeoindia.org/contact. The form also handles privacy questions, copyright takedown notices and appeals."
+    },
+    {
+      "q": "Can I sign in to Homeo India with Google?",
+      "a": "Yes. You can create an account with an email and password or with \"Continue with Google\"."
+    },
+    {
+      "q": "What is the minimum age to join Homeo India?",
+      "a": "18 years. Everyone confirms their age when creating an account and when applying for membership."
+    }
+  ]
+}

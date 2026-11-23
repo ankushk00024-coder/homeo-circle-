@@ -6,18 +6,29 @@
   "ogImage": "/images/og-image.jpg",
   "ogImageWidth": 1200,
   "ogImageHeight": 630,
-  "keywords": "homeopathy India, homoeopathy, homeopathic doctors India, BHMS students, MD Homeopathy, homeopathy community, homoeopathic practitioners, homeopathy CME, homeopathy research, Homeo India",
+  "keywords": "homeopathy India, homoeopathy, homeopathic doctors India, BHMS students, MD Homeopathy, homeopathy community, homoeopathic practitioners, homeopathy webinars, homeopathy research, Homeo India",
   "organization": {
     "description": "Homeo India is an independent academic and professional community connecting homoeopathic practitioners, students, interns and researchers across India.",
     "email": "",
     "areaServed": "IN",
-    "sameAs": []
+    "sameAs": [],
+    "knowsAbout": [
+      "Homoeopathy",
+      "BHMS education",
+      "Homoeopathic clinical case discussion",
+      "Homoeopathy research",
+      "Professional networking for homoeopaths in India"
+    ],
+    "alternateName": [
+      "HomeoIndia",
+      "Homeo India Community"
+    ]
   },
   "pages": [
     {
       "path": "/",
-      "title": "Homeo India — India's Community for Homeopathic Doctors & BHMS Students",
-      "description": "An independent academic and professional community connecting homoeopathic practitioners, students, interns and researchers across India. Discuss cases, find mentors, join webinars and share research.",
+      "title": "Homeo India — Community for Homoeopaths & BHMS Students in India",
+      "description": "Independent community for homoeopathic practitioners, BHMS students, interns and researchers in India. Discuss cases, find mentors and share research.",
       "changefreq": "daily",
       "priority": 1.0,
       "h1": "Every homeopath needs a home.",
@@ -45,7 +56,9 @@
           "/legal",
           "Legal & Policies"
         ]
-      ]
+      ],
+      "updated": "2026-11-23",
+      "label": "Homeo India — home"
     },
     {
       "path": "/about",
@@ -71,8 +84,13 @@
         [
           "/apply",
           "Join Homeo India"
+        ],
+        [
+          "/faq",
+          "FAQ"
         ]
-      ]
+      ],
+      "updated": "2026-11-23"
     },
     {
       "path": "/eligibility",
@@ -93,8 +111,13 @@
         [
           "/verification-policy",
           "Verification Policy"
+        ],
+        [
+          "/faq",
+          "FAQ"
         ]
-      ]
+      ],
+      "updated": "2026-11-23"
     },
     {
       "path": "/apply",
@@ -104,7 +127,8 @@
       "priority": 0.8,
       "h1": "Join Homeo India",
       "content": [
-        "Choose your membership category, fill a short form and upload the proof it needs. Our team reviews every application."
+        "Choose your membership category — Registered Practitioner, BHMS Student, Intern, Qualified Graduate or Academic / Research Member — fill a short form and upload the proof it needs. A person reviews every application.",
+        "Membership is free and open to people aged 18 or over."
       ],
       "links": [
         [
@@ -114,8 +138,13 @@
         [
           "/eligibility",
           "Who can join"
+        ],
+        [
+          "/faq",
+          "FAQ"
         ]
-      ]
+      ],
+      "updated": "2026-11-23"
     },
     {
       "path": "/community-rules",
@@ -125,13 +154,24 @@
       "priority": 0.4,
       "h1": "Community Guidelines",
       "content": [
-        "Be respectful, keep patient details private and share knowledge responsibly."
+        "Be respectful, honest about qualifications, and protect patient privacy.",
+        "Not allowed: harassment, impersonation, fake qualifications, fabricated research, copyright infringement, spam, patient-identifiable information and misleading clinical claims.",
+        "Moderators can remove content, warn, suspend or close accounts; members can appeal."
       ],
       "links": [
         [
           "/about",
           "About Homeo India"
+        ],
+        [
+          "/faq",
+          "FAQ"
         ]
+      ],
+      "updated": "2026-11-13",
+      "parent": [
+        "/legal",
+        "Legal & Policies"
       ]
     },
     {
@@ -140,32 +180,55 @@
       "description": "What personal data Homeo India collects, why, who processes it, how long it is kept and how to exercise your rights.",
       "changefreq": "yearly",
       "priority": 0.3,
-      "h1": "Privacy policy",
+      "h1": "Privacy Policy",
       "content": [
-        "How Homeo India collects, uses and protects your personal information."
+        "Homeo India collects account details (name, email, photo), contact and location (mobile, city, state), academic and professional details, verification documents, the content members post, consent records and technical security logs.",
+        "Data is used for accounts, verification, community features, safety, support and legal obligations. It is not sold and there are no advertising or analytics trackers.",
+        "Processors: Supabase (database, sign-in, storage, sign-in emails), Vercel (hosting) and Google (optional Google sign-in, fonts).",
+        "Verification documents are private to the member and the verification team. Members can request access, correction, erasure, consent withdrawal or nomination from Edit Profile."
       ],
       "links": [
         [
           "/terms",
           "Terms of service"
+        ],
+        [
+          "/faq",
+          "FAQ"
         ]
+      ],
+      "updated": "2026-11-13",
+      "parent": [
+        "/legal",
+        "Legal & Policies"
       ]
     },
     {
       "path": "/terms",
       "title": "Terms of Use | Homeo India",
-      "description": "The terms that apply when you use Homeo India, the community for homeopathic doctors and students in India.",
+      "description": "The Terms of Use for Homeo India, an independent community for homoeopathic practitioners, students, interns, graduates and academics in India.",
       "changefreq": "yearly",
       "priority": 0.3,
       "h1": "Terms of Use",
       "content": [
-        "The terms that apply when you use Homeo India."
+        "Homeo India is an independent platform, not a government authority, statutory council, licensing body or registration authority.",
+        "Members must be 18 or over and belong to one of five categories; students, interns, graduates and academics are never required to claim registration.",
+        "Clinical discussions are educational; patient-identifiable information is prohibited; Indian law governs the Terms."
       ],
       "links": [
         [
           "/privacy",
           "Privacy policy"
+        ],
+        [
+          "/faq",
+          "FAQ"
         ]
+      ],
+      "updated": "2026-11-13",
+      "parent": [
+        "/legal",
+        "Legal & Policies"
       ]
     },
     {
@@ -176,14 +239,19 @@
       "priority": 0.3,
       "h1": "Sign in to Homeo India",
       "content": [
-        "Sign in with your email or Google account."
+        "Sign in to Homeo India with your email and password or with Google."
       ],
       "links": [
         [
           "/apply",
           "Create an account"
+        ],
+        [
+          "/faq",
+          "FAQ"
         ]
-      ]
+      ],
+      "updated": "2026-11-13"
     },
     {
       "path": "/legal",
@@ -193,14 +261,19 @@
       "priority": 0.3,
       "h1": "Legal & Policies",
       "content": [
-        "All Homeo India policies: privacy, terms, community guidelines, verification, copyright, clinical disclaimer, complaints and cookies."
+        "Privacy Policy, Terms of Use, Community Guidelines, Verification Policy, Copyright Policy, Clinical Discussion Disclaimer, Grievance & Complaint Policy and Cookie & Storage Policy, each with a version and effective date."
       ],
       "links": [
         [
           "/legal",
           "Legal & Policies"
+        ],
+        [
+          "/faq",
+          "FAQ"
         ]
-      ]
+      ],
+      "updated": "2026-11-13"
     },
     {
       "path": "/verification-policy",
@@ -210,13 +283,24 @@
       "priority": 0.3,
       "h1": "Verification Policy",
       "content": [
-        "How Homeo India verifies each membership category and what each badge means."
+        "A verified degree is not a verified professional registration.",
+        "Only members whose registration has been checked against registration records receive the Verified Registered Practitioner badge.",
+        "Statuses: pending, additional information required, approved, rejected, registration lapsed or expired, re-verification."
       ],
       "links": [
         [
           "/legal",
           "Legal & Policies"
+        ],
+        [
+          "/faq",
+          "FAQ"
         ]
+      ],
+      "updated": "2026-11-13",
+      "parent": [
+        "/legal",
+        "Legal & Policies"
       ]
     },
     {
@@ -227,13 +311,23 @@
       "priority": 0.3,
       "h1": "Copyright Policy",
       "content": [
-        "What may be shared in the Homeo India Research Library and how to report copyright infringement."
+        "Members may share citations, their own summaries, open-access full texts, texts shared with permission and their own work.",
+        "Copyright owners can send a takedown notice through the Contact & complaints form."
       ],
       "links": [
         [
           "/legal",
           "Legal & Policies"
+        ],
+        [
+          "/faq",
+          "FAQ"
         ]
+      ],
+      "updated": "2026-11-13",
+      "parent": [
+        "/legal",
+        "Legal & Policies"
       ]
     },
     {
@@ -244,13 +338,23 @@
       "priority": 0.3,
       "h1": "Clinical Discussion Disclaimer",
       "content": [
-        "Clinical discussions on Homeo India are educational only. No consultations and no emergency help."
+        "Clinical discussions on Homeo India are for education between members and are not medical advice.",
+        "Homeo India is not a consultation service and gives no emergency help (call 112 in India)."
       ],
       "links": [
         [
           "/legal",
           "Legal & Policies"
+        ],
+        [
+          "/faq",
+          "FAQ"
         ]
+      ],
+      "updated": "2026-11-13",
+      "parent": [
+        "/legal",
+        "Legal & Policies"
       ]
     },
     {
@@ -261,13 +365,23 @@
       "priority": 0.3,
       "h1": "Grievance & Complaint Policy",
       "content": [
-        "How to raise a complaint, privacy request, copyright notice or appeal with Homeo India."
+        "Complaints, privacy requests, copyright notices and appeals are raised through the Contact & complaints form.",
+        "Each complaint is recorded, acknowledged, investigated and answered, with an appeal route."
       ],
       "links": [
         [
           "/legal",
           "Legal & Policies"
+        ],
+        [
+          "/faq",
+          "FAQ"
         ]
+      ],
+      "updated": "2026-11-13",
+      "parent": [
+        "/legal",
+        "Legal & Policies"
       ]
     },
     {
@@ -278,13 +392,23 @@
       "priority": 0.3,
       "h1": "Cookie & Storage Policy",
       "content": [
-        "Homeo India uses no tracking cookies — only the storage needed to keep you signed in."
+        "Homeo India uses no advertising, tracking or analytics cookies.",
+        "Only browser storage needed to keep members signed in is used."
       ],
       "links": [
         [
           "/legal",
           "Legal & Policies"
+        ],
+        [
+          "/faq",
+          "FAQ"
         ]
+      ],
+      "updated": "2026-11-13",
+      "parent": [
+        "/legal",
+        "Legal & Policies"
       ]
     },
     {
@@ -295,14 +419,47 @@
       "priority": 0.3,
       "h1": "Contact & complaints",
       "content": [
-        "Contact Homeo India about complaints, privacy, copyright or appeals."
+        "Use the form for complaints, privacy questions, copyright takedown notices, verification disputes and appeals. Guests and members can both use it."
       ],
       "links": [
         [
           "/legal",
           "Legal & Policies"
+        ],
+        [
+          "/faq",
+          "FAQ"
         ]
-      ]
+      ],
+      "updated": "2026-11-13"
+    },
+    {
+      "path": "/faq",
+      "title": "Homeo India FAQ — Membership, Verification & Privacy",
+      "description": "Answers about Homeo India: who can join, verification, whether it is free, CME credits, clinical discussion rules, privacy and deleting your account.",
+      "changefreq": "monthly",
+      "priority": 0.7,
+      "h1": "Frequently asked questions",
+      "content": [],
+      "links": [
+        [
+          "/eligibility",
+          "Who can join"
+        ],
+        [
+          "/verification-policy",
+          "Verification Policy"
+        ],
+        [
+          "/privacy",
+          "Privacy Policy"
+        ],
+        [
+          "/contact",
+          "Contact & complaints"
+        ]
+      ],
+      "updated": "2026-11-23"
     }
   ],
   "privatePaths": [
@@ -317,6 +474,8 @@
     "/knowledge",
     "/opportunities",
     "/application-status",
-    "/reset-password"
-  ]
+    "/reset-password",
+    "/publish"
+  ],
+  "indexNowKey": "65eb4d04d73ea71ef4b4ac9f761047bb"
 }

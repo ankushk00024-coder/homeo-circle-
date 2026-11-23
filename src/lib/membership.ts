@@ -1,4 +1,5 @@
 import type { AccountType, RegistrationStatus } from '../types';
+import membershipData from '../seo/membership.json';
 
 /**
  * One place for membership categories, badges and verification wording, so
@@ -20,48 +21,7 @@ export interface MembershipCategory {
   badge: string;
 }
 
-export const MEMBERSHIP_CATEGORIES: MembershipCategory[] = [
-  {
-    value: 'doctor',
-    label: 'Registered Practitioner',
-    short: 'Practitioner',
-    who: 'Homoeopathic practitioners registered with a State or Central register.',
-    needs: ['Recognised qualification', 'Registration number', 'Registering council / authority', 'Registration or degree certificate'],
-    badge: 'Verified Registered Practitioner',
-  },
-  {
-    value: 'student',
-    label: 'BHMS Student',
-    short: 'Student',
-    who: 'Students currently enrolled in a BHMS course.',
-    needs: ['College name', 'Current year of study', 'Student ID card or bonafide certificate'],
-    badge: 'Student Member',
-  },
-  {
-    value: 'intern',
-    label: 'Intern',
-    short: 'Intern',
-    who: 'BHMS graduates doing their compulsory rotatory internship.',
-    needs: ['College and internship hospital', 'Internship period', 'Internship letter or proof'],
-    badge: 'Intern Member',
-  },
-  {
-    value: 'graduate',
-    label: 'Qualified Graduate',
-    short: 'Graduate',
-    who: 'Homoeopathy graduates whose professional registration is not yet complete.',
-    needs: ['Degree and year of passing', 'Degree certificate', 'Current registration status'],
-    badge: 'Qualification Verified — Registration Pending',
-  },
-  {
-    value: 'researcher',
-    label: 'Academic / Research Member',
-    short: 'Academic',
-    who: 'Teachers, researchers and academics working in homoeopathy.',
-    needs: ['Institution', 'Academic or research role', 'Supporting credentials'],
-    badge: 'Academic Member',
-  },
-];
+export const MEMBERSHIP_CATEGORIES: MembershipCategory[] = membershipData.categories as MembershipCategory[];
 
 export const categoryOf = (type?: string | null): MembershipCategory | undefined =>
   MEMBERSHIP_CATEGORIES.find((c) => c.value === type);

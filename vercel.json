@@ -58,7 +58,119 @@
       "destination": "/contact/index.html"
     },
     {
-      "source": "/(.*)",
+      "source": "/faq",
+      "destination": "/faq/index.html"
+    },
+    {
+      "source": "/community",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/community/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/members",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/members/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/students",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/students/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/events",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/events/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/knowledge",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/knowledge/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/opportunities",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/opportunities/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/dashboard/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/profile",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/profile/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/settings",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/settings/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/publish",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/publish/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/application-status",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/application-status/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/reset-password",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/reset-password/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/explore",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/explore/:path*",
       "destination": "/index.html"
     }
   ],
@@ -82,7 +194,7 @@
       ]
     },
     {
-      "source": "/(sitemap.xml|robots.txt)",
+      "source": "/(sitemap.xml|robots.txt|llms.txt|llms-full.txt)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -129,6 +241,34 @@
         {
           "key": "X-Robots-Tag",
           "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/(llms.txt|llms-full.txt)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.homeoindia.org"
+        }
+      ],
+      "headers": [
+        {
+          "key": "Link",
+          "value": "<https://www.homeoindia.org/llms.txt>; rel=\"alternate\"; type=\"text/plain\"; title=\"llms.txt\""
         }
       ]
     }

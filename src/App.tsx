@@ -28,6 +28,7 @@ const CopyrightPolicyPage = lazy(() => import('./pages/legal/OtherPoliciesPages'
 const ClinicalDisclaimerPage = lazy(() => import('./pages/legal/OtherPoliciesPages').then((m) => ({ default: m.ClinicalDisclaimerPage })));
 const GrievancePolicyPage = lazy(() => import('./pages/legal/OtherPoliciesPages').then((m) => ({ default: m.GrievancePolicyPage })));
 const CookiePolicyPage = lazy(() => import('./pages/legal/OtherPoliciesPages').then((m) => ({ default: m.CookiePolicyPage })));
+const FaqPage = lazy(() => import('./pages/public/FaqPage').then((m) => ({ default: m.FaqPage })));
 const LegalHubPage = lazy(() => import('./pages/legal/LegalHubPage').then((m) => ({ default: m.LegalHubPage })));
 const ContactPage = lazy(() => import('./pages/legal/ContactPage').then((m) => ({ default: m.ContactPage })));
 const ApplyPage = lazy(() => import('./pages/public/ApplyPage').then((m) => ({ default: m.ApplyPage })));
@@ -183,6 +184,7 @@ export function App() {
             <Route path="/grievance-policy" element={<GrievancePolicyPage />} />
             <Route path="/cookies" element={<CookiePolicyPage />} />
             <Route path="/legal" element={<LegalHubPage />} />
+            <Route path="/faq" element={<FaqPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/apply" element={<ApplyPage />} />
             <Route path="/application-status" element={<ApplicationStatusPage />} />

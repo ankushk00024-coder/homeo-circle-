@@ -15,6 +15,7 @@ export const Footer: React.FC = () => {
     { label: 'Our Mission', path: '/about' },
     { label: 'How Verification Works', path: '/verification-policy' },
     { label: 'Eligibility', path: '/eligibility' },
+    { label: 'FAQ', path: '/faq' },
     { label: 'Contact', path: '/contact' },
   ];
 
